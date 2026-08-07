@@ -1,19 +1,19 @@
 {
-  "savedAt": "2026-08-07T12:10:55.276Z",
+  "savedAt": "2026-08-07T12:20:15.603Z",
   "counts": {
     "ghostTokensNoFallback": 0,
-    "ghostTokensWithFallback": 5,
-    "hardcodedHex": 25,
-    "hardcodedRgba": 23,
+    "ghostTokensWithFallback": 0,
+    "hardcodedHex": 0,
+    "hardcodedRgba": 0,
     "functionalEmoji": 2,
-    "outlineNone": 5,
+    "outlineNone": 0,
     "kiconAdoption": {
       "count": 39,
       "total": 82
     },
     "sizeTokenAdoption": 34,
-    "missingStates": 5,
-    "unusedTokens": 27,
+    "missingStates": 2,
+    "unusedTokens": 0,
     "tsEmoji": 0,
     "sfcScriptEmoji": 0
   }
