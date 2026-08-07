@@ -317,8 +317,8 @@ function onResetPassword(): void {
 .pfs-summary {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
+  gap: var(--km-space-md);
+ padding: var(--km-space-md);
   border: 1px solid var(--km-border);
   border-radius: 10px;
   background: var(--km-panel);
@@ -333,7 +333,7 @@ function onResetPassword(): void {
   justify-content: center;
   background: var(--km-bg);
   border: 1px solid var(--km-border);
-  font-size: 16px;
+  font-size: var(--km-font-lg);
   font-weight: 700;
   flex-shrink: 0;
 }
@@ -345,27 +345,27 @@ function onResetPassword(): void {
 .pfs-summary-name {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 14px;
+  gap: var(--km-space-6);
+  font-size: var(--km-font-base);
   font-weight: 600;
 }
 
 .pfs-summary-sub {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.55;
-  margin-top: 2px;
+  margin-top: var(--km-space-2xs);
 }
 
 .pfs-block {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-top: 14px;
+  gap: var(--km-space-md);
+  padding-top: var(--km-space-14);
   border-top: 1px solid var(--km-border);
 }
 
 .pfs-block-title {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
 }
 
@@ -376,7 +376,7 @@ function onResetPassword(): void {
 }
 
 .pfs-label {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   font-weight: 500;
   opacity: 0.8;
 }
@@ -386,7 +386,7 @@ function onResetPassword(): void {
 }
 
 .pfs-hint {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.55;
   line-height: 1.7;
 }
@@ -396,7 +396,7 @@ function onResetPassword(): void {
 }
 
 .pfs-error {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   color: var(--km-danger, #e88);
 }
 </style>
