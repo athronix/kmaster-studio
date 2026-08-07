@@ -314,7 +314,7 @@ watch(
                 :class="{ 'km-filter-on': sl.filterActive.value }"
                 @click="filterOpen = !filterOpen"
               >
-                <template #icon>🔽</template>
+                <template #icon><KIcon name="ChevronDown" :size="16" /></template>
               </n-button>
             </template>
             <div class="km-filter-panel">
@@ -508,10 +508,10 @@ watch(
             </div>
             <div class="km-session-actions" @click.stop>
               <button title="置顶" @click="store.togglePin(s.id)"><KIcon name="Pinned" :size="14" /></button>
-              <button title="导出" @click="sl.doExport(s)">📥</button>
+              <button title="导出" @click="sl.doExport(s)"><KIcon name="Download" :size="14" /></button>
               <n-popconfirm @positive-click="sl.remove(s)">
                 <template #trigger>
-                  <button title="删除" class="danger">🗑</button>
+                  <button title="删除" class="danger"><KIcon name="Trash" :size="14" /></button>
                 </template>
                 确认删除会话「{{ s.title || '新会话' }}」？
               </n-popconfirm>
@@ -552,7 +552,7 @@ watch(
                 <button title="置顶" @click="store.togglePin(s.id)"><KIcon name="Pinned" :size="14" /></button>
                 <n-popconfirm @positive-click="sl.remove(s)">
                   <template #trigger>
-                    <button title="删除" class="danger">🗑</button>
+                    <button title="删除" class="danger"><KIcon name="Trash" :size="14" /></button>
                   </template>
                   确认删除会话「{{ s.title }}」？
                 </n-popconfirm>
@@ -575,7 +575,7 @@ watch(
                 <span
                   class="km-agent-dot"
                   :style="{ color: job.enabled ? 'var(--km-success)' : 'var(--km-muted)' }"
-                >{{ job.enabled ? '◉' : '○' }}</span>
+                ><KIcon :name="job.enabled ? 'CircleDot' : 'Circle'" :size="12" /></span>
                 {{ job.name }}
               </div>
               <div v-if="job.next_run_at" class="km-session-sub">
@@ -610,7 +610,7 @@ watch(
           :title="theme.isDark.value ? '切换亮色模式' : '切换暗色模式'"
           @click="theme.toggle()"
         >
-          <template #icon>{{ theme.isDark.value ? '🌙' : '☀️' }}</template>
+          <template #icon><KIcon :name="theme.isDark.value ? 'Moon' : 'Sun'" :size="16" /></template>
         </n-button>
       </div>
     </template>
@@ -624,17 +624,17 @@ watch(
         @click.stop
       >
         <button class="km-cm-item" @click="sl.onMenuAction('rename', sl.contextMenu.value!.session)">
-          ✎ 重命名
+          <KIcon name="Pencil" :size="14" /> 重命名
         </button>
         <button class="km-cm-item" @click="sl.onMenuAction('export', sl.contextMenu.value!.session)">
-          📥 导出 Markdown
+          <KIcon name="Download" :size="14" /> 导出 Markdown
         </button>
         <button class="km-cm-item" @click="sl.onMenuAction('bind-workspace', sl.contextMenu.value!.session)">
-          📁 绑定工作区
+          <KIcon name="Folder" :size="14" /> 绑定工作区
         </button>
         <n-popconfirm @positive-click="sl.remove(sl.contextMenu.value!.session); sl.closeMenu()">
           <template #trigger>
-            <button class="km-cm-item km-cm-danger">🗑 删除</button>
+            <button class="km-cm-item km-cm-danger"><KIcon name="Trash" :size="14" /> 删除</button>
           </template>
           确认删除会话「{{ sl.contextMenu.value!.session.title || '新会话' }}」？
         </n-popconfirm>
