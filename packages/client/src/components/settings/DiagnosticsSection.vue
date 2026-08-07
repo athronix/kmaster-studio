@@ -161,16 +161,16 @@ async function copyDiagnostics(): Promise<void> {
 </template>
 
 <style scoped>
-.diag-body { display: flex; flex-direction: column; gap: 12px; }
-.diag-toolbar { display: flex; gap: 8px; }
-.diag-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.diag-body { display: flex; flex-direction: column; gap: var(--km-space-md); }
+.diag-toolbar { display: flex; gap: var(--km-space-sm); }
+.diag-table { width: 100%; border-collapse: collapse; font-size: var(--km-font-sm); }
 .diag-table td {
   padding: 7px 10px;
   border-bottom: 1px solid var(--km-border);
   vertical-align: middle;
 }
-.diag-key { width: 220px; opacity: 0.65; font-size: 12px; }
+.diag-key { width: 220px; opacity: 0.65; font-size: var(--km-font-sm); }
 .diag-val code { font-family: var(--km-mono, ui-monospace, monospace); word-break: break-all; }
-.diag-hint { font-size: 11px; opacity: 0.6; }
+.diag-hint { font-size: var(--km-font-xs); opacity: 0.6; }
 .diag-hint code { font-family: var(--km-mono, ui-monospace, monospace); }
 </style>
