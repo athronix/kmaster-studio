@@ -89,10 +89,10 @@ function isActive(agentId: string): boolean {
 
 .km-agent-tabbar-scroll {
   display: flex;
-  gap: 4px;
+  gap: var(--km-space-xs);
   flex-wrap: nowrap;
   overflow-x: auto;
-  padding: 6px 12px;
+  padding: var(--km-space-6) var(--km-space-md);
   scrollbar-width: thin;
   scrollbar-color: var(--km-border) transparent;
 }
@@ -113,10 +113,10 @@ function isActive(agentId: string): boolean {
 .km-agent-tab {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--km-space-xs);
   cursor: pointer;
-  font-size: 12px;
-  padding: 2px 8px;
+  font-size: var(--km-font-sm);
+  padding: var(--km-space-2xs) var(--km-space-sm);
   border-radius: 999px;
   border: 1px solid transparent;
   transition: border-color 0.12s ease, background 0.12s ease;
@@ -148,11 +148,11 @@ function isActive(agentId: string): boolean {
 }
 
 .km-agent-tab-close {
-  margin-left: 2px;
+  margin-left: var(--km-space-2xs);
   opacity: 0.6;
-  font-size: 14px;
+  font-size: var(--km-font-base);
   line-height: 1;
-  padding: 0 2px;
+  padding: 0 var(--km-space-2xs);
   min-width: auto;
   height: auto;
 }
