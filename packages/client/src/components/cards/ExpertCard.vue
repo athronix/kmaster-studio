@@ -178,21 +178,21 @@ function onDelete(e: MouseEvent): void {
 
 .km-expert-name {
   text-align: center;
-  font-size: 14px;
+  font-size: var(--km-font-base);
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0 8px;
+  padding: 0 var(--km-space-sm);
   max-width: 100%;
 }
 
 .km-expert-job {
-  margin-top: 4px;
+  margin-top: var(--km-space-xs);
 }
 
 .km-expert-desc {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   line-height: 1.5;
   text-align: center;
   padding: 6px 8px;
