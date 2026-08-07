@@ -14,6 +14,7 @@
  */
 import { computed } from 'vue';
 import { NDropdown, NPopconfirm, NTooltip } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { timeAgo } from '../../utils/time';
 import { SESSION_ROW_STATE, type SessionRowState } from '../../constants/sidebar';
 import { useI18n } from '../../composables/useI18n';
@@ -186,7 +187,7 @@ function onDragEnd(): void {
 
       <n-popconfirm @positive-click="emit('archive', session.id)">
         <template #trigger>
-          <button class="km-icon-btn" :aria-label="t('sidebar.action.archive')">📦</button>
+          <button class="km-icon-btn" :aria-label="t('sidebar.action.archive')"><KIcon name="Archive" :size="16" /></button>
         </template>
         {{ t('sidebar.confirm.archive') }}
       </n-popconfirm>
