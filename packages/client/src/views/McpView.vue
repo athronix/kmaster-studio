@@ -18,7 +18,7 @@ function mapDeployedMcp(s: McpServer): ResourceItem {
   return {
     id: `mcp-${s.name}`,
     name: s.name,
-    icon: '🔌',
+    icon: 'PlugConnected',
     description: s.command ?? '',
     tags: [],
     category: '',

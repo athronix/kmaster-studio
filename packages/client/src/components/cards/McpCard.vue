@@ -99,7 +99,7 @@ function onDelete(e: MouseEvent): void {
 
     <!-- 图标 -->
     <div class="km-mcp-icon">
-      <span class="km-mcp-icon-text">{{ mcp.icon || '🔌' }}</span>
+      <span class="km-mcp-icon-text">{{ mcp.icon || 'PlugConnected' }}</span>
     </div>
 
     <!-- 名称 -->

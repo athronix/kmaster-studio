@@ -185,7 +185,7 @@ function mapAgentEntry(entry: { id: string; name: string; prompt: string; specia
   return {
     id: entry.id,
     name: entry.name,
-    icon: '🤖',
+    icon: 'Robot',
     description: entry.prompt?.slice(0, 120) ?? '',
     tags: entry.specialties ?? [],
     category: '',
@@ -238,7 +238,7 @@ function mapInstalledSkill(s: { name: string; description?: string; category?: s
   return {
     id: `skill-${s.name}`,
     name: s.name,
-    icon: '🧩',
+    icon: 'Puzzle',
     description: s.description ?? '',
     tags: s.category ? [s.category] : [],
     category: s.category ?? '',
@@ -288,7 +288,7 @@ function mapDeployedMcp(s: McpServer): ResourceItem {
   return {
     id: `mcp-${s.name}`,
     name: s.name,
-    icon: '🔌',
+    icon: 'PlugConnected',
     description: s.command ?? '',
     tags: [],
     category: '',

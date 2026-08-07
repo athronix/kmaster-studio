@@ -88,7 +88,7 @@ function onClose(): void {
 
       <template v-else>
         <div class="km-md-head">
-          <span class="km-md-icon">{{ entity.icon || '🧑‍💼' }}</span>
+          <span class="km-md-icon">{{ entity.icon || 'User' }}</span>
           <div class="km-md-name">
             {{ entity.name }}
             <n-tag v-if="isTeam" size="tiny" :bordered="false" type="info">专家团</n-tag>

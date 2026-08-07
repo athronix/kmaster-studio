@@ -86,7 +86,7 @@ function onAction(e: MouseEvent): void {
 
     <!-- 图标 -->
     <div class="km-entity-card-icon">
-      <span class="km-entity-card-icon-text">{{ entity.icon || '📦' }}</span>
+      <span class="km-entity-card-icon-text">{{ entity.icon || 'Package' }}</span>
     </div>
 
     <!-- 名称 -->

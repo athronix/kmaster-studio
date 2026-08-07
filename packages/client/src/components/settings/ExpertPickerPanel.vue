@@ -135,7 +135,7 @@ function subtitleOf(entity: EntityDef): string {
         :class="{ added: isAdded(entity) }"
         @click="onInspect(entity)"
       >
-        <div class="epp-icon">{{ entity.icon || '🧑‍💼' }}</div>
+        <div class="epp-icon">{{ entity.icon || 'User' }}</div>
         <div class="epp-info">
           <div class="epp-name">
             {{ entity.name }}

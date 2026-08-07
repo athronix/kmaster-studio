@@ -11,6 +11,7 @@
  */
 import { computed, onMounted, ref } from 'vue';
 import { NInput, NButton, NSelect, NSpin, NTag, NEmpty, NPopconfirm, useMessage } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { getModels, getProviders, putProvider, type ModelsResponse } from '../../api/client';
 import { useChatStore } from '../../stores/chat';
 import type { ProviderGroup, ProviderInfo } from '../../types/chat';
@@ -209,8 +210,8 @@ async function onDefaultModelChange(value: string | null): Promise<void> {
             </td>
             <td>
               <n-tag v-if="!pv.keyEnv" size="small" :bordered="false">无需配置</n-tag>
-              <n-tag v-else-if="pv.configured" size="small" type="success" :bordered="false">● 已配置</n-tag>
-              <n-tag v-else size="small" :bordered="false">○ 未配置</n-tag>
+              <n-tag v-else-if="pv.configured" size="small" type="success" :bordered="false">已配置</n-tag>
+              <n-tag v-else size="small" :bordered="false">未配置</n-tag>
             </td>
             <td class="prov-ops">
               <template v-if="editingSlug === pv.slug">
@@ -263,7 +264,7 @@ async function onDefaultModelChange(value: string | null): Promise<void> {
       </div>
 
       <div class="prov-warn">
-        ⚠️ API Key 仅写入不回显，保存后经 <code>hermes config set</code> 落到 hermes 的 .env（保留原有注释与其余键）。
+        <KIcon name="AlertTriangle" :size="14" /> API Key 仅写入不回显，保存后经 <code>hermes config set</code> 落到 hermes 的 .env（保留原有注释与其余键）。
       </div>
     </div>
   </n-spin>

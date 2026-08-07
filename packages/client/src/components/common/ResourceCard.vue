@@ -20,7 +20,7 @@ const props = withDefaults(
     actionLabel?: string;
   }>(),
   {
-    fallbackIcon: '🤖',
+    fallbackIcon: 'Robot',
     actionLabel: '',
   }
 );

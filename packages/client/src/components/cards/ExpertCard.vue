@@ -97,7 +97,7 @@ function onDelete(e: MouseEvent): void {
 
     <!-- 头像图标 -->
     <div class="km-expert-icon">
-      <span class="km-expert-icon-text">{{ expert.icon || '🤖' }}</span>
+      <span class="km-expert-icon-text">{{ expert.icon || 'Robot' }}</span>
     </div>
 
     <!-- 名称 -->

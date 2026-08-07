@@ -16,7 +16,7 @@ function mapAgentEntry(entry: AgentEntry): ResourceItem {
   return {
     id: entry.id,
     name: entry.name,
-    icon: '🤖',
+    icon: 'Robot',
     description: entry.prompt?.slice(0, 120) ?? '',
     tags: entry.specialties ?? [],
     category: '',

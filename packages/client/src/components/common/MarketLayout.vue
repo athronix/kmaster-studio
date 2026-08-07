@@ -12,6 +12,7 @@
  *   ④ handleCardClick emit card-click
  */
 import { computed, onMounted, onUnmounted } from 'vue';
+import KIcon from './KIcon.vue';
 import {
   NInput,
   NButton,
@@ -49,12 +50,12 @@ const { install, uninstall, summon, isInstalling } = useInstall(props.config.ent
 // ═══════════════════ 图标 fallback ═══════════════════
 
 const FALLBACK_ICONS: Record<string, string> = {
-  expert: '🤖',
-  skill: '🧩',
-  mcp: '🔌',
+  expert: 'Robot',
+  skill: 'Puzzle',
+  mcp: 'PlugConnected',
 };
 
-const fallbackIcon = computed(() => FALLBACK_ICONS[props.config.entityType] || '📦');
+const fallbackIcon = computed(() => FALLBACK_ICONS[props.config.entityType] || 'Package');
 
 // ═══════════════════ 排序 ═══════════════════
 
@@ -210,7 +211,7 @@ function onSearchInput(value: string): void {
         class="ml-search"
         @update:value="onSearchInput"
       >
-        <template #prefix>🔍</template>
+        <template #prefix><KIcon name="Search" :size="16" /></template>
       </NInput>
     </div>
 
@@ -234,7 +235,7 @@ function onSearchInput(value: string): void {
           v-if="config.showFeatured && marketState.featuredItems.value.length"
           class="ml-section"
         >
-          <h3 class="ml-section-title">✨ 精选推荐</h3>
+          <h3 class="ml-section-title"><KIcon name="Sparkles" :size="16" /> 精选推荐</h3>
           <NScrollbar x-scrollable trigger="none">
             <div class="ml-hscroll-row">
               <ResourceCard

@@ -91,7 +91,7 @@ const headline = computed<string>(() =>
 function emptyForm() {
   return {
     name: '',
-    avatar: '🤖',
+    avatar: 'Robot',
     desc: '',
     specialties: [] as string[],
     agentMd: '',
@@ -157,7 +157,7 @@ async function onSave(): Promise<void> {
   try {
     const patch: Partial<AgentRole> = {
       name: form.value.name.trim(),
-      avatar: form.value.avatar.trim() === '' ? '🤖' : form.value.avatar.trim(),
+      avatar: form.value.avatar.trim() === '' ? 'Robot' : form.value.avatar.trim(),
       desc: form.value.desc.trim(),
       specialties: [...form.value.specialties],
       agentMd: form.value.agentMd,
@@ -211,7 +211,7 @@ function generateAgentMd(): void {
 
     <template v-else>
       <div class="ard-head">
-        <span class="ard-avatar">{{ form.avatar || '🤖' }}</span>
+        <span class="ard-avatar">{{ form.avatar || 'Robot' }}</span>
         <div class="ard-headline">{{ headline }}</div>
         <n-tag v-if="current" size="tiny" :bordered="false" :type="sourceTagType(current.source)">
           {{ sourceTagLabel(current.source) }}
@@ -234,8 +234,8 @@ function generateAgentMd(): void {
         <!-- 头像 -->
         <div class="ard-row">
           <div class="ard-label">头像 Emoji</div>
-          <n-input v-model:value="form.avatar" placeholder="🤖" maxlength="4" style="max-width: 120px" />
-          <div class="ard-hint">单个 Emoji 或 1–4 个字符，用于列表与下拉的视觉标识</div>
+          <n-input v-model:value="form.avatar" placeholder="Robot" maxlength="32" style="max-width: 180px" />
+          <div class="ard-hint">KIcon 图标名（如 Robot/Brain/Puzzle），用于列表与下拉的视觉标识</div>
         </div>
 
         <!-- ② 简介 -->

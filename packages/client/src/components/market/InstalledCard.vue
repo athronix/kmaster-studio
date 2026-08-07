@@ -49,7 +49,7 @@ function onAction(): void {
 <template>
   <n-card size="small" hoverable class="km-installed-card" @click="onClick">
     <div class="km-installed-body">
-      <span class="km-installed-icon">{{ entity.icon || '📦' }}</span>
+      <span class="km-installed-icon">{{ entity.icon || 'Package' }}</span>
       <div class="km-installed-info">
         <n-text strong class="km-installed-name" tag="div">{{ entity.name }}</n-text>
         <n-text depth="3" class="km-installed-desc" tag="div">{{ entity.description }}</n-text>

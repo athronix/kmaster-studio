@@ -15,7 +15,7 @@ withDefaults(
     /** 类别图标 */
     icon?: string;
   }>(),
-  { label: '该模块', icon: '🧰' }
+  { label: '该模块', icon: 'Package' }
 );
 
 const router = useRouter();

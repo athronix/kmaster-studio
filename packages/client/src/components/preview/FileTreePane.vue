@@ -8,6 +8,7 @@
  * 递归渲染通过自引用实现（Vue 3.3+），节点渲染委托给 FileTreeNode。
  */
 import { computed, ref, h, defineComponent, type Component, type PropType, type VNode } from 'vue';
+import KIcon from '../common/KIcon.vue';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 类型定义
@@ -48,14 +49,14 @@ const FileTreeNode: Component = defineComponent({
       if (node.isDir) {
         // 箭头 + 图标 + 名称
         liChildren.push(
-          h('span', { class: 'km-ft-arrow' }, node.collapsed ? '▶' : '▼'),
-          h('span', { class: 'km-ft-icon' }, node.collapsed ? '📁' : '📂'),
+          h('span', { class: 'km-ft-arrow' }, h(KIcon, { name: node.collapsed ? 'ChevronRight' : 'ChevronDown', size: 12 })),
+          h('span', { class: 'km-ft-icon' }, h(KIcon, { name: node.collapsed ? 'Folder' : 'FolderOpen', size: 14 })),
           h('span', { class: 'km-ft-name' }, node.name),
         );
       } else {
         liChildren.push(
           h('span', { class: 'km-ft-arrow' }),
-          h('span', { class: 'km-ft-icon' }, '📄'),
+          h('span', { class: 'km-ft-icon' }, h(KIcon, { name: 'File', size: 14 })),
           h('span', { class: 'km-ft-name' }, node.name),
         );
       }

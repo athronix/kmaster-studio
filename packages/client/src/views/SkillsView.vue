@@ -18,7 +18,7 @@ function mapInstalledSkill(s: ChatSkill): ResourceItem {
   return {
     id: `skill-${s.name}`,
     name: s.name,
-    icon: '🧩',
+    icon: 'Puzzle',
     description: s.description ?? '',
     tags: s.category ? [s.category] : [],
     category: s.category ?? '',

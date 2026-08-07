@@ -11,7 +11,7 @@ const md = new MarkdownIt({
   linkify: true,
   highlight: (str, lang) => {
     const langLabel = lang ? `<span class="km-code-lang">${escapeHtml(lang)}</span>` : '';
-    const copyBtn = '<button class="km-code-copy" title="复制代码">📋</button>';
+    const copyBtn = '<button class="km-code-copy" title="复制代码">Copy</button>';
     if (lang && hljs.getLanguage(lang)) {
       try {
         return (
@@ -50,12 +50,12 @@ function handleCodeCopy(e: Event) {
       btn.textContent = '✓';
       btn.classList.add('km-code-copied');
       setTimeout(() => {
-        btn.textContent = '📋';
+        btn.textContent = 'Copy';
         btn.classList.remove('km-code-copied');
       }, 1500);
     }).catch(() => {
-      btn.textContent = '⚠';
-      setTimeout(() => { btn.textContent = '📋'; }, 1500);
+      btn.textContent = '!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
     });
   }
 }

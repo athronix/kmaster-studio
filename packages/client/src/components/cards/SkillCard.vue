@@ -76,7 +76,7 @@ function onUninstall(e: MouseEvent): void {
 
     <!-- 图标 -->
     <div class="km-skill-icon">
-      <span class="km-skill-icon-text">{{ skill.icon || '🛠️' }}</span>
+      <span class="km-skill-icon-text">{{ skill.icon || 'Tool' }}</span>
     </div>
 
     <!-- 名称 + 版本 -->

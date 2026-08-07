@@ -8,6 +8,7 @@
  */
 import { ref } from 'vue';
 import { NButton, NTag, NText, NCode, NCard, NModal, NSpace, useMessage } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import SchemaDialog from '../dialog/SchemaDialog.vue';
 import type { McpServer, ToolSchema, ResourceSchema, PromptSchema } from '../../types/market';
 
@@ -173,7 +174,7 @@ function copyJson(): void {
           class="km-schema-card"
           @click="onSchemaClick('Tool', ts)"
         >
-          <div class="km-schema-name">🔧 {{ ts.name }}</div>
+          <div class="km-schema-name"><KIcon name="Tool" :size="14" /> {{ ts.name }}</div>
           <div class="km-schema-desc">{{ ts.description }}</div>
         </n-card>
         <n-card
@@ -184,7 +185,7 @@ function copyJson(): void {
           class="km-schema-card"
           @click="onSchemaClick('Resource', rs)"
         >
-          <div class="km-schema-name">📦 {{ rs.name }}</div>
+          <div class="km-schema-name"><KIcon name="Package" :size="14" /> {{ rs.name }}</div>
           <div class="km-schema-desc">{{ rs.description }}</div>
         </n-card>
         <n-card
@@ -195,7 +196,7 @@ function copyJson(): void {
           class="km-schema-card"
           @click="onSchemaClick('Prompt', ps)"
         >
-          <div class="km-schema-name">💬 {{ ps.name }}</div>
+          <div class="km-schema-name"><KIcon name="MessageCircle" :size="14" /> {{ ps.name }}</div>
           <div class="km-schema-desc">{{ ps.description }}</div>
         </n-card>
         <n-text v-if="!mcp.toolSchemas?.length && !mcp.resourceSchemas?.length && !mcp.promptSchemas?.length" depth="3">暂无 Schema 定义</n-text>

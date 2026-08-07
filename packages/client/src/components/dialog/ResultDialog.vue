@@ -57,10 +57,10 @@ const emit = defineEmits<{
 
 /** 各 variant 的图标 / 标题兜底 / 主色。 */
 const VARIANT_META: Record<ResultVariant, { icon: string; title: string; color: string }> = {
-  success: { icon: '✅', title: '操作成功', color: 'var(--km-success)' },
-  error: { icon: '⛔', title: '操作失败', color: 'var(--km-danger)' },
-  warning: { icon: '⚠️', title: '请注意', color: 'var(--km-warning)' },
-  info: { icon: 'ℹ️', title: '提示', color: 'var(--km-accent)' },
+  success: { icon: 'CircleCheck', title: '操作成功', color: 'var(--km-success)' },
+  error: { icon: 'CircleX', title: '操作失败', color: 'var(--km-danger)' },
+  warning: { icon: 'AlertTriangle', title: '请注意', color: 'var(--km-warning)' },
+  info: { icon: 'InfoCircle', title: '提示', color: 'var(--km-accent)' },
 };
 
 const meta = computed(() => VARIANT_META[props.variant]);

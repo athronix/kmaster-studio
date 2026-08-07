@@ -47,22 +47,22 @@ function formatPercent(v: number): string {
 
     <!-- 资源用量 -->
     <div class="km-monitor-grid">
-      <n-card size="small" title="🧠 Agents">
+      <n-card size="small" title="Agents">
         <n-statistic label="活跃" :value="stats.agents" />
       </n-card>
-      <n-card size="small" title="🧪 Models">
+      <n-card size="small" title="Models">
         <n-statistic label="已加载" :value="stats.models" />
       </n-card>
-      <n-card size="small" title="🧩 Skills">
+      <n-card size="small" title="Skills">
         <n-statistic label="已安装" :value="stats.skills" />
       </n-card>
-      <n-card size="small" title="🔧 MCP Tools">
+      <n-card size="small" title="MCP Tools">
         <n-statistic label="可用" :value="stats.mcpTools" />
       </n-card>
-      <n-card size="small" title="📡 Channels">
+      <n-card size="small" title="Channels">
         <n-statistic label="活跃" :value="stats.channels" />
       </n-card>
-      <n-card size="small" title="💬 Sessions">
+      <n-card size="small" title="Sessions">
         <n-statistic label="当前" :value="stats.sessions" />
       </n-card>
     </div>
