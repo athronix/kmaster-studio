@@ -184,7 +184,7 @@ async function onRemove(server: McpServer): Promise<void> {
 .mcm {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--km-space-md);
   min-height: 480px;
 }
 
@@ -195,42 +195,42 @@ async function onRemove(server: McpServer): Promise<void> {
 }
 
 .mcm-title {
-  font-size: 14px;
+  font-size: var(--km-font-base);
   font-weight: 600;
 }
 
 .mcm-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 10px;
-  padding-top: 8px;
+  gap: var(--km-space-10);
+  padding-top: var(--km-space-sm);
 }
 
 .mcm-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px;
+  gap: var(--km-space-sm);
+ padding: var(--km-space-md);
   border: 1px solid var(--km-border);
-  border-radius: 8px;
+  border-radius: var(--km-radius-lg);
   background: var(--km-panel);
 }
 
 .mcm-card-head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .mcm-card-icon {
-  font-size: 18px;
+  font-size: var(--km-font-xl);
   flex-shrink: 0;
 }
 
 .mcm-card-name {
   flex: 1;
   min-width: 0;
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -240,11 +240,11 @@ async function onRemove(server: McpServer): Promise<void> {
 .mcm-card-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 
 .mcm-card-desc {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   line-height: 1.5;
   opacity: 0.7;
   display: -webkit-box;
@@ -255,10 +255,10 @@ async function onRemove(server: McpServer): Promise<void> {
 }
 
 .mcm-card-row {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 
 .mcm-label {
@@ -268,13 +268,13 @@ async function onRemove(server: McpServer): Promise<void> {
 
 .mcm-card-row code {
   font-family: var(--km-mono, ui-monospace, monospace);
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.75;
 }
 
 .mcm-card-ops {
   display: flex;
   justify-content: flex-end;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 </style>
