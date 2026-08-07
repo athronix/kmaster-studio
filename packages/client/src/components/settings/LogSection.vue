@@ -267,17 +267,17 @@ function kindLabel(kind: LogKind): string {
 .lgs {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--km-space-10);
 }
 
 .lgs-title {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
 }
 
 .lgs-dir {
   display: flex;
-  gap: 8px;
+  gap: var(--km-space-sm);
   align-items: center;
   max-width: 720px;
 }
@@ -285,7 +285,7 @@ function kindLabel(kind: LogKind): string {
 .lgs-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--km-space-sm);
   align-items: center;
 }
 
@@ -296,8 +296,8 @@ function kindLabel(kind: LogKind): string {
 .lgs-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11px;
+  gap: var(--km-space-sm);
+  font-size: var(--km-font-xs);
   opacity: 0.6;
   flex-wrap: wrap;
 }
@@ -313,22 +313,22 @@ function kindLabel(kind: LogKind): string {
 .lgs-list {
   overflow-y: auto;
   border: 1px solid var(--km-border);
-  border-radius: 8px;
+  border-radius: var(--km-radius-lg);
   background: var(--km-panel);
 }
 
 .lgs-empty {
-  padding: 32px 0;
+  padding: var(--km-space-3xl) 0;
 }
 
 .lgs-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
+  gap: var(--km-space-sm);
+  padding: var(--km-space-6) var(--km-space-10);
   border-bottom: 1px solid var(--km-border);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   transition: background 0.12s ease;
 }
 
