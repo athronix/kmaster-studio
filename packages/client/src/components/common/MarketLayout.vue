@@ -411,7 +411,7 @@ function onSearchInput(value: string): void {
 }
 
 .ml-toolbar {
-  padding: 12px 20px 8px;
+  padding: var(--km-space-md) var(--km-space-xl) var(--km-space-sm);
 }
 
 .ml-search {
@@ -422,35 +422,35 @@ function onSearchInput(value: string): void {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  padding: 0 20px 20px;
+  padding: 0 var(--km-space-xl) var(--km-space-xl);
 }
 
 .ml-error {
-  padding: 20px 0;
+  padding: var(--km-space-xl) 0;
   text-align: center;
 }
 
 /* 区域 */
 .ml-section {
-  margin-bottom: 20px;
+  margin-bottom: var(--km-space-xl);
 }
 
 .ml-section-title {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   opacity: 0.6;
-  margin: 0 0 10px;
+  margin: 0 0 var(--km-space-10);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 
 .ml-count {
   display: inline-block;
-  padding: 0 6px;
-  border-radius: 8px;
+  padding: 0 var(--km-space-6);
+  border-radius: var(--km-radius-lg);
   background: var(--km-bg, #f0f0f0);
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   font-weight: 600;
   opacity: 0.8;
 }
@@ -458,8 +458,8 @@ function onSearchInput(value: string): void {
 /* 横向滚动行 */
 .ml-hscroll-row {
   display: flex;
-  gap: 12px;
-  padding-bottom: 4px;
+  gap: var(--km-space-md);
+  padding-bottom: var(--km-space-xs);
 }
 
 /* T02：分类标签 + 排序合并一行 */
@@ -467,23 +467,24 @@ function onSearchInput(value: string): void {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: var(--km-space-sm);
 }
 
 /* 大分类标签 */
 .ml-primary-tabs {
   display: flex;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 /* 领域分类行 */
 .ml-category-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: var(--km-space-6);
+  margin-bottom: var(--km-space-10);
   align-items: center;
 }
+
 
 .ml-chip {
   cursor: pointer;
@@ -503,29 +504,29 @@ function onSearchInput(value: string): void {
 .ml-popover-cats {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--km-space-6);
   max-width: 220px;
-  padding: 8px;
+ padding: var(--km-space-sm);
 }
 
 /* T02：CSS Grid 替代 flex-wrap */
 .ml-card-grid {
   display: grid;
   grid-template-columns: repeat(var(--km-grid-cols, 5), 1fr);
-  gap: 12px;
+  gap: var(--km-space-md);
 }
 
 /* 骨架屏网格 */
 .km-skel-grid {
   display: grid;
   grid-template-columns: repeat(var(--km-grid-cols, 5), 1fr);
-  gap: 12px;
+  gap: var(--km-space-md);
 }
 
 /* 空状态 */
 .ml-empty {
   display: block;
-  padding: 20px 0;
+  padding: var(--km-space-xl) 0;
   text-align: center;
 }
 
@@ -533,6 +534,6 @@ function onSearchInput(value: string): void {
 .ml-pagination {
   display: flex;
   justify-content: center;
-  padding: 16px 0 8px;
+  padding: var(--km-space-lg) 0 var(--km-space-sm);
 }
 </style>
