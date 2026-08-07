@@ -1,0 +1,453 @@
+npm notice run kmaster-studio@0.0.0 npx
+npm notice run vitest run --reporter=verbose
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mD:/Users/towyq/Documents/Projects/kmaster-studio/packages/client[39m
+
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — F15 自动化任务（AC3）[2m > [22mload 填充 jobs 并统计启用数量
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — F15 自动化任务（AC3）[2m > [22mcreate 新建任务后列表可见（POST /api/jobs → 返回全量 jobs）
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — F15 自动化任务（AC3）[2m > [22medit 修改名称与表达式并同步到 store
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — F15 自动化任务（AC3）[2m > [22mtoggle 启停映射到 enabled 补丁（后端转 pause/resume）
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — F15 自动化任务（AC3）[2m > [22mtrigger 返回 202 语义 ack，同步调度器状态并刷新历史
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — F15 自动化任务（AC3）[2m > [22mtrigger 在调度器运行时同步 scheduler_running=true
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — F15 自动化任务（AC3）[2m > [22mloadHistory 支持按 job_id / limit 过滤并复位 loading
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — F15 自动化任务（AC3）[2m > [22mremove 删除任务后本地列表同步移除
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — F15 自动化任务（AC3）[2m > [22mloadSchedulerStatus 失败时兜底为未运行并记录原因（O-2）
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — F15 自动化任务（AC3）[2m > [22mload 失败时记录 error 并复位 loading
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — B13 运行数据与成功率[2m > [22misSuccessStatus：ok / success 同义，大小写不敏感
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — B13 运行数据与成功率[2m > [22m成功率算法：3 成功 / 1 失败 = 75
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — B13 运行数据与成功率[2m > [22m成功率四舍五入到整数（2/3 → 67）
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — B13 运行数据与成功率[2m > [22m全成功 = 100，全失败 = 0
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — B13 运行数据与成功率[2m > [22m空运行记录 → 返回 -1（哨兵值，前端不渲染徽标）
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — B13 运行数据与成功率[2m > [22m从未加载过的 job → 同样返回 -1，不抛错
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — B13 运行数据与成功率[2m > [22mloadRunsFor 按 job_id 拉取并写入 runsByJob，复位 loading
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — B13 运行数据与成功率[2m > [22mloadRunsFor 命中缓存时不重复请求；force=true 强制重拉
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — B13 运行数据与成功率[2m > [22m并发 loadRunsFor 共享同一 promise，只发一次请求
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — B13 运行数据与成功率[2m > [22mloadRunsFor 失败时记录 runsError 且不写缓存（下次可重试）
+ [32m✓[39m src/stores/jobs.test.ts[2m > [22mjobs store — B13 运行数据与成功率[2m > [22mremove 删除任务时连带清理运行缓存
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22m初始值取自 LAYOUT_LIMITS 默认值
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22msetLeftWidth / setRightWidth 越界时夹取到边界
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22msetLeftWidth 传非法值回落到最小宽度
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22mtoggleRight 折叠时强制退出全屏
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22m右栏无内容时 toggleFullscreen 为 no-op
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22msetRightPanelVisible(false) 会重置全屏
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22mnavMode / settingsCategory 由 currentPath 派生
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22menterSettings 记住首页路由，exitSettings 原路返回
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22menterSettings 优先回到上次停留的设置类别
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22mcssVars 折叠后轨道归零
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22mcssVars 全屏时右栏吃满 100%
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22mautoCollapseRight 在主体过窄时收起右栏
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22mpersist / hydrate 往返一致
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22mhydrate 遇到脏数据时夹取回合法区间
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22m无 localStorage 时 persist/hydrate 静默不抛错
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22mresetWidths 恢复默认
+ [32m✓[39m src/stores/layout.test.ts[2m > [22mstores/layout[2m > [22msetResizing 切换拖拽标记
+ [32m✓[39m src/test/no-mock-guard.spec.ts[2m > [22mno-mock-guard[2m > [22mMOCK_EXPERTS/MOCK_TEAMS/MOCK_SKILLS/MOCK_MCPS are not importable from market.ts
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22m初始为空
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22madd 补齐 id / 时间戳 / 默认头像（async）
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22mselectOptions 带头像前缀，过滤 disabled
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22mupdate 只改指定字段并刷新 updatedAt，createdAt 不变
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22mupdate 不存在的 id 返回 null 且不新建
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22mremove 返回是否命中（async）
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22mQ3：addRoleIfAbsent 按 id 幂等
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22mQ3：addRoleIfAbsent 按名称去重（忽略大小写与空白）
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22maddRoleIfAbsent 对全新角色执行新建
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22mfromMarketExpert 转换专家：不落库，字段完整映射
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22mfromMarketExpert 转换专家团：expertise 取 skillDesc
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22m市场草稿经 add 后进入列表
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22mbuiltin 角色不可删除，可禁用
+ [32m✓[39m src/stores/agentRoles.test.ts[2m > [22mstores/agentRoles[2m > [22mclear 清空非内置角色
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 9 个档位边界[2m > [22m① 0 秒 → 刚刚
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 9 个档位边界[2m > [22m② 59 秒 → 刚刚（仍在 <60s 档）
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 9 个档位边界[2m > [22m③ 60 秒 → 1 分钟前（跨档）
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 9 个档位边界[2m > [22m④ 59 分钟 → 59 分钟前
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 9 个档位边界[2m > [22m⑤ 60 分钟 → 1 小时前（跨档）
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 9 个档位边界[2m > [22m⑥ 23 小时 → 23 小时前
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 9 个档位边界[2m > [22m⑦ 24 小时 → 1 天前（跨档）
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 9 个档位边界[2m > [22m⑧ 6 天 → 6 天前
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 9 个档位边界[2m > [22m⑨ 7 天 → 绝对日期 YYYY-MM-DD（跨档）
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 绝对格式与跨年[2m > [22m跨年时间显示 YYYY-MM-DD，年份正确回退
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 绝对格式与跨年[2m > [22m月/日补零到两位
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 未来时间分支（F25：CronJob.next_run_at）[2m > [22m30 秒后 → 即将
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 未来时间分支（F25：CronJob.next_run_at）[2m > [22m5 分钟后 → 5 分钟后
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 未来时间分支（F25：CronJob.next_run_at）[2m > [22m2 小时后 → 2 小时后
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 未来时间分支（F25：CronJob.next_run_at）[2m > [22m3 天后 → 3 天后
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo —— 未来时间分支（F25：CronJob.next_run_at）[2m > [22m10 天后 → 绝对日期（超 7 天不再用相对文案）
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo / toTimestamp —— 入参类型兼容（F27 + U6）[2m > [22m接受 number 毫秒时间戳（Session.updated_at）
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo / toTimestamp —— 入参类型兼容（F27 + U6）[2m > [22m接受 "YYYY-MM-DD HH:mm:ss" 本地串（CronRun.run_time），按本地时区解析
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo / toTimestamp —— 入参类型兼容（F27 + U6）[2m > [22m接受 ISO 串
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo / toTimestamp —— 入参类型兼容（F27 + U6）[2m > [22m接受纯数字字符串
+ [32m✓[39m src/utils/time.test.ts[2m > [22mtimeAgo / toTimestamp —— 入参类型兼容（F27 + U6）[2m > [22mnull / undefined / 空串 / 乱码 → 返回 —
+ [32m✓[39m src/utils/time.test.ts[2m > [22mformatDate / formatDateTime[2m > [22mformatDate 输出 YYYY-MM-DD
+ [32m✓[39m src/utils/time.test.ts[2m > [22mformatDate / formatDateTime[2m > [22mformatDateTime 输出 YYYY-MM-DD HH:mm:ss 且补零
+ [32m✓[39m src/utils/time.test.ts[2m > [22mformatDate / formatDateTime[2m > [22m无法解析返回 —
+ [32m✓[39m src/utils/time.test.ts[2m > [22mformatDuration —— 四档 + 缺失语义[2m > [22m<1 秒 → <1秒
+ [32m✓[39m src/utils/time.test.ts[2m > [22mformatDuration —— 四档 + 缺失语义[2m > [22m秒级 → N秒
+ [32m✓[39m src/utils/time.test.ts[2m > [22mformatDuration —— 四档 + 缺失语义[2m > [22m分级 → N分M秒
+ [32m✓[39m src/utils/time.test.ts[2m > [22mformatDuration —— 四档 + 缺失语义[2m > [22m小时级 → N小时M分
+ [32m✓[39m src/utils/time.test.ts[2m > [22mformatDuration —— 四档 + 缺失语义[2m > [22mundefined / null / 负数 / NaN → —（§7.1：后端省略 key 时的收敛）
+ [32m✓[39m src/utils/time.test.ts[2m > [22misWithinHours —— Recent 并集第 ③ 步[2m > [22m窗口内返回 true（含边界）
+ [32m✓[39m src/utils/time.test.ts[2m > [22misWithinHours —— Recent 并集第 ③ 步[2m > [22m窗口外返回 false
+ [32m✓[39m src/utils/time.test.ts[2m > [22misWithinHours —— Recent 并集第 ③ 步[2m > [22m未来时间视为窗口内
+ [32m✓[39m src/utils/time.test.ts[2m > [22misWithinHours —— Recent 并集第 ③ 步[2m > [22m无法解析 / 非法小时数 → false
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mrun.started 进入 running，run.completed 回到 idle
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mmessage.delta 多次累加进同一条 assistant 消息
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mreasoning.delta 折叠进 reasoning 字段
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mtool.started + tool.completed 生成 done 工具卡（带结果）
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mtool.failed 标记 error 状态
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mguidance 的 message.delta 作为用户消息追加（steer 场景）
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22musage.updated 记录到 usageBySession
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mapproval 请求/解决 生命周期
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mclarify 请求/解决 生命周期
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mabort 状态机：aborting → idle
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22msession.title.updated 更新 sessions 列表标题
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22m缺少 session_id 的事件被忽略（守卫）
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mplan 请求/解决 生命周期
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22martifact.created 入栈并在 updated 时按 id 替换
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mdeleteSession 本地移除并清空消息
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store reducer — 消息流聚合[2m > [22mrenameSession 本地更新标题
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M3 — 管理面（模式/模型/技能/MCP/上传/设置）[2m > [22msetMode / setModel 更新每会话覆盖
+ [31m×[39m src/stores/chat.test.ts[2m > [22mchat store M3 — 管理面（模式/模型/技能/MCP/上传/设置）[2m > [22mloadModels / loadSkills 填充枚举
+[31m   → Cannot read properties of undefined (reading 'length')[39m
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M3 — 管理面（模式/模型/技能/MCP/上传/设置）[2m > [22mloadMcp / addMcp 维护 mcpServers
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M3 — 管理面（模式/模型/技能/MCP/上传/设置）[2m > [22muploadFile 推入待发送附件并生成 @引用路径
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M3 — 管理面（模式/模型/技能/MCP/上传/设置）[2m > [22msendMessage 携带 mode/model 并在末尾拼接 @引用（F8/F19）
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M3 — 管理面（模式/模型/技能/MCP/上传/设置）[2m > [22mglobalSettings 读写（GET/PUT /api/settings）
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M3 — 管理面（模式/模型/技能/MCP/上传/设置）[2m > [22minvokeSkill 注入 /skill 触发语（零协议改动）
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M4 — F17 队列 reducer（AC5）[2m > [22mrun.queued 追加排队项并按 position 升序排列
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M4 — F17 队列 reducer（AC5）[2m > [22mrun.queued 同 id 幂等更新（不增重复项）
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M4 — F17 队列 reducer（AC5）[2m > [22mqueue.updated 用完整列表覆盖并按 position 排序
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M4 — F17 队列 reducer（AC5）[2m > [22mqueue.updated 空数组清空该会话队列
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M4 — F17 队列 reducer（AC5）[2m > [22m多会话队列独立归组，queuedTotal 跨会话求和
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store M4 — F17 队列 reducer（AC5）[2m > [22m缺 item 的 run.queued 不污染状态
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store — 定时任务产物（R-31 / Q8）[2m > [22m打开产物即切右栏 job-artifact 态并带上原始运行记录
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store — 定时任务产物（R-31 / Q8）[2m > [22m桌面端读到全文 → content 填充且 loading 收尾
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store — 定时任务产物（R-31 / Q8）[2m > [22mWeb 端无文件桥 → 静默收敛为空内容（UI 回落 excerpt），不报错
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store — 定时任务产物（R-31 / Q8）[2m > [22m桥读取失败（返回 null）→ 内容为空但不置错误态，UI 回落摘要
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store — 定时任务产物（R-31 / Q8）[2m > [22mrun.file 为空时不发起读取，直接结束 loading
+ [32m✓[39m src/test/no-mock-guard.spec.ts[2m > [22mno-mock-guard[2m > [22mMOCK_AGENTS is not importable from agent.ts
+ [32m✓[39m src/test/no-mock-guard.spec.ts[2m > [22mno-mock-guard[2m > [22mmarket.ts is under 300 lines
+ [32m✓[39m src/stores/chat.test.ts[2m > [22mchat store — 定时任务产物（R-31 / Q8）[2m > [22m读取返回前切换到另一条产物 → 旧结果被丢弃（防竞态）
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22mdedupeCount —— 去重计数基元[2m > [22m按键去重，重复项只算一次
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22mdedupeCount —— 去重计数基元[2m > [22m空串 / null / undefined 键一律丢弃
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22mdedupeCount —— 去重计数基元[2m > [22m键两侧空白视为同一个
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22mdedupeCount —— 去重计数基元[2m > [22m空列表返回 0
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22museSidebarCounts —— 三源聚合[2m > [22m① 重名专家只计 1 次；installed ∪ candidates 去重得 total
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22museSidebarCounts —— 三源聚合[2m > [22m② MCP 唯一键为 id ?? name：有 id 用 id，无 id 回落 name
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22museSidebarCounts —— 三源聚合[2m > [22m②b MCP 同 id 的重复项只计一次
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22museSidebarCounts —— 三源聚合[2m > [22m③ 专家源 reject 时，技能与 MCP 仍正常出数
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22museSidebarCounts —— 三源聚合[2m > [22m③b 三源全 reject 时不抛异常，全部保持 {0,0}
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22museSidebarCounts —— 三源聚合[2m > [22m④ 技能候选源失败时降级为「只算已装」，不影响 installed
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22museSidebarCounts —— 三源聚合[2m > [22m⑤ 模块级单例：两次调用共享同一份状态
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22museSidebarCounts —— 三源聚合[2m > [22m⑥ 不 auto-refresh：仅构造 composable 不发任何请求
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22museSidebarCounts —— 三源聚合[2m > [22m⑥b ensureLoaded 在已加载后不再重复请求（缺陷 #2 回归锁）
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22museSidebarCounts —— 三源聚合[2m > [22m⑥c ensureLoaded 在未加载时会触发一次拉取
+ [32m✓[39m src/composables/useSidebarCounts.test.ts[2m > [22museSidebarCounts —— 三源聚合[2m > [22m⑦ 并发 refresh 去重：同帧两次只发一轮请求
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m① 初始加载：fetchAll 成功后数据正确填充
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m② 分页：每页 10 个，goToPage 切换
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m②b goToPage 越界 clamp
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m③ 分类过滤：filterByCategory 按 tags 过滤
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m④ 搜索：按 name / description 模糊匹配（大小写不敏感）
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m⑤ 排序：default 原序
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m⑤ 排序：newest 逆序
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m⑤ 排序：hot installed 优先
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m⑥ 错误态：fetchAll reject 时 error 填充
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m⑥ 加载态：初始 loading 为 true
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m⑦ categories 从 candidateItems 的 tags 聚合去重
+ [32m✓[39m src/composables/useMarketList.test.ts[2m > [22museMarketList[2m > [22m⑧ 筛选后分页重置
+ [32m✓[39m src/stores/status.test.ts[2m > [22mstores/status[2m > [22mrefreshHealth 成功时点亮 serverOnline 并记录版本号
+ [32m✓[39m src/stores/status.test.ts[2m > [22mstores/status[2m > [22mrefreshHealth 失败时置离线并记录原因，不抛错
+ [32m✓[39m src/stores/status.test.ts[2m > [22mstores/status[2m > [22mQ6：bridgeConnected 恒 false，statusTone 走本地模式
+ [32m✓[39m src/stores/status.test.ts[2m > [22mstores/status[2m > [22m服务不可达时 statusTone 为 offline
+ [32m✓[39m src/stores/status.test.ts[2m > [22mstores/status[2m > [22mstartPolling 幂等且按间隔触发，stopPolling 后不再触发
+ [32m✓[39m src/stores/status.test.ts[2m > [22mstores/status[2m > [22msaveAccount 部分更新并落盘，hydrate 可还原
+ [32m✓[39m src/stores/status.test.ts[2m > [22mstores/status[2m > [22mhydrate 遇脏数据补空串
+ [32m✓[39m src/stores/status.test.ts[2m > [22mstores/status[2m > [22mclearAccount 清空 profile
+ [32m✓[39m src/stores/status.test.ts[2m > [22mstores/status[2m > [22mresetPassword 空邮箱失败、有邮箱 mock 成功
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22maddProvider 按预置表带出 url / apiMethod / 预置模型
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22maddProvider 未知 key 回落自定义
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22maddModel 同名幂等，空名拒绝
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22moptionsForSlot 按能力过滤
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mdisplayName 优先取别名
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22msetDefault 拒绝不存在的模型，允许清空
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mremoveModel / removeProvider 会清掉引用它的默认槽位
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mfetchModels 合并后端模型且不重复
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mfetchModels 失败返回 -1 且不抛错
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mQ5：testConnectivity 成功返回模型数并标记 verified
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mQ5：testConnectivity 在后端未配置 Key 时失败
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mQ5：testConnectivity 10s 超时
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mQ5：deepTest 命中模型时返回样例文本
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mQ5：deepTest 未命中模型时失败
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mQ5：deepTest 30s 超时
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mdeepTest 对不存在的供应商 / 模型直接返回失败
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22m🔒 persist 不落明文 apiKey，只留 keyMasked
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mhydrate 还原供应商与槽位，apiKey 恢复为空串
+ [32m✓[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mhydrate 遇脏数据安全降级
+ [31m×[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mA5：usageOf 无模型级数据时 known=false
+[31m   → expected false to be true // Object.is equality[39m
+ [31m×[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22mQ1：无桥环境直接落 mock 数据
+[31m   → expected false to be true // Object.is equality[39m
+ [31m×[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22mmock 数据按时间倒序且覆盖 4 类来源
+[31m   → expected 0 to be greater than 0[39m
+ [31m×[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22m桥可用时遍历 4 个子目录读取并解析
+[31m   → expected [] to have a length of 2 but got +0[39m
+ [31m×[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22m桥可用但目录为空时仍回落 mock
+[31m   → expected false to be true // Object.is equality[39m
+ [31m×[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22m读取抛错时记录原因并回落 mock，不向外抛
+[31m   → expected 'Failed to parse URL from /api/logs?li…' to contain 'EACCES'[39m
+ [31m×[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22m每类目录最多读 5 个最新文件
+[31m   → expected [] to have a length of 5 but got +0[39m
+ [32m✓[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22mA2：parseLogFile 三档解析（JSON / 正则 / 整行兜底）
+ [32m✓[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22mparseLogFile 支持秒级时间戳
+ [31m×[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22m过滤：种类 / 级别 / 关键字 / 会话逐层收窄
+[31m   → expected 0 to be greater than 0[39m
+ [32m✓[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22m时间过滤剔除过旧条目，但保留解析不出时间的条目
+ [32m✓[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22msessionOptions 去重并带「全部会话」
+ [31m×[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22msetLogDir 更新目录并重新加载；空串忽略
+[31m   → expected 0 to be greater than 0[39m
+ [31m×[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22mopenExternal 空路径直接 false；有桥时透传 true
+[31m   → expected false to be true // Object.is equality[39m
+ [32m✓[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22mpersist / hydrate 往返一致
+ [32m✓[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22mhydrate 遇脏数据回落默认过滤
+ [32m✓[39m src/stores/memory.test.ts[2m > [22mmemory store — F13 记忆管理（AC2）[2m > [22mload 填充 entries、按分组归集并统计总数
+ [32m✓[39m src/stores/memory.test.ts[2m > [22mmemory store — F13 记忆管理（AC2）[2m > [22m分组标签覆盖 MEMORY.md / USER.md 两个文件
+ [32m✓[39m src/stores/memory.test.ts[2m > [22mmemory store — F13 记忆管理（AC2）[2m > [22msetQuery / setGroup 透传到服务端过滤（视图零本地过滤）
+ [32m✓[39m src/stores/memory.test.ts[2m > [22mmemory store — F13 记忆管理（AC2）[2m > [22madd 新增条目后自动重载列表并返回新 entry
+ [32m✓[39m src/stores/memory.test.ts[2m > [22mmemory store — F13 记忆管理（AC2）[2m > [22mupdate 编辑生效且 id 随内容变化（内容寻址）
+ [32m✓[39m src/stores/memory.test.ts[2m > [22mmemory store — F13 记忆管理（AC2）[2m > [22mupdate 命中 409 stale_id → 刷新列表并抛出可读提示
+ [32m✓[39m src/stores/memory.test.ts[2m > [22mmemory store — F13 记忆管理（AC2）[2m > [22mremove 删除条目并记录备份路径（服务端写前自动备份）
+ [32m✓[39m src/stores/memory.test.ts[2m > [22mmemory store — F13 记忆管理（AC2）[2m > [22mload 失败时记录 error 并复位 loading
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m① expert install → 调用 installAgent
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m① skill install → 调用 installSkill
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m① mcp install → 抛错
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m② expert uninstall → 调用 uninstallAgent
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m② skill uninstall → 调用 uninstallSkill
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m③ summon expert：先安装 → 建会话 → 跳转首页
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m③ summon skill → 抛错
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m③ summon mcp → 抛错
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m④ isInstalling 互斥锁：同时只有一个操作
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m④ 操作失败后锁释放
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m⑤ install API 异常透传
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m⑤ uninstall API 异常透传
+ [32m✓[39m src/composables/useInstall.test.ts[2m > [22museInstall[2m > [22m⑥ 不同实例 isInstalling 独立
+ [32m✓[39m src/stores/usage.test.ts[2m > [22musage store — F22 用量统计（AC7）[2m > [22mload day 填充 rows 与 groupBy，并写入 totals
+ [32m✓[39m src/stores/usage.test.ts[2m > [22musage store — F22 用量统计（AC7）[2m > [22mload model / session 维度切换 groupBy 且不串维度
+ [32m✓[39m src/stores/usage.test.ts[2m > [22musage store — F22 用量统计（AC7）[2m > [22mtotalTokens 为输入 + 输出自洽合计
+ [32m✓[39m src/stores/usage.test.ts[2m > [22musage store — F22 用量统计（AC7）[2m > [22mmaxRowTokens / barPercent 按行 token 和归一（0-100，零数据返回 0）
+ [32m✓[39m src/stores/usage.test.ts[2m > [22musage store — F22 用量统计（AC7）[2m > [22misEmpty 随 rows 变化
+ [32m✓[39m src/stores/usage.test.ts[2m > [22musage store — F22 用量统计（AC7）[2m > [22mloadDaySeries 单独填充 daySeries，不影响当前 Tab 的 rows/groupBy
+ [32m✓[39m src/stores/usage.test.ts[2m > [22musage store — F22 用量统计（AC7）[2m > [22mdayBarPercent 基于 daySeries 归一并有 2% 下限
+ [32m✓[39m src/stores/usage.test.ts[2m > [22musage store — F22 用量统计（AC7）[2m > [22mload 透传 from / to 范围参数
+ [32m✓[39m src/stores/usage.test.ts[2m > [22musage store — F22 用量统计（AC7）[2m > [22mreset 清空 rows / daySeries / totals / error
+ [32m✓[39m src/stores/usage.test.ts[2m > [22musage store — F22 用量统计（AC7）[2m > [22mload 失败时记录 error 并复位 loading，rows 不被污染
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeRecent —— §3.5 并集算法[2m > [22m① running 会话稳定居首，即使 updated_at 很旧
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeRecent —— §3.5 并集算法[2m > [22m①b 多个 running 之间按 updated_at 倒序
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeRecent —— §3.5 并集算法[2m > [22m② 三集合有交集时同一会话只出现 1 次
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeRecent —— §3.5 并集算法[2m > [22m②b 只在「前 5 条」命中的会话也会入组
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeRecent —— §3.5 并集算法[2m > [22m②c 只在「3 小时内」命中的会话也会入组（超过 maxCount 条）
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeRecent —— §3.5 并集算法[2m > [22m③ 超过硬上限时截断到 RECENT_HARD_CAP 条
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeRecent —— §3.5 并集算法[2m > [22m④ archived 会话被排除（F30 回归锁）
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeRecent —— §3.5 并集算法[2m > [22m④b archived 的 running 会话同样被排除
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeRecent —— §3.5 并集算法[2m > [22m⑤ 空列表返回空数组，不抛错
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeByWorkspace —— §3.5b 排序契约（U7）[2m > [22m⑥ 组间按目录名字典序升序
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeByWorkspace —— §3.5b 排序契约（U7）[2m > [22m⑦ 未绑定组恒在最后一位（即使字典序应排前）
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeByWorkspace —— §3.5b 排序契约（U7）[2m > [22m⑦b 未绑定组 key 保持英文字面量，label 才是中文（F24 数据污染防线）
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeByWorkspace —— §3.5b 排序契约（U7）[2m > [22m⑦c 显式选了 Default Workspace 的会话与未绑定会话落入同一组
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeByWorkspace —— §3.5b 排序契约（U7）[2m > [22m组内按 updated_at 倒序
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeByWorkspace —— §3.5b 排序契约（U7）[2m > [22marchived 会话不进入任何工作区组（F30）
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mcomputeByWorkspace —— §3.5b 排序契约（U7）[2m > [22mworkspaceKeyOf 取末级目录名，兼容 Windows 反斜杠
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mQ8 非互斥 —— 锁死 C-1 / C-2 两处静默冲突[2m > [22m⑧ pinned 且有 workspace 的会话必须【同时】出现在 pinned 与 byWorkspace（C-1 回归锁）
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mQ8 非互斥 —— 锁死 C-1 / C-2 两处静默冲突[2m > [22m⑧b 置顶会话也可同时出现在 recent（三组完全非互斥）
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mQ8 非互斥 —— 锁死 C-1 / C-2 两处静默冲突[2m > [22m⑨ 分组只依赖 session.pinned —— 本地 pinnedSessions Set 为空时置顶组仍正确（C-2 回归锁）
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mQ8 非互斥 —— 锁死 C-1 / C-2 两处静默冲突[2m > [22m⑨b pinned 为 undefined（老数据）视为未置顶，不报错
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mQ8 非互斥 —— 锁死 C-1 / C-2 两处静默冲突[2m > [22m⑨c archived 的置顶会话不出现在置顶组
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mQ8 非互斥 —— 锁死 C-1 / C-2 两处静默冲突[2m > [22m置顶组内按 updated_at 倒序
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mWORKSPACE_SORT.compareGroup —— 排序器本身[2m > [22m普通目录名按 zh-CN localeCompare 升序
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mWORKSPACE_SORT.compareGroup —— 排序器本身[2m > [22m未绑定 key 恒排最后，与另一侧无关
+ [32m✓[39m src/composables/useSessionList.test.ts[2m > [22mWORKSPACE_SORT.compareGroup —— 排序器本身[2m > [22m两侧都是未绑定 key 时返回 0（稳定）
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 11 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/stores/chat.test.ts[2m > [22mchat store M3 — 管理面（模式/模型/技能/MCP/上传/设置）[2m > [22mloadModels / loadSkills 填充枚举
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'length')[39m
+[36m [2m❯[22m src/stores/chat.test.ts:[2m189:21[22m[39m
+    [90m187| [39m    [35mawait[39m s[33m.[39m[34mloadModels[39m()[33m;[39m
+    [90m188| [39m    [35mawait[39m s[33m.[39m[34mloadSkills[39m()[33m;[39m
+    [90m189| [39m    [34mexpect[39m(s[33m.[39mmodels[33m.[39mlength)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m190| [39m    [34mexpect[39m(s[33m.[39mmodels[[34m0[39m][33m.[39mmodels[[34m0[39m][33m.[39mid)[33m.[39m[34mtoBe[39m([32m'm1'[39m)[33m;[39m
+    [90m191| [39m    [34mexpect[39m(s[33m.[39mskills[33m.[39mlength)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22mQ1：无桥环境直接落 mock 数据
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/stores/logs.test.ts:[2m74:22[22m[39m
+    [90m 72| [39m    [35mconst[39m s [33m=[39m [34museLogsStore[39m()[33m;[39m
+    [90m 73| [39m    [35mawait[39m s[33m.[39m[34mload[39m()[33m;[39m
+    [90m 74| [39m    [34mexpect[39m(s[33m.[39misMock)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                     [31m^[39m
+    [90m 75| [39m    [34mexpect[39m(s[33m.[39mentries[33m.[39mlength)[33m.[39m[34mtoBe[39m([34mmockEntries[39m()[33m.[39mlength)[33m;[39m
+    [90m 76| [39m    [34mexpect[39m(s[33m.[39mloading)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22mmock 数据按时间倒序且覆盖 4 类来源
+[31m[1mAssertionError[22m: expected 0 to be greater than 0[39m
+[36m [2m❯[22m src/stores/logs.test.ts:[2m86:43[22m[39m
+    [90m 84| [39m      [34mexpect[39m(s[33m.[39mentries[i [33m-[39m [34m1[39m][33m.[39mts)[33m.[39m[34mtoBeGreaterThanOrEqual[39m(s[33m.[39mentries[i][33m.[39m…
+    [90m 85| [39m    }
+    [90m 86| [39m    [34mexpect[39m(s[33m.[39mcountByKind[[32m'hermes-agent'[39m])[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m   | [39m                                          [31m^[39m
+    [90m 87| [39m    [34mexpect[39m(s[33m.[39mcountByKind[33m.[39mbridge)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m 88| [39m    [34mexpect[39m(s[33m.[39mcountByKind[[32m'kmaster-server'[39m])[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22m桥可用时遍历 4 个子目录读取并解析
+[31m[1mAssertionError[22m: expected [] to have a length of 2 but got +0[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 2[39m
+[31m+ 0[39m
+
+[36m [2m❯[22m src/stores/logs.test.ts:[2m104:23[22m[39m
+    [90m102| [39m    [35mawait[39m s[33m.[39m[34mload[39m()[33m;[39m
+    [90m103| [39m    [34mexpect[39m(s[33m.[39misMock)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m104| [39m    [34mexpect[39m(s[33m.[39mentries)[33m.[39m[34mtoHaveLength[39m([34m2[39m)[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m105| [39m    [35mconst[39m err [33m=[39m s[33m.[39mentries[33m.[39m[34mfind[39m((e) [33m=>[39m e[33m.[39mlevel [33m===[39m [32m'error'[39m)[33m;[39m
+    [90m106| [39m    [34mexpect[39m(err[33m?.[39mkind)[33m.[39m[34mtoBe[39m([32m'hermes-agent'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22m桥可用但目录为空时仍回落 mock
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/stores/logs.test.ts:[2m117:22[22m[39m
+    [90m115| [39m    [35mconst[39m s [33m=[39m [34museLogsStore[39m()[33m;[39m
+    [90m116| [39m    [35mawait[39m s[33m.[39m[34mload[39m()[33m;[39m
+    [90m117| [39m    [34mexpect[39m(s[33m.[39misMock)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                     [31m^[39m
+    [90m118| [39m  })[33m;[39m
+    [90m119| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22m读取抛错时记录原因并回落 mock，不向外抛
+[31m[1mAssertionError[22m: expected 'Failed to parse URL from /api/logs?li…' to contain 'EACCES'[39m
+
+Expected: [32m"EACCES"[39m
+Received: [31m"Failed to parse URL from /api/logs?limit=500"[39m
+
+[36m [2m❯[22m src/stores/logs.test.ts:[2m125:21[22m[39m
+    [90m123| [39m    [35mconst[39m s [33m=[39m [34museLogsStore[39m()[33m;[39m
+    [90m124| [39m    [35mawait[39m [34mexpect[39m(s[33m.[39m[34mload[39m())[33m.[39mresolves[33m.[39m[34mtoBeUndefined[39m()[33m;[39m
+    [90m125| [39m    [34mexpect[39m(s[33m.[39merror)[33m.[39m[34mtoContain[39m([32m'EACCES'[39m)[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m126| [39m    [34mexpect[39m(s[33m.[39misMock)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m127| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22m每类目录最多读 5 个最新文件
+[31m[1mAssertionError[22m: expected [] to have a length of 5 but got +0[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 5[39m
+[31m+ 0[39m
+
+[36m [2m❯[22m src/stores/logs.test.ts:[2m138:23[22m[39m
+    [90m136| [39m    [35mconst[39m s [33m=[39m [34museLogsStore[39m()[33m;[39m
+    [90m137| [39m    [35mawait[39m s[33m.[39m[34mload[39m()[33m;[39m
+    [90m138| [39m    [34mexpect[39m(s[33m.[39mentries)[33m.[39m[34mtoHaveLength[39m([34m5[39m)[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m139| [39m    [90m// 取的是 mtime 最大的 5 个：f7..f3[39m
+    [90m140| [39m    [34mexpect[39m(s[33m.[39mentries[33m.[39m[34mmap[39m((e) [33m=>[39m e[33m.[39msummary)[33m.[39m[34msort[39m())[33m.[39m[34mtoEqual[39m(
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22m过滤：种类 / 级别 / 关键字 / 会话逐层收窄
+[31m[1mAssertionError[22m: expected 0 to be greater than 0[39m
+[36m [2m❯[22m src/stores/logs.test.ts:[2m187:29[22m[39m
+    [90m185| [39m    s[33m.[39m[34mresetFilter[39m()[33m;[39m
+    [90m186| [39m    s[33m.[39m[34msetFilter[39m({ q[33m:[39m [32m'定时任务'[39m })[33m;[39m
+    [90m187| [39m    [34mexpect[39m(s[33m.[39mfilteredCount)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m   | [39m                            [31m^[39m
+    [90m188| [39m    [34mexpect[39m(s[33m.[39mfiltered[33m.[39m[34mevery[39m((e) [33m=>[39m [32m`[39m[36m${[39me[33m.[39msummary[36m}[39m[32m[39m[36m${[39me[33m.[39mcontent[36m}[39m[32m`[39m[33m.[39m[34mincludes[39m…
+    [90m189| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22msetLogDir 更新目录并重新加载；空串忽略
+[31m[1mAssertionError[22m: expected 0 to be greater than 0[39m
+[36m [2m❯[22m src/stores/logs.test.ts:[2m224:24[22m[39m
+    [90m222| [39m    [35mawait[39m s[33m.[39m[34msetLogDir[39m([32m'/var/log/kmaster'[39m)[33m;[39m
+    [90m223| [39m    [34mexpect[39m(s[33m.[39mlogDir)[33m.[39m[34mtoBe[39m([32m'/var/log/kmaster'[39m)[33m;[39m
+    [90m224| [39m    [34mexpect[39m(s[33m.[39mloadedAt)[33m.[39m[34mtoBeGreaterThan[39m([34m0[39m)[33m;[39m
+    [90m   | [39m                       [31m^[39m
+    [90m225| [39m  })[33m;[39m
+    [90m226| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/stores/logs.test.ts[2m > [22mstores/logs[2m > [22mopenExternal 空路径直接 false；有桥时透传 true
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/stores/logs.test.ts:[2m231:5[22m[39m
+    [90m229| [39m    [35mawait[39m [34mexpect[39m(s[33m.[39m[34mopenExternal[39m([32m''[39m))[33m.[39mresolves[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m230| [39m    bridgeState[33m.[39mhasBridge [33m=[39m [35mtrue[39m[33m;[39m
+    [90m231| [39m    [35mawait[39m [34mexpect[39m(s[33m.[39m[34mopenExternal[39m([32m'/tmp/a.log'[39m))[33m.[39mresolves[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m    [31m^[39m
+    [90m232| [39m    [34mexpect[39m(bridgeState[33m.[39mopened)[33m.[39m[34mtoContain[39m([32m'/tmp/a.log'[39m)[33m;[39m
+    [90m233| [39m    [35mawait[39m [34mexpect[39m(s[33m.[39m[34mopenLogDir[39m())[33m.[39mresolves[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/stores/modelConfig.test.ts[2m > [22mstores/modelConfig[2m > [22mA5：usageOf 无模型级数据时 known=false
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m src/stores/modelConfig.test.ts:[2m308:21[22m[39m
+    [90m306| [39m    state[33m.[39mmodelUsage [33m=[39m { [32m'gpt-4o'[39m[33m:[39m { calls[33m:[39m [34m3[39m[33m,[39m tokens[33m:[39m [34m30[39m } }[33m;[39m
+    [90m307| [39m    [35mconst[39m u [33m=[39m s[33m.[39m[34musageOf[39m(m[33m.[39mid)[33m;[39m
+    [90m308| [39m    [34mexpect[39m(u[33m.[39mknown)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m309| [39m    [34mexpect[39m(u[33m.[39mcalls)[33m.[39m[34mtoBe[39m([34m3[39m)[33m;[39m
+    [90m310| [39m    [34mexpect[39m(u[33m.[39mtokens)[33m.[39m[34mtoBe[39m([34m30[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m12 passed[39m[22m[90m (15)[39m
+[2m      Tests [22m [1m[31m11 failed[39m[22m[2m | [22m[1m[32m239 passed[39m[22m[90m (250)[39m
+[2m   Start at [22m 10:24:10
+[2m   Duration [22m 7.07s[2m (transform 4.42s, setup 0ms, collect 15.88s, tests 1.50s, environment 11ms, prepare 9.48s)[22m
+
+^C

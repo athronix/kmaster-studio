@@ -1,0 +1,177 @@
+:root {
+  --km-bg: #1e1e1e;
+  --km-panel: #252526;
+  --km-border: #333333;
+  --km-border-light: #444444;
+  --km-text: #d4d4d4;
+  --km-accent: #3b82f6;
+  --km-user-bubble: #2d2d30;
+  --km-muted: #9ca3af;
+  --km-danger: #dc2626;
+  --km-success: #34d399;
+  --km-warning: #f59e0b;
+  /* T01：市场卡片主题变量（暗色默认） */
+  --km-card-bg: rgba(255,255,255,0.04);
+  --km-card-border: rgba(255,255,255,0.08);
+
+  /* ──────────── Phase A：语义色 Token ──────────── */
+  --km-code-bg: #161616;
+  --km-code-head-bg: #1a1a1a;
+  --km-bubble-ai: #252526;
+  --km-bubble-tool: #1e1e2e;
+  --km-input-bg: #2d2d30;
+  --km-hover-bg: rgba(255,255,255,0.06);
+  --km-overlay: rgba(0,0,0,0.5);
+
+  /* ──────────── Phase B：组件专用 Token（暗色） ──────────── */
+  --km-tool-card-bg: rgba(255,255,255,0.02);
+  --km-thought-border: #6b7280;
+  --km-approval-border: #b45309;
+  --km-approval-bg: rgba(180,83,9,0.1);
+  --km-clarify-border: #1d4ed8;
+  --km-clarify-bg: rgba(29,78,216,0.1);
+  --km-plan-border: #7c3aed;
+  --km-plan-bg: rgba(124,58,237,0.1);
+
+  /* ──────────── Phase A：圆角 Token ──────────── */
+  --km-radius-sm: 4px;
+  --km-radius-md: 6px;
+  --km-radius-lg: 8px;
+  --km-radius-full: 999px;
+
+  /* ──────────── Phase A：阴影 Token ──────────── */
+  --km-shadow-card: 0 4px 16px rgba(0,0,0,0.3);
+  --km-shadow-modal: 0 8px 32px rgba(0,0,0,0.5);
+  --km-shadow-dropdown: 0 4px 12px rgba(0,0,0,0.4);
+
+  /* ──────────── Phase A：字号 Token ──────────── */
+  --km-font-xs: 10px;
+  --km-font-sm: 12px;
+  --km-font-md: 14px;
+  --km-font-base: 15px;
+  --km-font-lg: 17px;
+  --km-font-xl: 20px;
+  --km-font-2xl: 26px;
+
+  /* ──────────── Phase A：间距 Token ──────────── */
+  --km-space-2xs: 2px;
+  --km-space-xs: 4px;
+  --km-space-sm: 8px;
+  --km-space-md: 12px;
+  --km-space-lg: 16px;
+  --km-space-xl: 24px;
+  --km-space-2xl: 32px;
+  --km-space-3xl: 48px;
+}
+
+:root[data-theme='light'] {
+  --km-bg: #ffffff;
+  --km-panel: #f3f3f3;
+  --km-border: #e5e5e5;
+  --km-border-light: #d4d4d4;
+  --km-text: #1f1f1f;
+  --km-accent: #2563eb;
+  --km-user-bubble: #dbeafe;
+  --km-muted: #6b7280;
+  --km-danger: #dc2626;
+  --km-success: #10b981;
+  --km-warning: #d97706;
+  /* T01：市场卡片主题变量（亮色） */
+  --km-card-bg: #fff;
+  --km-card-border: #e8e8e8;
+
+  /* ──────────── Phase A：语义色 Token（亮色） ──────────── */
+  --km-code-bg: #f8f8f8;
+  --km-code-head-bg: #ebebeb;
+  --km-bubble-ai: #f0f0f0;
+  --km-bubble-tool: #f5f5ff;
+  --km-input-bg: #ffffff;
+  --km-hover-bg: rgba(0,0,0,0.04);
+  --km-overlay: rgba(0,0,0,0.3);
+
+  /* ──────────── Phase B：组件专用 Token（亮色） ──────────── */
+  --km-tool-card-bg: #f9fafb;
+  --km-thought-border: #9ca3af;
+  --km-approval-border: #d97706;
+  --km-approval-bg: rgba(217,119,6,0.06);
+  --km-clarify-border: #2563eb;
+  --km-clarify-bg: rgba(37,99,235,0.06);
+  --km-plan-border: #7c3aed;
+  --km-plan-bg: rgba(124,58,237,0.06);
+
+  /* ──────────── Phase A：阴影 Token（亮色） ──────────── */
+  --km-shadow-card: 0 2px 8px rgba(0,0,0,0.08);
+  --km-shadow-modal: 0 4px 16px rgba(0,0,0,0.12);
+  --km-shadow-dropdown: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+}
+
+/* P1 #20：亮色/暗色主题平滑过渡 */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--km-bg);
+  color: var(--km-text);
+}
+
+/* P0：流式输出脉冲动画 */
+@keyframes km-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ═══════════════ V3 三栏布局（设计 §7.4 CSS 约定）═══════════════ */
+
+/* 1. 拖拽期全局抑制文字选中（R-01④）；由 ResizeHandle 增删 body class */
+body.km-resizing {
+  user-select: none !important;
+  cursor: col-resize !important;
+}
+
+/* 2. Shell 5 轨道：宽度变量由 LayoutShell 通过 :style 下发，缺省值保证首帧不塌 */
+.km-shell {
+  display: grid;
+  grid-template-columns:
+    var(--km-left-w, 260px)
+    var(--km-lh-w, 4px)
+    minmax(0, 1fr)
+    var(--km-rh-w, 0px)
+    var(--km-right-w, 0px);
+  grid-template-rows: 100vh;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--km-bg);
+  color: var(--km-text);
+}
+
+/* 3. 三栏子元素统一：轨道宽为 0 时天然折叠，DOM 保留（R-36 滚动位置免费保住） */
+.km-shell > * {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* 4. 主体页统一结构：PageHeader（48px）+ km-page-body（撑满剩余） */
+.km-page-body {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ═══════════════ Phase A：全局 focus-visible 规则 ═══════════════ */
+*:focus-visible {
+  outline: 2px solid var(--km-accent);
+  outline-offset: 2px;
+}

@@ -1,0 +1,26 @@
+NOW 13:25:24
+=== STATUS client ===
+ M packages/client/src/api/client.ts
+ M packages/client/src/composables/useSessionList.ts
+ M packages/client/src/constants/layout.ts
+ M packages/client/src/stores/chat.ts
+ M packages/client/src/stores/jobs.test.ts
+ M packages/client/src/stores/jobs.ts
+ M packages/client/src/types/chat.ts
+ M packages/client/vitest.config.ts
+?? packages/client/src/composables/useCollapseState.ts
+?? packages/client/src/composables/useSessionList.test.ts
+?? packages/client/src/composables/useSidebarCounts.test.ts
+?? packages/client/src/composables/useSidebarCounts.ts
+?? packages/client/src/constants/sidebar.ts
+?? packages/client/src/utils/time.test.ts
+?? packages/client/src/utils/time.ts
+=== RECENT 8 ===
+13:25:00  jobs.test.ts
+13:24:17  jobs.ts
+13:23:36  useSessionList.test.ts
+13:22:30  useSessionList.ts
+13:21:30  chat.ts
+13:19:42  useCollapseState.ts
+13:19:11  useSidebarCounts.test.ts
+13:18:32  useSidebarCounts.ts

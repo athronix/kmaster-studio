@@ -1,0 +1,51 @@
+sequenceDiagram
+    actor User
+    participant LSB as LeftSidebar
+    participant LS as LayoutShell
+    participant SV as SettingsView
+    participant Store as chatStore
+
+    Note over LS: 初始状态：settingsOverlay = false
+    
+    %% 1. 进入设置 overlay
+    User->>LSB: 点击设置按钮
+    LSB->>LS: settingsOverlay = true (toggle)
+    LS->>LS: provide settingsOverlay 更新
+
+    %% LeftSidebar 隐藏
+    LS->>LSB: v-if="!settingsOverlay" → 隐藏 LeftSidebar
+
+    %% SettingsView overlay 渲染
+    LS->>SV: 渲染 SettingsView（绝对定位，覆盖 LeftSidebar 原位置）
+    SV->>SV: inject settingsOverlay = true
+    SV->>SV: 隐藏自身左栏 12 分类导航
+    SV->>SV: savedCategory = activeCategory（保存当前分类）
+    SV->>SV: activeCategory = 'monitor'（默认激活监控）
+    SV-->>User: 设置页覆盖在 LeftSidebar 位置<br/>右上角显示 "[← 返回对话]" 按钮
+
+    %% 2. 在 overlay 中操作设置
+    User->>SV: 切换分类（如点击 "Agent 角色管理"）
+    SV->>SV: activeCategory = 'agentRole'
+    SV-->>User: 右栏显示 Agent 角色管理内容
+
+    User->>SV: 修改设置项
+    SV->>Store: 调用对应 store action
+
+    %% 3a. 返回对话（方式一：点返回按钮）
+    User->>SV: 点击 "[← 返回对话]"
+    SV->>LS: settingsOverlay = false
+    LS->>LS: settingsOverlay = false
+    LS->>LSB: v-if="!settingsOverlay" → 恢复渲染 LeftSidebar
+    LS->>SV: 移除 overlay 渲染
+    SV->>SV: activeCategory = savedCategory（恢复正常模式分类）
+    LSB-->>User: LeftSidebar 恢复，任务列表可见
+
+    %% 3b. 返回对话（方式二：再点设置按钮）
+    Note over LSB,LS: 用户也可以通过左栏设置按钮 toggle 返回
+    User->>LSB: 再次点击设置按钮
+    LSB->>LS: settingsOverlay = false (toggle)
+    LS->>LSB: 恢复渲染 LeftSidebar
+    LS->>SV: 移除 overlay 渲染
+    LSB-->>User: LeftSidebar 恢复
+
+    Note over SV: 再次进入 overlay 时<br/>仍默认激活 "监控" 分类

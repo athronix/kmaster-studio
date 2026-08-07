@@ -1,0 +1,19 @@
+
+══════ 独立差分验证（oracle=全文逐行扫描，绕过 splitSFC）══════
+扫描 126 文件（82 个 .vue）
+A  oracle 全文扫描位点(.vue) : 154
+B  audit  分块扫描位点(.vue) : 152
+   ├ 已具名豁免              : 2
+   ├ 疑似漏扫(A\B 非豁免)    : 0
+   └ B 有 A 无               : 0
+豁免 E1-style-block               0 条  emoji 位于 <style> 块（CSS content 等），不属于 audit 的 emoji …
+豁免 E2-trailing-comment          0 条  emoji 仅出现在**行尾内联注释**中（如 `foo(); // ✅ 说明`）。audit 走 st…
+豁免 E3-multiline-comment-body    0 条  emoji 位于多行注释（HTML <!-- --> 或 JS /* */）的**中间行**，该行行首不…
+豁免 E4-sentence-connector        2 条  → 在句中作流程/路径连接符，删掉会改变语义（判 B 豁免），但 EMOJI_RE 无法在字符级区分语境…
+
+── 已豁免明细 ──
+   [E4-sentence-connector] packages/client/src/components/dialog/NewTaskDialog.vue:211  →  placeholder="选择 Agent（可在「设置 → Agent 角色管理」中新增）"
+   [E4-sentence-connector] packages/client/src/views/MemoryView.vue:202  →  <p class="km-form-hint">保存将执行：取锁 → 备份原文件 → 原子写回。内容变更后条目 id 会随之变化。</p>
+
+✅ 闸门一通过：oracle 与 audit 差集已 100% 具名豁免，无漏扫。
+✅ 闸门二通过：全部非 ASCII 码位均在普查表 123 项白名单内。

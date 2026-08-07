@@ -1,0 +1,704 @@
+%% kmaster-studio hermes-native —— 数据结构与接口类图
+%% 来源：docs/design/TECHNICAL-SOLUTION-hermes-native.md §2 / §4
+%% 图例：
+%%   hermes-真源 = hermes 侧磁盘/进程持有主权，kmaster 只读
+%%   kmaster.db  = kmaster 持有主权（仅 UI 增强字段 + 专家团）
+%%   视图        = 客户端内存态，不持久化为真源
+
+classDiagram
+    direction LR
+
+    %% ══════════════════════════════════════════════════════════
+    %%  A. hermes 环境解析层（服务端唯一解析权 · §2.2）
+    %% ══════════════════════════════════════════════════════════
+
+    class HermesEnv {
+        <<service-singleton>>
+        +boolean configured
+        +string root
+        +string activeProfile
+        +string activeHome
+        +string agentDir
+        +AgentDirSource agentDirSource
+        +HermesPaths paths
+        +string platform
+        +PathAnomaly[] pathAnomalies
+        +getHermesEnv() HermesEnv
+        +invalidate() void
+        +normalizeHostPath(p) string
+        +bridgeSpawnArgs() string[]
+        +assertBridgeConsistency(id) PathAnomaly[]
+    }
+
+    class HermesPaths {
+        <<frozen-value-object>>
+        +string configYaml
+        +string configBak
+        +string authJson
+        +string stateDb
+        +string skillsDir
+        +string skillsSnapshot
+        +string agentsDir
+        +string cronJobs
+        +string logsDir
+        +string memoriesDir
+        +string gatewayState
+        +string managedSkills
+        +assertInsideHermesHome(p) string
+    }
+
+    class AgentDirSource {
+        <<enumeration>>
+        HERMES_AGENT_DIR
+        HERMES_WEBUI_AGENT_DIR
+        fallback
+        none
+    }
+
+    class PathAnomaly {
+        <<value-object>>
+        +AnomalyKind kind
+        +string variable
+        +string raw
+        +string normalized
+        +string severity
+    }
+
+    class AnomalyKind {
+        <<enumeration>>
+        posix_on_windows
+        ghost_home
+        nonexistent
+        unc_unsupported
+    }
+
+    class BridgeIdentity {
+        <<handshake-dto>>
+        +number brokerPid
+        +number workerPid
+        +string workerEndpoint
+        +string agentRoot
+        +string hermesHome
+        +string profile
+        +string pythonExe
+    }
+
+    HermesEnv *-- HermesPaths : 一次性构造并 freeze
+    HermesEnv ..> AgentDirSource
+    HermesEnv o-- PathAnomaly : D-29 路径污染证据
+    PathAnomaly ..> AnomalyKind
+    HermesEnv ..> BridgeIdentity : assertBridgeConsistency
+
+    note for HermesPaths "SC-2：除 authJson 在 root 外，全部基于 activeHome。禁止业务代码现拼路径。"
+    note for PathAnomaly "D-29：POSIX 路径未规范化会让 Python 侧造出幽灵 home。SC-13 要求所有跨进程出口先过 normalizeHostPath。"
+    note for BridgeIdentity "Q-10：Node 不 spawn bridge 时无法注入，只能用 worker 的 ping 做一致性断言。注意 broker 的 ping 不含 agentRoot/hermesHome，必须打 worker 端口。"
+
+    %% ══════════════════════════════════════════════════════════
+    %%  B. 探测与双状态模型（C3 裁定 · §1.5 / §4.6）
+    %% ══════════════════════════════════════════════════════════
+
+    class HermesProbeResponse {
+        <<DTO>>
+        +boolean configured
+        +string hermesHome
+        +string activeProfile
+        +string activeHome
+        +string agentDir
+        +AgentDirSource agentDirSource
+        +string hermesVersion
+        +GatewayStatus gateway
+        +BridgeStatus bridge
+        +PythonStatus python
+        +HermesCheck checks
+        +DegradedSource degradedSources
+        +int activeAgents
+    }
+
+    class HermesCheck {
+        <<DTO>>
+        +string key
+        +string path
+        +boolean exists
+        +boolean readable
+        +boolean writable
+        +string detail
+    }
+
+    class DegradedSource {
+        <<DTO>>
+        +string endpoint
+        +Wiring wiring
+        +Liveness liveness
+        +string reason
+    }
+
+    class Wiring {
+        <<enumeration>>
+        wired
+        partial
+        absent
+    }
+
+    class Liveness {
+        <<enumeration>>
+        live
+        degraded
+        error
+        offline
+    }
+
+    class GatewayStatus {
+        +string state
+        +int pid
+        +boolean pidAlive
+    }
+
+    class BridgeStatus {
+        +BridgeMode mode
+        +boolean connected
+        +string endpoint
+        +int lastPingMs
+    }
+
+    class PythonStatus {
+        +boolean ok
+        +string interpreter
+        +boolean hermesModuleOk
+        +string error
+    }
+
+    class BridgeMode {
+        <<enumeration>>
+        real
+        mock
+    }
+
+    HermesProbeResponse *-- HermesCheck
+    HermesProbeResponse *-- DegradedSource
+    HermesProbeResponse *-- GatewayStatus
+    HermesProbeResponse *-- BridgeStatus
+    HermesProbeResponse *-- PythonStatus
+    DegradedSource ..> Wiring
+    DegradedSource ..> Liveness
+    BridgeStatus ..> BridgeMode
+
+    note for DegradedSource "C3 裁定：wiring 与 liveness 正交。wired + degraded 是最危险组合，正是 D-02 潜伏形态，必须显式列出。"
+
+    %% ══════════════════════════════════════════════════════════
+    %%  C. 诚实降级五态（HN-P016 · §4.1）
+    %% ══════════════════════════════════════════════════════════
+
+    class DataSourceState {
+        <<enumeration>>
+        live
+        loading
+        empty
+        error
+        offline
+    }
+
+    class DataEnvelope {
+        <<DTO · 泛型 T>>
+        +DataSourceState state
+        +T data
+        +string reason
+        +string hermesPath
+        +string fetchedAt
+        +boolean stale
+    }
+
+    DataEnvelope ..> DataSourceState
+
+    note for DataSourceState "★ 枚举中不存在 mock 态。mock 仅是 BridgeMode 的取值，且必须常驻 UI 角标。"
+
+    %% ══════════════════════════════════════════════════════════
+    %%  D. Agent 角色载体 —— agents 目录下的 md 文件（决策 D-B · §4.2）
+    %% ══════════════════════════════════════════════════════════
+
+    class AgentMarkdownFile {
+        <<hermes-真源 · agents 目录>>
+        +AgentFrontMatter frontMatter
+        +string body_agentMd
+        +id 取自文件名去掉 md 后缀
+        +id 须匹配小写字母数字连字符
+    }
+
+    class AgentFrontMatter {
+        <<YAML front-matter>>
+        +string name
+        +string avatar
+        +string desc
+        +string[] specialties
+        +string[] skills
+        +string[] mcp
+        +string[] tags
+        +string[] samplePrompts
+        +string model
+        +string personalityRef
+        +AgentSource source
+        +int schemaVersion
+        +string createdAt
+        +string updatedAt
+    }
+
+    class AgentSource {
+        <<enumeration>>
+        kmaster_studio
+        hermes
+        user
+        imported
+    }
+
+    class AgentDescriptor {
+        <<DTO · api agents>>
+        +string id
+        +string name
+        +string avatar
+        +string desc
+        +string[] specialties
+        +string[] skills
+        +string[] mcp
+        +string[] tags
+        +string[] samplePrompts
+        +string model
+        +string personalityRef
+        +string agentMd
+        +AgentSource source
+        +AgentOrigin origin
+        +boolean readonly
+        +int schemaVersion
+        +AgentIssue issues
+        +string filePath
+        +string createdAt
+        +string updatedAt
+    }
+
+    class AgentOrigin {
+        <<enumeration>>
+        agents_dir
+        personalities
+    }
+
+    class AgentIssue {
+        <<DTO>>
+        +string field
+        +string value
+        +IssueKind kind
+        +string hint
+    }
+
+    class IssueKind {
+        <<enumeration>>
+        missing
+        platform_excluded
+        condition_excluded
+        shadowed_personality
+    }
+
+    AgentMarkdownFile *-- AgentFrontMatter
+    AgentFrontMatter ..> AgentSource
+    AgentMarkdownFile ..> AgentDescriptor : 解析 + 引用完整性校验
+    AgentDescriptor *-- AgentIssue
+    AgentDescriptor ..> AgentOrigin
+    AgentIssue ..> IssueKind
+
+    %% ── 与 config.yaml agent.personalities 的引用关系（§4.3）──
+
+    class ConfigYaml {
+        <<hermes-真源 · config.yaml>>
+        +int _config_version
+        +map agent_personalities
+        +map mcp_servers
+        +list custom_providers
+        +string model_default
+        +实测 personalities 14 条
+        +实测 mcp_servers 5 条
+        +实测 custom_providers 7 条
+        +实测 _config_version 32
+        +实测 model_default glm-5.2
+    }
+
+    class Personality {
+        <<hermes-真源 · 只读>>
+        +string key
+        +string prompt
+    }
+
+    ConfigYaml *-- Personality : 14 条
+    AgentFrontMatter ..> Personality : personalityRef 可选引用 · kmaster 不写 config.yaml
+
+    %% ── 迁移源（§4.4）──
+
+    class LegacyAgentRole {
+        <<localStorage · km.v3.agentRoles · 待废弃>>
+        +string id
+        +string name
+        +string avatar
+        +string desc
+        +string[] specialties
+        +string agentMd
+        +string[] skills
+        +string[] mcp
+        +string[] tags
+        +string[] samplePrompts
+        +string source
+        +string createdAt
+        +string updatedAt
+    }
+
+    LegacyAgentRole ..> AgentMarkdownFile : M1 一次性导入 · 字段一一对应 · 无损
+
+    %% ══════════════════════════════════════════════════════════
+    %%  E. 技能模型（C1 裁定 · §1.3 / §4.6）
+    %% ══════════════════════════════════════════════════════════
+
+    class SkillsPromptSnapshot {
+        <<hermes-真源 · skills prompt 快照>>
+        +int version
+        +map manifest
+        +SnapshotSkill skills
+        +map category_descriptions
+        +实测 manifest 191 条
+        +其中 SKILL_md 174 条
+        +其中 DESCRIPTION_md 17 条
+        +实测 skills 174 条
+        +实测 categories 16 条
+    }
+
+    class SnapshotSkill {
+        +string skill_name
+        +string category
+        +string frontmatter_name
+        +string description
+        +string[] platforms
+        +SkillConditions conditions
+    }
+
+    class SkillConditions {
+        +string[] requiresToolsets
+        +string[] requiresTools
+        +string[] fallbackForToolsets
+        +string[] fallbackForTools
+    }
+
+    class SkillDescriptor {
+        <<DTO · api skills>>
+        +string skillName
+        +string dirName
+        +string category
+        +string description
+        +string[] platforms
+        +SkillConditions conditions
+        +boolean installed
+        +InstallKind installKind
+        +ManagedBy managedBy
+        +boolean available
+        +string excludeReason
+    }
+
+    class SkillCounts {
+        <<DTO>>
+        +int available
+        +int declared
+        +int packages
+        +int excludedByPlatform
+        +int excludedByCondition
+        +实测 161 权威可用
+        +实测 174 声明总数
+        +实测 47 顶层技能包
+        +实测 11 平台排除
+        +实测 2 条件排除
+    }
+
+    class InstallKind {
+        <<enumeration>>
+        symlink
+        junction
+        copy
+        builtin
+    }
+
+    class ManagedBy {
+        <<enumeration>>
+        kmaster_studio
+        hermes_web_ui
+        unknown
+    }
+
+    class ManagedSkillsManifest {
+        <<安装清单 json>>
+        +string owner
+        +int version
+        +ManagedSkillEntry skills
+    }
+
+    class ManagedSkillEntry {
+        +string name
+        +InstallKind method
+        +string target
+        +string installedAt
+    }
+
+    SkillsPromptSnapshot *-- SnapshotSkill
+    SnapshotSkill *-- SkillConditions
+    SnapshotSkill ..> SkillDescriptor : 平台门控 -11 · 条件门控 -2 · 174→163→161
+    SkillDescriptor ..> InstallKind
+    SkillDescriptor ..> ManagedBy
+    SkillDescriptor ..> SkillCounts
+    ManagedSkillsManifest *-- ManagedSkillEntry
+    ManagedSkillsManifest ..> SkillDescriptor : 判定 managedBy · SC-9 互操作护栏
+    AgentFrontMatter ..> SkillDescriptor : skills 引用完整性校验
+
+    note for SkillsPromptSnapshot "C1 算术闭环：191 = 174 SKILL.md + 17 DESCRIPTION.md；174 −11 平台 = 163；163 −2 条件 = 161 = hermes API 权威值。PM 的 47 = skills 顶层包数。QA 的 0 = MSYS 路径污染假象。"
+
+    %% ══════════════════════════════════════════════════════════
+    %%  F. 会话主源合并（C2 裁定 · §1.4）
+    %% ══════════════════════════════════════════════════════════
+
+    class HermesStateDb {
+        <<hermes-真源 · state.db · 只读>>
+        +table sessions
+        +table messages
+        +table session_model_usage
+        +实测 sessions 35
+        +实测 messages 8083
+        +实测 usage 38
+        +readonly true
+        +PRAGMA query_only 1
+    }
+
+    class KmasterSessionExt {
+        <<kmaster.db · 增强字段>>
+        +string sessionId
+        +string workspace
+        +boolean pinned
+        +boolean folded
+        +string colorTag
+        +boolean archived
+    }
+
+    class SessionView {
+        <<DTO · api sessions>>
+        +string id
+        +string title
+        +string createdAt
+        +string updatedAt
+        +string model
+        +int messageCount
+        +string workspace
+        +boolean pinned
+        +boolean folded
+        +string colorTag
+        +boolean orphan
+        +string sourceOfTruth
+    }
+
+    class LegacyKmasterSessions {
+        <<kmaster.db · 旧自建真源 · 待退化>>
+        +实测 10 条
+        +title model created_at 等主源字段
+    }
+
+    class SessionDumpDir {
+        <<sessions 目录 · 判定为调试残留>>
+        +28 个 request_dump json
+        +最后更新 2026-06-30
+        +不纳入数据链路
+    }
+
+    HermesStateDb ..> SessionView : 主源骨架 35 条
+    KmasterSessionExt ..> SessionView : LEFT JOIN 增强字段
+    LegacyKmasterSessions ..> KmasterSessionExt : 退化 · 仅保留增强列
+    SessionDumpDir ..> SessionView : 不参与
+
+    note for HermesStateDb "C2 裁定：PM 称 /api/sessions 已真连 state.db 为不实。实测该端点读 kmaster.db 返回 10 条，对 state.db 引用数为 0。"
+
+    %% ══════════════════════════════════════════════════════════
+    %%  G. 专家团 —— 客户端编排概念（决策 D-C · §4.5）
+    %% ══════════════════════════════════════════════════════════
+
+    class ExpertTeam {
+        <<kmaster.db · 唯一 kmaster 业务主权实体>>
+        +string id
+        +string name
+        +string desc
+        +string profile
+        +ExpertMember members
+        +string createdAt
+        +string updatedAt
+    }
+
+    class ExpertMember {
+        +string agentId
+        +string roleInTeam
+        +int order
+    }
+
+    class ExpertMemberHealth {
+        <<运行时校验>>
+        +string agentId
+        +MemberStatus status
+        +string detail
+    }
+
+    class MemberStatus {
+        <<enumeration>>
+        ok
+        missing
+        broken
+        degraded
+    }
+
+    class ExpertTeamView {
+        <<DTO>>
+        +ExpertMemberHealth memberHealth
+        +string teamStatus
+        +broken 时禁用启动此团队按钮
+    }
+
+    ExpertTeam *-- ExpertMember
+    ExpertMember ..> AgentDescriptor : agentId 必须引用真实 Agent
+    ExpertTeamView --|> ExpertTeam
+    ExpertTeamView *-- ExpertMemberHealth
+    ExpertMemberHealth ..> MemberStatus
+
+    note for ExpertTeam "决策 D-C：hermes 侧无此概念，是唯一允许 kmaster 拥有业务主权的实体。按 profile 隔离（待 O-9 确认）。"
+
+    %% ══════════════════════════════════════════════════════════
+    %%  H. 服务端读写服务（§3.1）
+    %% ══════════════════════════════════════════════════════════
+
+    class SkillsReader {
+        <<service · read skills>>
+        +list() SkillsResponse
+        -readSnapshot() SkillsPromptSnapshot
+        -filterByPlatform(list) SnapshotSkill
+        -filterByCondition(list) SnapshotSkill
+        -scanInstalled() map
+        -fallbackRunPython() SnapshotSkill
+        +禁止返回 SKILLS_SNAPSHOT
+    }
+
+    class AgentsReader {
+        <<service · read agents>>
+        +list() AgentDescriptor
+        +get(id) AgentDescriptor
+        -parseMarkdown(path) AgentMarkdownFile
+        -mergePersonalities(list) AgentDescriptor
+        -validateRefs(a) AgentIssue
+    }
+
+    class SessionsReader {
+        <<service · read sessions>>
+        +list() SessionView
+        -readStateDb() rows
+        -joinExt(rows) SessionView
+        -markOrphans(rows) SessionView
+    }
+
+    class AgentsWriter {
+        <<service · write agents>>
+        +create(dto) AgentDescriptor
+        +update(id, dto, ifMatch) AgentDescriptor
+        +remove(id) void
+        -atomicWrite(path, content) void
+        -toTrash(id) string
+        +乐观锁 409 · tmp 加 rename
+    }
+
+    class SkillInstaller {
+        <<service · write skills-install>>
+        +install(name) SkillInstallResult
+        +uninstall(name) SkillInstallResult
+        -trySymlink(t, p) boolean
+        -tryJunction(t, p) boolean
+        -copyTree(t, p) boolean
+        -assertOwnership(name) void
+        -verifyVisible(name) boolean
+    }
+
+    class ConfigYamlWriter {
+        <<service · write config-yaml>>
+        +update(patch, expectedVersion) ConfigYaml
+        -acquireLock() Release
+        -backup() void
+        -casVersion(cur, exp) void
+        -readBackVerify(w) void
+        -rollbackFromBak() void
+    }
+
+    class FileLock {
+        <<service · lock>>
+        +acquire(path, ttlMs) Release
+        +isStale(meta) boolean
+        +release() void
+    }
+
+    HermesEnv <.. SkillsReader
+    HermesEnv <.. AgentsReader
+    HermesEnv <.. SessionsReader
+    HermesEnv <.. AgentsWriter
+    HermesEnv <.. SkillInstaller
+    HermesEnv <.. ConfigYamlWriter
+
+    SkillsReader ..> SkillsPromptSnapshot : file-direct 主路径
+    SkillsReader ..> SkillDescriptor
+    AgentsReader ..> AgentMarkdownFile
+    AgentsReader ..> ConfigYaml : 只读 personalities
+    SessionsReader ..> HermesStateDb
+    SessionsReader ..> KmasterSessionExt
+    AgentsWriter ..> AgentMarkdownFile
+    SkillInstaller ..> ManagedSkillsManifest
+    SkillInstaller ..> InstallKind : symlink 到 junction 到 copy
+    ConfigYamlWriter ..> ConfigYaml
+    ConfigYamlWriter *-- FileLock
+
+    %% ══════════════════════════════════════════════════════════
+    %%  I. 客户端视图层（§3.2）
+    %% ══════════════════════════════════════════════════════════
+
+    class HermesStatusStore {
+        <<pinia · 视图>>
+        +HermesProbeResponse probe
+        +BridgeMode bridgeMode
+        +boolean offline
+        +DegradedSource degraded
+        +refresh() void
+        +全局离线徽标与模拟模式角标
+    }
+
+    class AgentsStore {
+        <<pinia · 视图>>
+        +DataEnvelope envelope
+        +fetch() void
+        +create(dto) void
+        +update(id, dto) void
+        +remove(id) void
+        +importFromLegacy() ImportResult
+    }
+
+    class LegacyAgentRolesStore {
+        <<pinia · 降级为缓存投影>>
+        +删除 localStorage 是唯一真源 的声明
+        +清空后重启可从 hermes 恢复
+    }
+
+    class DataStateBoundary {
+        <<vue component>>
+        +DataEnvelope envelope
+        +slot live loading empty error offline
+        +所有数据面板必须包裹
+    }
+
+    class MockBadge {
+        <<vue component>>
+        +仅 bridgeMode 为 mock 时常驻
+    }
+
+    HermesStatusStore ..> HermesProbeResponse
+    AgentsStore ..> AgentDescriptor
+    AgentsStore ..> DataEnvelope
+    LegacyAgentRolesStore ..> AgentsStore : M2 真源切换
+    DataStateBoundary ..> DataEnvelope
+    MockBadge ..> BridgeMode
+    HermesStatusStore ..> MockBadge

@@ -1,0 +1,42 @@
+
+══════════ kmaster-studio UI/UX 合规度量 ══════════
+扫描 126 文件（82 个 .vue） · Token 定义 50 / 引用 47 / JS注入 5
+──────────────────────────────────────────────────────────────
+指标                                      数量   等级
+──────────────────────────────────────────────────────────────
+幽灵Token·无fallback(真bug)                      3   🔴
+幽灵Token·有fallback(主题失效)                      5   🟡
+硬编码 hex                                     30   🟡
+硬编码 rgba                                    26   🟡
+功能性 emoji(template)                         97   🔴
+outline:none(抵消focus环)                       5   🟡
+KIcon 采用率                          8/82 (9.8%)   🟡
+原始px(字号/间距未用Token)                773 (Token仅0.6%)   🔴
+缺状态的 view                                    5   🟡
+定义未使用的 Token                                16   🟢
+tsEmoji(.ts/.scss)                          63   🔴
+sfcScriptEmoji(.vue script)                 57   🔴
+──────────────────────────────────────────────────────────────
+参考：运行时注入Token 5 · 注释emoji 93（唯一不计入违规的 emoji 类） · 功能性 / sfcScript / tsEmoji 三类 emoji 均计入整改面
+计数单位 = 位点（file:line），非 emoji 字符数；多 emoji 同行记 1 位点
+扫描器自检：漏扫位点 0  ✅ 覆盖完整
+
+── 对照基线 2026-08-07T10:11:12.069Z ──
+  ⏸  无变化
+
+✅ 无回归。
+
+══════ 独立差分验证（oracle=全文逐行扫描，绕过 splitSFC）══════
+扫描 126 文件（82 个 .vue）
+A  oracle 全文扫描位点(.vue) : 154
+B  audit  分块扫描位点(.vue) : 152
+   ├ 已具名豁免              : 2
+   ├ 疑似漏扫(A\B 非豁免)    : 0
+   └ B 有 A 无               : 0
+豁免 E1-style-block               0 条  emoji 位于 <style> 块（CSS content 等），不属于 audit 的 emoji …
+豁免 E2-trailing-comment          0 条  emoji 仅出现在**行尾内联注释**中（如 `foo(); // ✅ 说明`）。audit 走 st…
+豁免 E3-multiline-comment-body    0 条  emoji 位于多行注释（HTML <!-- --> 或 JS /* */）的**中间行**，该行行首不…
+豁免 E4-sentence-connector        2 条  → 在句中作流程/路径连接符，删掉会改变语义（判 B 豁免），但 EMOJI_RE 无法在字符级区分语境…
+
+✅ 闸门一通过：oracle 与 audit 差集已 100% 具名豁免，无漏扫。
+✅ 闸门二通过：全部非 ASCII 码位均在普查表 123 项白名单内。

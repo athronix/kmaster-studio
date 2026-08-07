@@ -1,0 +1,51 @@
+
+══════ splitSFC 覆盖率自检 ══════
+扫描 82 个 .vue 文件
+漏扫文件数：12 · 漏扫位点数：27
+
+── packages/client/src/components/chat/MessageItem.vue  (6) ──
+   L277  [📋]  >📋</button>
+   L285  [✎]  >✎</button>
+   L298  [⚠]  <span>⚠ 发送失败，点击重试</span>
+   L317  [📋]  📋 复制文本
+   L324  [📝]  📝 复制代码
+   L331  [🔄]  🔄 重新生成
+── packages/client/src/components/layout/LeftSidebar.vue  (6) ──
+   L511  [📥]  <button title="导出" @click="sl.doExport(s)">📥</button>
+   L578  [◉○]  >{{ job.enabled ? '◉' : '○' }}</span>
+   L613  [🌙☀]  <template #icon>{{ theme.isDark.value ? '🌙' : '☀️' }}</template>
+   L627  [✎]  ✎ 重命名
+   L630  [📥]  📥 导出 Markdown
+   L633  [📁]  📁 绑定工作区
+── packages/client/src/components/chat/ChatInput.vue  (4) ──
+   L310  [📄]  >📄 {{ u.filename }}<button class="km-chip-x" @click="removeUpload(i)">×</bu
+   L339  [📄]  >📄 选择文件</div>
+   L354  [🧩]  >🧩 {{ skill.name }}</n-checkbox>
+   L371  [🔌]  >🔌 {{ mcp.name }}</n-checkbox>
+── packages/client/src/components/chat/OutputPanel.vue  (3) ──
+   L206  [📥]  <template #icon>📥</template>
+   L209  [🔄]  <template #icon>🔄</template>
+   L212  [🌐]  <template #icon>🌐</template>
+── packages/client/src/components/chat/RightPanel.vue  (1) ──
+   L128  [📋]  <n-button size="tiny" @click="copyConfig">📋 复制 JSON</n-button>
+── packages/client/src/components/chat/SessionConfigBar.vue  (1) ──
+   L195  [🧠]  <span class="km-config-icon">🧠</span>
+── packages/client/src/components/layout/RightPanel.vue  (1) ──
+   L157  [✕]  <template #icon>✕</template>
+── packages/client/src/components/layout/StatusBar.vue  (1) ──
+   L113  [🌙☀]  <template #icon>{{ theme.isDark.value ? '🌙' : '☀️' }}</template>
+── packages/client/src/components/settings/ExpertPickerPanel.vue  (1) ──
+   L138  [🧑💼]  <div class="epp-icon">{{ entity.icon || '🧑‍💼' }}</div>
+── packages/client/src/components/settings/McpManageSection.vue  (1) ──
+   L154  [📦]  <span class="mcm-card-icon">{{ a.icon || '📦' }}</span>
+── packages/client/src/components/settings/ProviderSection.vue  (1) ──
+   L266  [⚠]  ⚠️ API Key 仅写入不回显，保存后经 <code>hermes config set</code> 落到 hermes 的 .env（保留原有注
+── packages/client/src/views/ChatView.vue  (1) ──
+   L299  [⏹]  <button v-if="running" class="km-stop-btn" @click="sid && store.stop(sid)">⏹
+
+❌ 覆盖率自检失败：27 个含图标字符的行从未进入任何 SFC 块。
+   根因：splitSFC 的配对正则 /<(template|script|style)[^>]*>([\s\S]*?)<\/\1>/g 为非贪婪，
+   遇 Vue 具名插槽 <template #icon> 时外层 template 在首个 </template> 提前截断，
+   截断点到下一个开标签之间的行不属于任何块，等于从未被扫描。
+   修法：SFC 顶层块必在行首零缩进 → 改行首锚定 /^<(template|script|style)(\s[^>]*)?>\s*$/m 切块。
+exit=1

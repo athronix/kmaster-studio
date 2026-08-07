@@ -1,0 +1,60 @@
+sequenceDiagram
+    actor User
+    participant EV as ExpertsView
+    participant CML as CardMarketLayout
+    participant EC as EntityCard
+    participant UDT as useDomainTags
+    participant Store as chatStore
+    participant CV as ChatView
+    participant OP as OutputPanel
+    participant Detail as ExpertDetail | TeamDetail
+
+    %% 1. 进入市场页面
+    User->>EV: 路由 /experts
+    EV->>CML: 渲染 CardMarketLayout<br/>props: { entities: MOCK_EXPERTS, title: '专家市场', entityType: 'expert' }
+    CML->>UDT: sortedDomains(allDomainTags)
+    UDT-->>CML: 按频度排序的领域标签列表
+    CML->>CML: 渲染 4×5 网格 + 精选推荐横滚
+
+    %% 2. 搜索 & 筛选
+    User->>CML: 在搜索框输入 "Python"
+    CML->>CML: 300ms 防抖 → filteredEntities computed
+    CML-->>User: 网格更新为匹配结果
+
+    User->>CML: 点击领域标签 "前端"
+    CML->>UDT: recordDomainClick('前端')
+    UDT->>UDT: localStorage 写入 km-domain-freq
+    CML-->>User: "前端" 标签移至第二位，网格按 domain 筛选
+
+    %% 3. 点击卡片 → 详情
+    User->>EC: 点击某张专家卡片
+    EC->>CML: emit('select', entity)
+    CML->>EV: emit('select', entity)
+    EV->>Store: openDetail({ type: 'expert', id: entity.id })
+    Store->>Store: detailEntity = { type: 'expert', id: entity.id }
+    Store->>Store: rightPanelMode = 'detail'
+    Store->>CV: rightPanelMode change
+
+    %% 4. 右栏展开
+    CV->>CV: 检测 rightPanelMode='detail'
+    CV->>OP: 展开右栏（width: 0 → 420px, transition）
+    OP->>OP: 判断 detailEntity.type = 'expert'
+    OP->>Detail: 渲染 ExpertDetail，props: { entity }
+    Detail-->>User: 专家详情：名称/专长/场景/Prompts/标签
+
+    %% 5a. 召唤专家
+    User->>Detail: 点击右上角 "召唤" 按钮
+    Detail->>Store: createSessionWithConfig({ agentRole: expert.id, ...defaults })
+    Store->>Store: highlightedSessionId = session.id
+    Store->>Store: rightPanelMode = 'hidden'
+    Store->>Store: closeDetail()
+    Store->>CV: rightPanelMode='hidden'
+    CV->>OP: 右栏收起（width: 0）
+    Store-->>User: 左栏高亮新会话 + 主栏打开对话
+
+    %% 5b. 查看成员详情（仅 TeamDetail）
+    alt 实体类型是 ExpertTeam
+        User->>Detail: 点击成员卡片
+        Detail->>Detail: selectedMember = member
+        Detail-->>User: NModal 弹窗：成员纯详情（名称+专长+场景，无召唤按钮）
+    end

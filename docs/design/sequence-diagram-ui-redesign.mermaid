@@ -1,0 +1,160 @@
+sequenceDiagram
+    actor User
+    participant LS as LayoutShell
+    participant LSB as LeftSidebar
+    participant CV as ChatView
+    participant CH as ChatHeader
+    participant CP as ChatPanel
+    participant ML as MessageList
+    participant CI as ChatInput
+    participant CR as ContextRing
+    participant OP as OutputPanel
+    participant SD as ShareDialog
+    participant Store as ChatStore(Pinia)
+    participant API as Socket.IO / REST
+
+    %% ── 场景 1：页面加载与初始化 ──
+    rect rgb(240, 248, 255)
+        Note over User,API: 场景1：应用启动 & 路由初始化
+
+        User->>LS: 打开应用
+        LS->>Store: registerSocket()
+        Store->>API: WebSocket connect
+        API-->>Store: socketReady = true
+        LS->>Store: loadSessions()
+        Store->>API: GET /sessions
+        API-->>Store: sessions[]
+        LS->>LSB: 渲染 LeftSidebar
+        LSB->>Store: useSessionList → list (computed)
+        Note over LSB: 显示分组任务列表
+
+        LS->>CV: router-view → ChatView (path: /)
+        CV->>CH: 渲染 ChatHeader
+        CV->>CP: 渲染 ChatPanel
+        CV->>OP: 渲染 OutputPanel
+        CP->>ML: 渲染 MessageList (空态)
+        CP->>CI: 渲染 ChatInput
+    end
+
+    %% ── 场景 2：发送消息完整流程 ──
+    rect rgb(255, 250, 240)
+        Note over User,API: 场景2：发送消息 → Agent 运行 → 产物生成
+
+        User->>CI: 输入文本 + 点击发送
+        CI->>CI: send() → text.trim()
+        CI->>Store: sendMessage(text)
+        Store->>Store: markLocalRun(sid)
+        Store->>API: emit('run', { session_id, content })
+        Store->>Store: messagesBySession[sid].push(userMsg)
+        ML->>ML: 自动滚动到底部
+
+        API-->>Store: run.started → runState[sid] = 'running'
+        Store-->>CI: agentStates 更新 → busy
+        CI->>CR: 传入 ctx_percent 更新环图颜色
+
+        loop Agent 处理中
+            API-->>Store: message.delta → 更新 assistant.content
+            Store-->>ML: 响应式刷新消息内容
+            ML->>ML: 持续滚动（流式输出）
+        end
+
+        API-->>Store: artifact.created → artifactsBySession[sid].push(artifact)
+        Store-->>OP: 产物列表更新
+        OP->>OP: 自动切换到新产物标签
+
+        API-->>Store: run.completed → runState[sid] = 'idle'
+        Store->>Store: settleLocalRun(sid)
+        Store-->>CI: agentStates 更新 → idle
+        API-->>Store: context.updated → contextBySession[sid]
+        Store-->>CR: ctx_percent 更新
+    end
+
+    %% ── 场景 3：左栏切换会话 ──
+    rect rgb(240, 255, 240)
+        Note over User,API: 场景3：左栏切换会话
+
+        User->>LSB: 点击会话项
+        LSB->>Store: openSession(newSid)
+        Store->>Store: activeSessionId = newSid
+        Store-->>CH: title 更新为新会话标题
+        Store-->>ML: messagesBySession[newSid] 渲染
+        Store-->>CI: modeBySession / modelBySession 更新
+        Store-->>OP: artifactsBySession[newSid] 更新
+        Store->>API: GET /context/{newSid}
+        API-->>Store: contextBySession[newSid]
+        Store-->>CR: 环图数据更新
+    end
+
+    %% ── 场景 4：右栏 OutputPanel 交互 ──
+    rect rgb(255, 240, 255)
+        Note over User,OP: 场景4：产物预览 & 全屏
+
+        User->>OP: 点击产物标签
+        OP->>OP: activeTabId = artifactId (v-show 切换)
+        Note over OP: 渲染 iframe / AgentMarkdown / img
+
+        User->>OP: 点击全屏按钮
+        OP->>OP: fullscreen = true
+        OP-->>CV: emit fullscreen → ChatView 隐藏 ChatPanel
+        Note over OP: OutputPanel 覆盖中栏+右栏
+
+        User->>OP: 编辑 URL 地址栏 + 回车
+        OP->>OP: urlInput 变化 → iframe src 刷新
+
+        User->>OP: 点击下载
+        OP->>Store: 触发 artifact 下载
+
+        User->>OP: 再次点击全屏
+        OP->>OP: fullscreen = false
+        OP-->>CV: 恢复三栏布局
+    end
+
+    %% ── 场景 5：分享流程 ──
+    rect rgb(255, 255, 240)
+        Note over User,SD: 场景5：分享任务
+
+        User->>CH: 点击分享图标
+        CH-->>CV: emit share
+        CV->>SD: show = true (NModal)
+        SD->>SD: generateUrl() → mock 分享链接
+        Note over SD: 显示链接 + 过期时间 NSelect
+
+        User->>SD: 选择过期时间 + 点击复制
+        SD->>SD: copyLink() → navigator.clipboard.writeText()
+        Note over SD: Toast 提示"已复制"
+
+        User->>SD: 关闭弹窗
+        SD->>SD: show = false
+    end
+
+    %% ── 场景 6：ChatInput [+] 面板添加上下文 ──
+    rect rgb(245, 245, 255)
+        Note over User,CI: 场景6：[+] 面板添加上下文
+
+        User->>CI: 点击 [+] 按钮
+        CI->>CI: NPopover show = true
+        Note over CI: 显示技能/MCP/Agent/文件选择面板
+
+        User->>CI: 搜索 + 选择技能
+        CI->>CI: chips[] push { type:'skill', id, name }
+        Note over CI: 输入框上方显示 chip 标签
+
+        User->>CI: 点击 chip ×
+        CI->>CI: chips[] splice(idx, 1)
+        Note over CI: chip 移除
+    end
+
+    %% ── 场景 7：设置页导航 ──
+    rect rgb(250, 245, 240)
+        Note over User,API: 场景7：设置页 12 分类导航
+
+        User->>LSB: 点击「设置」
+        LSB->>LS: router.push('/settings')
+        LS->>API: 懒加载 SettingsView.vue
+        Note over LS: 渲染 LeftSidebar + SettingsView
+
+        User->>API: 点击「模型管理」分类
+        Note over API: scrollIntoView + activeId 高亮
+        API->>Store: loadModels()
+        Store-->>API: ProviderGroup[] 渲染
+    end

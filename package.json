@@ -1,0 +1,36 @@
+{
+  "name": "kmaster-studio",
+  "version": "0.0.0",
+  "private": true,
+  "description": "kmaster-studio — hermes-agent 前端 Studio（UI 对齐 WorkBuddy，架构复用 hermes-studio）",
+  "workspaces": [
+    "packages/client",
+    "packages/server",
+    "packages/desktop"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,green \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm -w packages/server run dev",
+    "dev:client": "npm -w packages/client run dev",
+    "dev:desktop": "npm -w packages/desktop run start",
+    "build": "npm -w packages/client run build && npm -w packages/server run build",
+    "build:desktop": "npm -w packages/desktop run build",
+    "dist:win": "npm -w packages/desktop run dist:win",
+    "dist:mac": "npm -w packages/desktop run dist:mac",
+    "dist:linux": "npm -w packages/desktop run dist:linux",
+    "start": "npm -w packages/server run start",
+    "test": "npm -w packages/client run test && npm -w packages/server run test",
+    "test:client": "npm -w packages/client run test",
+    "test:server": "npm -w packages/server run test",
+    "verify:bridge": "node scripts/verify-bridge-e2e.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@tabler/icons-vue": "^3.46.0"
+  }
+}

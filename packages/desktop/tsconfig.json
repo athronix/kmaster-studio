@@ -1,0 +1,22 @@
+{
+  "//": "Electron 主进程/preload 用 CommonJS 最省心；不继承 tsconfig.base.json（其为 ESNext + Bundler 解析）。",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "declaration": false,
+    "sourceMap": false,
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node"]
+  },
+  "include": ["src"]
+}

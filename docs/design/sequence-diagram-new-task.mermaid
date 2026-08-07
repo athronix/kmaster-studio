@@ -1,0 +1,60 @@
+sequenceDiagram
+    actor User
+    participant LSB as LeftSidebar
+    participant NTD as NewTaskDialog
+    participant Store as chatStore (Pinia)
+    participant API as /api/sessions
+
+    %% 1. 打开弹窗
+    User->>LSB: 点击 "➕ 新建任务"
+    LSB->>LSB: showNewTaskDialog = true
+    LSB->>NTD: 渲染 NModal
+    NTD->>NTD: 初始化 form：provider/model 从 store.globalSettings 读默认值
+
+    %% 2. 填写表单
+    User->>NTD: 填写 title
+    User->>NTD: 选择 Agent 角色 (default/专家/专家团)
+    User->>NTD: 确认 provider + model（级联）
+    User->>NTD: 添加 skills（点击 "+" 逐行追加）
+    User->>NTD: 添加 mcpServers（同上）
+    User->>NTD: 选择 securityMode
+    User->>NTD: 输入 workspace 路径
+    User->>NTD: 点击 "确定"
+
+    %% 3. 校验 & emit
+    NTD->>NTD: 校验 title 非空
+    alt title 为空
+        NTD-->>User: 确定按钮置灰，提示填写 title
+    else 校验通过
+        NTD->>LSB: emit('confirm', config: NewTaskConfig)
+        NTD->>NTD: show = false
+
+        %% 4. 创建 session
+        LSB->>Store: createSessionWithConfig(config)
+        Store->>API: POST /api/sessions { workspace, model, mode }
+        API-->>Store: { session }
+        Store->>Store: sessions = [session, ...sessions]
+        Store->>Store: highlightedSessionId = session.id
+        Store->>Store: rightPanelMode = 'hidden'
+        Store->>Store: activeSessionId = session.id
+        Store->>LSB: sessions 列表更新
+
+        %% 5. 左栏刷新 & 高亮
+        LSB->>LSB: 自动展开对应 workspace 分组
+        LSB->>LSB: 新会话项 :class="km-session-highlight"
+        LSB-->>User: 新会话高亮闪烁（2×300ms）
+
+        %% 6. 路由切换
+        LSB->>LSB: router.push('/') 如不在 /
+        Store-->>User: 主栏打开新会话对话窗口，右栏隐藏
+
+        %% 7. 高亮结束
+        Note over Store: setTimeout 2500ms → clearHighlight()
+        Store->>Store: highlightedSessionId = null
+        LSB->>LSB: 高亮动画结束，恢复正常样式
+    end
+
+    %% 取消分支
+    User->>NTD: 点击 "取消" 或遮罩
+    NTD->>NTD: show = false
+    Note over LSB: 无任何副作用

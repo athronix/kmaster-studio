@@ -1,0 +1,34 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+const props = defineProps<{ text: string }>();
+const open = ref(true);
+</script>
+
+<template>
+  <div class="km-thought">
+    <div class="km-thought-head" @click="open = !open">
+      <span class="dot" /> 思考过程
+      <span class="chev">{{ open ? '▾' : '▸' }}</span>
+    </div>
+    <div v-show="open" class="km-thought-body">{{ props.text }}</div>
+  </div>
+</template>
+
+<style scoped>
+.km-thought {
+  border-left: 2px solid var(--km-thought-border);
+  padding: 4px 10px;
+  margin: 6px 0;
+  opacity: 0.85;
+  font-size: 13px;
+}
+.km-thought-head {
+  cursor: pointer;
+  color: var(--km-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--km-muted); }
+.km-thought-body { white-space: pre-wrap; margin-top: 4px; }
+</style>

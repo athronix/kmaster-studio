@@ -1,0 +1,7 @@
+A(audit stripComments 口径) = 61
+B(朴素行首注释口径)        = 62
+
+【B 有 A 无】= 1  ← 行内尾注释被 audit 正确剔除
+  packages/client/src/composables/useSessionList.ts:224  if (s.archived) continue; // ✅ 必须保留：归档过滤（B10-③ / F30）
+
+【A 有 B 无】= 0

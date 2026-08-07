@@ -1,0 +1,211 @@
+classDiagram
+    direction TB
+
+    %% ── 类型层 ──
+    class CardItem {
+        <<interface>>
+        +string id
+        +string name
+        +string? icon
+        +string description
+        +string[] tags
+        +string category
+        +string domain
+        +boolean featured
+    }
+
+    class Expert {
+        +string entityType = 'expert'
+        +string expertise
+        +string[] scenarios
+        +string[] samplePrompts
+        +string actionType = 'summon'
+    }
+
+    class ExpertTeam {
+        +string entityType = 'expertTeam'
+        +string skillDesc
+        +string[] scenarios
+        +string[] samplePrompts
+        +Expert[] members
+        +string actionType = 'summon'
+    }
+
+    class SkillDef {
+        +string entityType = 'skill'
+        +string englishName
+        +string source : 'marketplace'|'local'|'url'
+        +string[] scenarios
+        +string[] samplePrompts
+        +boolean installed
+        +string actionType = 'install'
+    }
+
+    class McpServerDef {
+        +string entityType = 'mcp'
+        +string englishName
+        +string source
+        +object capabilities
+        +string[] scenarios
+        +string[] samplePrompts
+        +string deployJson
+        +boolean deployed
+        +string actionType = 'deploy'
+    }
+
+    class EntityDef {
+        <<union>>
+    }
+
+    class NewTaskConfig {
+        +string title
+        +string agentRole
+        +string provider
+        +string model
+        +string[] skills
+        +string[] mcpServers
+        +SecurityMode securityMode
+        +string workspace
+    }
+
+    CardItem <|-- Expert
+    CardItem <|-- ExpertTeam
+    CardItem <|-- SkillDef
+    CardItem <|-- McpServerDef
+    Expert & ExpertTeam & SkillDef & McpServerDef ..|> EntityDef
+
+    %% ── Composable 层 ──
+    class useDomainTags {
+        +getDomainFreq() Record~string,number~
+        +recordDomainClick(tag) void
+        +sortedDomains(allTags) string[]
+        -STORAGE_KEY = 'km-domain-freq'
+        -loadFromStorage() Record~string,number~
+        -saveToStorage(data) void
+    }
+
+    %% ── 组件层 ──
+    class NewTaskDialog {
+        -show: boolean
+        -form: NewTaskConfig
+        -skillRows: number
+        -mcpRows: number
+        +validate() boolean
+        +onConfirm() void
+        +onCancel() void
+        <<NModal>>
+    }
+
+    class CardMarketLayout {
+        +entities: EntityDef[]
+        +title: string
+        +entityType: EntityType
+        -searchQuery: string
+        -activeCategory: string
+        -activeDomain: string
+        -sortOrder: SortOrder
+        -page: number
+        -pageSize: number
+        +filteredEntities computed
+        +onDomainClick(tag) void
+        +onSearch(input) void
+        <<props+emit>>
+    }
+
+    class EntityCard {
+        +entity: EntityDef
+        +onSelect() void
+        +onAction() void
+        <<NCard>>
+    }
+
+    class ExpertDetail {
+        +entity: Expert
+        +onSummon() void
+    }
+
+    class TeamDetail {
+        +entity: ExpertTeam
+        +onSummon() void
+        +onMemberClick(member) void
+    }
+
+    class SkillDetail {
+        +entity: SkillDef
+        +onToggleInstall() void
+    }
+
+    class McpDetail {
+        +entity: McpServerDef
+        +onToggleDeploy() void
+        +onTest() void
+        +onSchemaClick(item) void
+    }
+
+    class LeftSidebar {
+        -showNewTaskDialog: boolean
+        -settingsOverlay: Ref~boolean~ (inject)
+        +onNewTaskConfirm(config) void
+        +toggleSettings() void
+        <<V2 改造>>
+    }
+
+    class LayoutShell {
+        +settingsOverlay: Ref~boolean~
+        +provide settingsOverlay
+    }
+
+    class ChatView {
+        +rightPanelMode: Ref~string~ (from store)
+        <<V2 改造>>
+    }
+
+    class OutputPanel {
+        +mode: 'hidden'|'output'|'detail'
+        +detailEntity: Ref (from store)
+        +renderDetail() h
+        <<V2 改造>>
+    }
+
+    class SettingsView {
+        +settingsOverlay: Ref~boolean~ (inject)
+        +activeCategory: string
+        +savedCategory: string
+        <<V2 改造>>
+    }
+
+    %% ── Store 层 ──
+    class chatStore {
+        +highlightedSessionId: Ref~string|null~
+        +rightPanelMode: Ref~'hidden'|'output'|'detail'~
+        +detailEntity: Ref~{type,id}|null~
+        +rightPanelCollapsed: Ref~boolean~
+        +createSessionWithConfig(config) Promise~string~
+        +openDetail(entity) void
+        +closeDetail() void
+        +clearHighlight() void
+        <<Pinia>>
+    }
+
+    %% ── 关系 ──
+    NewTaskDialog ..> NewTaskConfig : uses
+    CardMarketLayout --> EntityDef : renders list
+    CardMarketLayout --> EntityCard : renders via
+    CardMarketLayout --> useDomainTags : uses
+    EntityCard --> EntityDef : props
+    ExpertDetail --> Expert : props
+    TeamDetail --> ExpertTeam : props
+    SkillDetail --> SkillDef : props
+    McpDetail --> McpServerDef : props
+    LeftSidebar --> NewTaskDialog : opens
+    LeftSidebar ..> chatStore : calls createSessionWithConfig
+    ChatView ..> chatStore : reads rightPanelMode
+    OutputPanel ..> chatStore : reads rightPanelMode + detailEntity
+    OutputPanel --> ExpertDetail : renders when mode=detail
+    OutputPanel --> TeamDetail : renders when mode=detail
+    OutputPanel --> SkillDetail : renders when mode=detail
+    OutputPanel --> McpDetail : renders when mode=detail
+    LayoutShell ..> LeftSidebar : provide settingsOverlay
+    LayoutShell ..> SettingsView : provide settingsOverlay
+    ExpertDetail ..> chatStore : calls createSessionWithConfig (summon)
+    TeamDetail ..> chatStore : calls createSessionWithConfig (summon)

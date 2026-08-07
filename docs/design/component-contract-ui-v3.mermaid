@@ -1,0 +1,156 @@
+%% kmaster-studio UI V3 — 组件契约类图（props / emits / slots）
+%% 来源：docs/design/TECHNICAL-SOLUTION-ui-v3.md §3.2
+
+classDiagram
+    direction TB
+
+    class PageHeader {
+        <<component>>
+        +string title
+        +boolean hideLeft
+        +boolean hideRight
+        +boolean showSearch
+        +string searchPlaceholder
+        +boolean embedded
+        +emit toggle-left()
+        +emit toggle-right()
+        +emit search(q)
+        +slot title-extra
+        +slot actions
+    }
+
+    class RightPanel {
+        <<component>>
+        +RightPanelMode mode$
+        +string title$
+        +emit close()
+        +emit toggle-fullscreen()
+    }
+
+    class ResizeHandle {
+        <<component>>
+        +Side side
+        +number min
+        +number max
+        +number value
+        +emit update:value(w)
+        +emit resize-start()
+        +emit resize-end()
+    }
+
+    class SettingsNav {
+        <<component>>
+        +string active$
+        +emit select(category)
+        +emit back()
+    }
+
+    class StatusBar {
+        <<component>>
+        +boolean compact
+    }
+
+    class AgentRoleSection {
+        <<component>>
+        +emit open-detail(roleId)
+        +emit open-picker()
+    }
+
+    class AgentRoleDetail {
+        <<component>>
+        +string roleId
+        +emit save(role)
+        +emit cancel()
+    }
+
+    class ExpertPickerPanel {
+        <<component>>
+        +emit add(expert)
+        +emit remove(expertId)
+        +emit inspect(expert)
+    }
+
+    class LogSection {
+        <<component>>
+        +emit open-detail(entry)
+    }
+
+    class AddModelDialog {
+        <<component>>
+        +boolean show
+        +emit update:show(v)
+        +emit confirm(cfg)
+        +emit test-result(r)
+    }
+
+    class ResultDialog {
+        <<component>>
+        +boolean show
+        +ResultVariant variant
+        +string title
+        +string message
+        +string detail
+        +number durationMs
+        +emit update:show(v)
+        +emit primary()
+    }
+
+    class ResultVariant {
+        <<enumeration>>
+        success
+        error
+        warning
+        info
+    }
+
+    class CardMarketLayout {
+        <<component>>
+        +string title
+        +EntityDef[] entities
+        +EntityDef[] featuredItems
+        +EntityDef[] installedItems
+        +string installedTitle
+        +boolean installedMode
+        +emit select(entity)
+        +emit search(q)
+        +emit installed-action(entity)
+        +slot card
+        +slot installed-card
+    }
+
+    class EntityCard {
+        <<component>>
+        +EntityDef entity
+        +string actionLabel
+        +ActionType actionType
+        +emit action(entity)
+        +emit click(entity)
+    }
+
+    class LayoutShell {
+        <<component>>
+        +CssVars cssVars$
+        +ResizeObserver ro
+    }
+
+    class OutputPanel {
+        <<component>>
+        +TabItem[] tabs
+        +string activeTabId
+    }
+
+    PageHeader ..> LayoutStore : toggleLeft / toggleRight
+    RightPanel ..> ChatStore : mode
+    RightPanel --> OutputPanel : mode=output
+    RightPanel --> AgentRoleDetail : mode=agent-role
+    RightPanel --> ExpertPickerPanel : mode=expert-picker
+    LayoutShell --> ResizeHandle : 左右各一
+    LayoutShell --> RightPanel : shell 层承载
+    SettingsNav --> StatusBar : 内嵌
+    AgentRoleSection ..> AgentRolesStore
+    AgentRoleDetail ..> AgentRolesStore
+    ExpertPickerPanel ..> AgentRolesStore
+    LogSection ..> LogsStore
+    AddModelDialog ..> ModelConfigStore
+    AddModelDialog --> ResultDialog : test 结果
+    CardMarketLayout --> EntityCard

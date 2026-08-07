@@ -1,0 +1,22 @@
+sequenceDiagram
+    actor User
+    participant AgentTabBar
+    participant ChatView
+    participant ChatStore
+    participant ChatPanel
+    participant MessageList
+
+    User->>AgentTabBar: 点击 Agent 标签
+    AgentTabBar->>ChatView: emit('select', agentId)
+    ChatView->>ChatStore: activeAgentId = agentId
+    ChatStore-->>ChatPanel: activeAgentId 变化（computed）
+    ChatPanel->>MessageList: :agentFilter="activeAgentId"
+    MessageList->>MessageList: messages.filter(m => (m.agentId || 'default') === agentFilter)
+    Note over MessageList: 无 agentId 的存量消息归属 "default" 标签
+
+    rect rgb(240, 240, 255)
+        Note over User,MessageList: 场景 2：单 Agent 会话
+        User->>AgentTabBar: 仅一个标签
+        AgentTabBar->>AgentTabBar: agents.length === 1 → closable=false
+        Note over AgentTabBar: 不渲染 × 关闭按钮
+    end

@@ -1,0 +1,38 @@
+组合（functionalEmoji / sfcScriptEmoji / tsEmoji = 合计）
+A 旧判据+旧口径 (T3a-3 原状) : 78 / 56 / 61 = 195
+B 新判据+旧口径 (仅扩类)     : 94 / 57 / 63 = 214
+C 旧判据+新口径 (仅统一口径) : 78 / 56 / 61 = 195
+D 新判据+新口径 (T3a-4 定版) : 94 / 57 / 63 = 214
+
+【第 8 项净影响】A→C 差异: fn 0 / sc 0 / ts 0   （team-lead 预期全 0）
+【扩类净影响】  A→B 差异: fn 16 / sc 1 / ts 2
+【交互项】      B→D 差异: fn 0 / sc 0 / ts 0
+
+══════ 扩类新增位点逐条（D \ A，按字符归类）══════
+
+── functionalEmoji 新增 16 ──
+  packages/client/src/components/chat/McpManager.vue:95  [＋]  <n-button type="primary" block @click="add">＋ 添加</n-button>
+  packages/client/src/components/chat/MessageList.vue:144  []  <button class="km-compression-dismiss" @click="dismissCompression" title="关闭" aria-label
+  packages/client/src/components/chat/MessageList.vue:151  []  <button class="km-mirror-dismiss" @click="dismissMirror" title="收起" aria-label="收起镜像提示">
+  packages/client/src/components/chat/MessageList.vue:181  [↓]  ↓ 滚动到底部
+  packages/client/src/components/chat/OutputPanel.vue:154  [×]  <span v-if="tab.closable" class="km-output-tab-close" @click.stop="closeTab(tab.id)">×</
+  packages/client/src/components/layout/PageHeader.vue:152  [⧉]  <template #icon>⧉</template>
+  packages/client/src/components/layout/SettingsNav.vue:64  [←]  <template #icon>←</template>
+  packages/client/src/components/settings/AgentRoleSection.vue:166  [＋]  ＋
+  packages/client/src/components/settings/ModelManageSection.vue:205  [＋]  <n-button size="small" type="primary" @click="onAddProvider">＋ 新增供应商</n-button>
+  packages/client/src/components/sidebar/SidebarSessionItem.vue:201  [⋯]  <button class="km-icon-btn" :aria-label="t('sidebar.action.more')">⋯</button>
+  packages/client/src/views/ChatView.vue:295  [⧉]  <template #icon>⧉</template>
+  packages/client/src/views/JobsView.vue:224  [＋]  <n-button type="primary" @click="openCreate">＋ 新建任务</n-button>
+  packages/client/src/views/JobsView.vue:237  [＋]  <n-button type="primary" @click="openCreate">＋ 新建任务</n-button>
+  packages/client/src/views/MemoryView.vue:123  [＋]  <n-button type="primary" @click="openCreate('memory')">＋ 新增条目</n-button>
+  packages/client/src/views/MemoryView.vue:134  [＋]  <n-button v-if="embedded" type="primary" @click="openCreate('memory')">＋ 新增条目</n-button>
+  packages/client/src/views/MemoryView.vue:153  [＋]  <n-button size="tiny" tertiary @click="openCreate(g)">＋</n-button>
+
+── sfcScriptEmoji 新增 1 ──
+  packages/client/src/components/chat/AgentMarkdown.vue:50  [✓]  btn.textContent = '✓';
+
+── tsEmoji 新增 2 ──
+  packages/client/src/locales/en.ts:21  [×]  'chat.cancelEdit': '× Cancel',
+  packages/client/src/locales/zh-CN.ts:21  [×]  'chat.cancelEdit': '× 取消',
+
+══════ 消失位点（A \ D，应为空）══════

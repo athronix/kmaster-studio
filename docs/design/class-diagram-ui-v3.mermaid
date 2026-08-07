@@ -1,0 +1,280 @@
+%% kmaster-studio UI V3 — 数据结构与接口类图
+%% 来源：docs/design/TECHNICAL-SOLUTION-ui-v3.md §3
+%% 图 1：类型层 + Store 层
+
+classDiagram
+    direction LR
+
+    class AgentRole {
+        +string id
+        +string name
+        +string avatar
+        +string desc
+        +string[] specialties
+        +string agentMd
+        +string[] skills
+        +string[] mcp
+        +string[] tags
+        +string[] samplePrompts
+        +RoleSource source
+        +number createdAt
+        +number updatedAt
+    }
+
+    class RoleSource {
+        <<enumeration>>
+        manual
+        market
+    }
+
+    class ModelProviderConfig {
+        +string id
+        +string providerKey
+        +string name
+        +string url
+        +ApiMethod apiMethod
+        +string apiKey
+        +ModelConfig[] models
+        +boolean verified
+        +number lastTestedAt
+    }
+
+    class ModelConfig {
+        +string id
+        +string name
+        +string alias
+        +ModelCapability[] capabilities
+        +number contextLength
+    }
+
+    class ApiMethod {
+        <<enumeration>>
+        openai-chat
+        openai-response
+        anthropic-chat
+        anthropic-response
+    }
+
+    class ModelCapability {
+        <<enumeration>>
+        text
+        vision
+        video
+        audio
+        image-gen
+        video-gen
+        audio-gen
+        structured
+    }
+
+    class DefaultModelSlot {
+        <<enumeration>>
+        default
+        simple
+        vision
+        image
+        fallback
+    }
+
+    class PresetProvider {
+        +string key
+        +string name
+        +string url
+        +ApiMethod apiMethod
+        +ModelConfig[] models
+    }
+
+    class LogEntry {
+        +string id
+        +number ts
+        +LogKind kind
+        +LogLevel level
+        +string summary
+        +string content
+        +string file
+        +string sessionId
+    }
+
+    class LogKind {
+        <<enumeration>>
+        hermes-agent
+        bridge
+        kmaster-server
+        cron
+    }
+
+    class LogLevel {
+        <<enumeration>>
+        info
+        warning
+        error
+    }
+
+    class LogFilter {
+        +TimeRange time
+        +string sessionId
+        +LogKind kind
+        +LogLevel level
+        +string q
+    }
+
+    class LocalProfile {
+        +string name
+        +string email
+        +string bio
+        +number updatedAt
+    }
+
+    class CronRun {
+        +string job_id
+        +string job_name
+        +string run_time
+        +string status
+        +string mode
+        +string excerpt
+        +string file
+    }
+
+    class RightPanelMode {
+        <<enumeration>>
+        hidden
+        output
+        expert
+        team
+        skill
+        mcp
+        job-artifact
+        agent-role
+        expert-picker
+    }
+
+    class LayoutStore {
+        +number leftWidth
+        +number rightWidth
+        +boolean leftCollapsed
+        +boolean rightCollapsed
+        +boolean rightFullscreen
+        +string lastHomeRoute
+        +NavMode navMode$
+        +string settingsCategory$
+        +CssVars cssVars$
+        +toggleLeft() void
+        +toggleRight() void
+        +toggleFullscreen() void
+        +setLeftWidth(w) void
+        +setRightWidth(w) void
+        +enterSettings() void
+        +exitSettings() void
+        +autoCollapseRight(shellW) void
+        +persist() void
+        +hydrate() void
+    }
+
+    class NavMode {
+        <<enumeration>>
+        home
+        settings
+    }
+
+    class StatusStore {
+        +boolean bridgeConnected
+        +string serverVersion
+        +LocalProfile account
+        +boolean loggedIn$
+        +startPolling() void
+        +stopPolling() void
+        +refreshHealth() Promise
+        +saveAccount(p) void
+        +resetPassword(o, n) Promise
+    }
+
+    class AgentRolesStore {
+        +AgentRole[] roles
+        +SelectOption[] selectOptions$
+        +hydrate() void
+        +persist() void
+        +add(role) AgentRole
+        +addRoleIfAbsent(role) AgentRole
+        +update(id, patch) void
+        +remove(id) void
+        +getById(id) AgentRole
+        +fromMarketExpert(e) AgentRole
+        +has(id) boolean
+    }
+
+    class ModelConfigStore {
+        +ModelProviderConfig[] providers
+        +DefaultsMap defaults
+        +hydrate() void
+        +persist() void
+        +addProvider(cfg) void
+        +removeProvider(id) void
+        +addModel(pid, m) void
+        +removeModel(pid, mid) void
+        +setDefault(slot, mid) void
+        +optionsForSlot(slot) SelectOption[]
+        +fetchModels(cfg) Promise
+        +testConnectivity(cfg) Promise
+        +deepTest(cfg) Promise
+        +usageOf(modelId) number
+    }
+
+    class LogsStore {
+        +LogEntry[] entries
+        +LogFilter filter
+        +string logDir
+        +boolean loading
+        +boolean isMock
+        +LogEntry[] filtered$
+        +load() Promise
+        +setLogDir(p) Promise
+        +openExternal(e) Promise
+        +resetFilter() void
+    }
+
+    class ChatStore {
+        +RightPanelMode rightPanelMode
+        +EntityDef detailEntity
+        +CronRun jobArtifact
+        +string editingRoleId
+        +openDetail(entity) void
+        +openJobArtifact(run) void
+        +openAgentRole(roleId) void
+        +openExpertPicker() void
+        +showOutput() void
+        +closeDetail() void
+    }
+
+    class DesktopBridge {
+        <<module>>
+        +isDesktop() boolean
+        +pickFolder() Promise
+        +readTextFile(path, maxBytes) Promise
+        +listDir(path) Promise
+        +openPath(path) Promise
+        +pathExists(path) Promise
+    }
+
+    AgentRole --> RoleSource : source
+    ModelProviderConfig "1" *-- "n" ModelConfig : models
+    ModelProviderConfig --> ApiMethod : apiMethod
+    ModelConfig --> ModelCapability : capabilities
+    PresetProvider --> ApiMethod : apiMethod
+    PresetProvider "1" o-- "n" ModelConfig : 预置
+    LogEntry --> LogKind : kind
+    LogEntry --> LogLevel : level
+    LogFilter --> LogKind : kind
+    LogFilter --> LogLevel : level
+
+    LayoutStore --> NavMode : navMode(派生自 route)
+    AgentRolesStore "1" o-- "n" AgentRole : localStorage 唯一真源
+    ModelConfigStore "1" o-- "n" ModelProviderConfig : localStorage 唯一真源
+    ModelConfigStore --> DefaultModelSlot : defaults
+    ModelConfigStore ..> PresetProvider : 读取预置
+    LogsStore "1" o-- "n" LogEntry
+    LogsStore --> LogFilter : filter
+    LogsStore ..> DesktopBridge : readTextFile / listDir / openPath
+    StatusStore --> LocalProfile : account
+    ChatStore --> RightPanelMode : rightPanelMode
+    ChatStore ..> CronRun : jobArtifact
+    ChatStore ..> AgentRolesStore : editingRoleId

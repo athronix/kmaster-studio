@@ -1,0 +1,812 @@
+扫描文件数: 126（.vue/.ts/.scss，排除 *.test.ts）
+非 ASCII 非汉字 码位总数: 123
+CJK 汉字聚合: 字符 34849 次 / 3720 位点（100% 文案，不逐码位列出）
+
+码位	字符	字符次数	位点数	非注释位点数	出现扩展名	首个样例
+U+00A7	§	102	95	2	.ts|.vue|.scss	packages/client/src/api/client.ts:2 [注释] // 契约基准：docs/design/TECHNICAL-SOLUTION-M4.md §3.6 + packages/server/src/routes/*。
+U+00B7	·	40	35	24	.ts|.vue	packages/client/src/api/client.ts:364 [注释] * 用于置顶 / 归档 / 重命名 / 改 skills·mcp。落库走 kmaster.db 侧车
+U+00D7	×	18	15	6	.vue|.ts	packages/client/src/components/chat/ChatInput.vue:310 [代码] >📄 {{ u.filename }}<button class="km-chip-x" @click="removeUpload(i)">×</button></span>
+U+200D	‍	2	2	2	.vue	packages/client/src/components/dialog/MemberDetailDialog.vue:91 [代码] <span class="km-md-icon">{{ entity.icon || '🧑‍💼' }}</span>
+U+2013	–	1	1	1	.vue	packages/client/src/components/settings/AgentRoleDetail.vue:238 [代码] <div class="ard-hint">单个 Emoji 或 1–4 个字符，用于列表与下拉的视觉标识</div>
+U+2014	—	452	235	34	.ts|.vue	packages/client/src/api/client.ts:41 [注释] * `` `${res.status} ${text}` `` —— 即「状态码 + 响应体原文」，例如
+U+2026	…	50	43	38	.vue|.ts	packages/client/src/components/AppNav.vue:6 [注释] * 顶部导航条（M4/q-2，M5/F21 追加「设置」）：聊天 / 记忆 / 自动化 / 用量 / 队列 …… 设置
+U+2139	ℹ	1	1	1	.vue	packages/client/src/components/dialog/ResultDialog.vue:63 [代码] info: { icon: 'ℹ️', title: '提示', color: 'var(--km-accent)' },
+U+2190	←	10	10	1	.vue|.ts	packages/client/src/components/layout/LayoutShell.vue:7 [注释] *   var(--km-left-w)   ← 左栏（折叠 0px）
+U+2191	↑	1	1	0	.vue	packages/client/src/components/common/DirPickerModal.vue:65 [注释] /** ↑ 键：上移 */
+U+2192	→	215	171	3	.ts|.vue	packages/client/src/api/client.ts:113 [注释] /** T07: MCP 聚合端点 → { deployed, candidates } */
+U+2193	↓	2	2	1	.vue	packages/client/src/components/chat/MessageList.vue:181 [代码] ↓ 滚动到底部
+U+2197	↗	1	1	1	.ts	packages/client/src/types/agent.ts:46 [代码] 'sending-msg': '↗',
+U+21AA	↪	2	2	2	.ts	packages/client/src/locales/en.ts:17 [代码] 'chat.steer': '↪ Steer',
+U+21BB	↻	3	3	3	.vue	packages/client/src/components/chat/McpManager.vue:70 [代码] <n-button size="small" secondary type="primary" block @click="store.loadMcp().catch(() => {})">↻
+U+222A	∪	5	3	0	.ts	packages/client/src/composables/useSessionList.ts:121 [注释] /** Agent 角色候选项：本地角色库 ∪ 会话里出现过的角色名。 */
+U+2248	≈	1	1	0	.vue	packages/client/src/components/chat/ContextRing.vue:35 [注释] /** 将 tokens 转为 KB（1 token ≈ 4 bytes → /256 = KB） */
+U+2260	≠	1	1	0	.vue	packages/client/src/components/layout/LayoutShell.vue:20 [注释] * - 折叠 ≠ 卸载：轨道宽度置 0，DOM 保留 → R-36 滚动位置/标签状态免费保住。
+U+2265	≥	4	4	0	.ts	packages/client/src/constants/sidebar.ts:110 [注释] /** 成功率徽标阈值（E1）：`≥90` success、`60-89` warning、`<60` error、`-1` 不渲染。 */
+U+2297	⊗	1	1	1	.vue	packages/client/src/components/settings/AgentRoleSection.vue:231 [代码] {{ role.disabled ? '○' : '⊗' }}
+U+22EF	⋯	1	1	1	.vue	packages/client/src/components/sidebar/SidebarSessionItem.vue:201 [代码] <button class="km-icon-btn" :aria-label="t('sidebar.action.more')">⋯</button>
+U+2328	⌨	1	1	1	.ts	packages/client/src/types/agent.ts:53 [代码] 'coding': '⌨️',
+U+23F0	⏰	2	2	2	.vue|.ts	packages/client/src/components/AppNav.vue:27 [代码] { path: '/jobs', labelKey: 'nav.jobs', icon: '⏰' },
+U+23F3	⏳	2	2	2	.vue|.ts	packages/client/src/components/chat/ToolCallCard.vue:13 [代码] <span class="ico">{{ tool.status === 'running' ? '⏳' : tool.status === 'error' ? '✕' : '✓' }}</s
+U+23F8	⏸	2	2	2	.vue	packages/client/src/components/chat/ChatInput.vue:249 [代码] { label: '⏸ Interrupt', key: 'interrupt' as const },
+U+23F9	⏹	3	3	3	.ts|.vue	packages/client/src/locales/en.ts:18 [代码] 'chat.stop': '⏹ Stop',
+U+2460	①	25	25	1	.vue|.ts	packages/client/src/components/chat/OutputPanel.vue:49 [注释] // 产物变化时补标签（R-11①②：首次新建，再次点击只激活不重复建）
+U+2461	②	28	28	1	.vue|.ts	packages/client/src/components/chat/OutputPanel.vue:49 [注释] // 产物变化时补标签（R-11①②：首次新建，再次点击只激活不重复建）
+U+2462	③	19	19	1	.vue|.ts	packages/client/src/components/common/MarketLayout.vue:11 [注释] *   ③ CSS Grid 替代 flex-wrap
+U+2463	④	7	7	0	.vue|.scss	packages/client/src/components/chat/OutputPanel.vue:72 [注释] /** 关闭标签；关闭当前标签后自动激活相邻标签（R-11④）。 */
+U+2464	⑤	3	3	0	.vue	packages/client/src/components/dialog/NewTaskDialog.vue:269 [注释] <!-- ⑤ MCP Servers -->
+U+2465	⑥	3	3	0	.vue	packages/client/src/components/dialog/NewTaskDialog.vue:299 [注释] <!-- ⑥ 安全模式 -->
+U+2466	⑦	2	2	0	.vue	packages/client/src/components/dialog/NewTaskDialog.vue:308 [注释] <!-- ⑦ Workspace -->
+U+2500	─	1262	177	0	.ts|.vue|.scss	packages/client/src/api/client.ts:96 [注释] // ───────────────────────── M3 管理面 REST 封装 ─────────────────────────
+U+2514	└	2	2	0	.vue	packages/client/src/components/layout/RightPanel.vue:8 [注释] * └── 内容槽（v-if mode 分派）
+U+251C	├	5	5	0	.vue	packages/client/src/components/layout/RightPanel.vue:7 [注释] * ├── title 栏：RIGHT_PANEL_TITLE[mode] + ⛶ 全屏 + ✕ 关闭
+U+2550	═	5164	121	0	.ts|.vue|.scss	packages/client/src/api/client.ts:359 [注释] // ═══════════════════ B6：会话局部更新（PATCH）═══════════════════
+U+25B2	▲	1	1	1	.vue	packages/client/src/components/chat/SubagentCard.vue:75 [代码] {{ expanded ? '收起产出 ▲' : '展开产出 ▼' }}
+U+25B6	▶	2	2	1	.vue	packages/client/src/components/preview/FileTreePane.vue:6 [注释] * 文件夹可折叠（▶/▼），文件单击预览。
+U+25B8	▸	6	6	6	.vue|.ts	packages/client/src/components/chat/ThoughtBlock.vue:11 [代码] <span class="chev">{{ open ? '▾' : '▸' }}</span>
+U+25BC	▼	3	3	2	.vue	packages/client/src/components/chat/SubagentCard.vue:75 [代码] {{ expanded ? '收起产出 ▲' : '展开产出 ▼' }}
+U+25BE	▾	3	3	3	.vue	packages/client/src/components/chat/ThoughtBlock.vue:11 [代码] <span class="chev">{{ open ? '▾' : '▸' }}</span>
+U+25C9	◉	2	2	2	.vue|.ts	packages/client/src/components/layout/LeftSidebar.vue:578 [代码] >{{ job.enabled ? '◉' : '○' }}</span>
+U+25CB	○	5	5	5	.vue|.ts	packages/client/src/components/layout/LeftSidebar.vue:578 [代码] >{{ job.enabled ? '◉' : '○' }}</span>
+U+25CF	●	2	2	2	.vue	packages/client/src/components/settings/McpManageSection.vue:46 [代码] if (s.status === 'connected') return { label: '● 已连接', type: 'success' };
+U+25D0	◐	1	1	1	.ts	packages/client/src/types/agent.ts:45 [代码] 'closing': '◐',
+U+2600	☀	4	4	3	.vue	packages/client/src/components/AppNav.vue:78 [代码] >{{ theme.isDark.value ? '🌙' : '☀️' }}</button>
+U+2630	☰	3	3	1	.vue	packages/client/src/components/layout/PageHeader.vue:6 [注释] *   `[☰ 左栏显隐] [Title] [#title-extra] ……… [🔍 搜索框] [#actions] [⧉ 右栏显隐]`
+U+267B	♻	5	5	0	.ts|.vue	packages/client/src/api/client.ts:141 [注释] /** ♻️ 旧版兼容：仅返回 deployed 列表（供现有 useMcpList / chat store 使用） */
+U+2699	⚙	4	4	2	.vue	packages/client/src/components/AppNav.vue:36 [代码] const SETTINGS_ITEM: NavItem = { path: '/settings', labelKey: 'nav.settings', icon: '⚙️' };
+U+26A0	⚠	34	34	6	.ts|.vue	packages/client/src/api/client.ts:170 [注释] * ⚠️ `active_profile` 是只读镜像，**不可**经此写入 —— 走 `useProfile()`。
+U+26D4	⛔	1	1	1	.vue	packages/client/src/components/dialog/ResultDialog.vue:61 [代码] error: { icon: '⛔', title: '操作失败', color: 'var(--km-danger)' },
+U+26F6	⛶	5	5	1	.vue	packages/client/src/components/chat/OutputPanel.vue:9 [注释] * - 删 tabs 栏的 ⛶ 按钮（上移到 `RightPanel`）；
+U+2705	✅	2	2	2	.vue|.ts	packages/client/src/components/dialog/ResultDialog.vue:60 [代码] success: { icon: '✅', title: '操作成功', color: 'var(--km-success)' },
+U+270D	✍	1	1	1	.vue	packages/client/src/components/settings/AgentRoleSection.vue:54 [代码] { key: 'manual', label: '✍️ 手动添加' },
+U+270E	✎	7	7	7	.vue|.ts	packages/client/src/components/chat/MessageItem.vue:285 [代码] >✎</button>
+U+270F	✏	1	1	1	.ts	packages/client/src/types/agent.ts:52 [代码] 'writing': '✏️',
+U+2713	✓	2	2	2	.vue	packages/client/src/components/chat/AgentMarkdown.vue:50 [代码] btn.textContent = '✓';
+U+2715	✕	8	8	6	.vue|.ts	packages/client/src/components/chat/ToolCallCard.vue:13 [代码] <span class="ico">{{ tool.status === 'running' ? '⏳' : tool.status === 'error' ? '✕' : '✓' }}</s
+U+2728	✨	1	1	1	.vue	packages/client/src/components/common/MarketLayout.vue:237 [代码] <h3 class="ml-section-title">✨ 精选推荐</h3>
+U+2753	❓	1	1	1	.vue	packages/client/src/components/chat/ClarifyCard.vue:18 [代码] <div class="km-clarify-q">❓ {{ req.question }}</div>
+U+27F7	⟷	2	2	0	.vue	packages/client/src/components/layout/LeftSidebar.vue:10 [注释] * - 底栏改为「⚙️ 设置 ⟷ 🌙/☀️」同行两端。
+U+29C9	⧉	4	4	2	.vue	packages/client/src/components/layout/PageHeader.vue:6 [注释] *   `[☰ 左栏显隐] [Title] [#title-extra] ……… [🔍 搜索框] [#actions] [⧉ 右栏显隐]`
+U+3000	　	2	1	1	.vue	packages/client/src/components/settings/AgentRoleSection.vue:145 [代码] return parts.length === 0 ? '尚未配置专长与技能' : parts.join('　·　');
+U+3001	、	88	49	6	.ts|.vue	packages/client/src/api/terminal.ts:9 [注释] //   不持有任何业务状态（term 表、活跃 term、可用性判定全在 store）。
+U+3002	。	1145	1089	40	.ts|.vue	packages/client/src/api/client.ts:1 [注释] // REST 封装层：视图与 store 一律经此文件访问后端（NFR1 视图零直接网络调用）。
+U+300C	「	221	205	43	.ts|.vue	packages/client/src/api/client.ts:41 [注释] * `` `${res.status} ${text}` `` —— 即「状态码 + 响应体原文」，例如
+U+300D	」	221	205	43	.ts|.vue	packages/client/src/api/client.ts:41 [注释] * `` `${res.status} ${text}` `` —— 即「状态码 + 响应体原文」，例如
+U+3010	【	3	3	0	.vue|.ts	packages/client/src/components/layout/SettingsNav.vue:9 [注释] *   - 底栏【← 返回】（回到进入设置前的首页路由）
+U+3011	】	3	3	0	.vue|.ts	packages/client/src/components/layout/SettingsNav.vue:9 [注释] *   - 底栏【← 返回】（回到进入设置前的首页路由）
+U+FE0F	️	52	51	16	.ts|.vue	packages/client/src/api/client.ts:141 [注释] /** ♻️ 旧版兼容：仅返回 deployed 列表（供现有 useMcpList / chat store 使用） */
+U+FF01	！	3	3	3	.vue	packages/client/src/components/market/McpDetail.vue:33 [代码] deployResultText.value = `MCP 服务器「${props.mcp.name}」部署成功！配置已生效。`;
+U+FF08	（	1049	1015	66	.ts|.vue|.scss	packages/client/src/api/client.ts:1 [注释] // REST 封装层：视图与 store 一律经此文件访问后端（NFR1 视图零直接网络调用）。
+U+FF09	）	1049	1015	66	.ts|.vue|.scss	packages/client/src/api/client.ts:1 [注释] // REST 封装层：视图与 store 一律经此文件访问后端（NFR1 视图零直接网络调用）。
+U+FF0B	＋	9	9	8	.vue	packages/client/src/components/chat/McpManager.vue:95 [代码] <n-button type="primary" block @click="add">＋ 添加</n-button>
+U+FF0C	，	838	759	85	.ts|.vue|.scss	packages/client/src/api/client.ts:41 [注释] * `` `${res.status} ${text}` `` —— 即「状态码 + 响应体原文」，例如
+U+FF1A	：	776	773	69	.ts|.vue|.scss	packages/client/src/api/client.ts:1 [注释] // REST 封装层：视图与 store 一律经此文件访问后端（NFR1 视图零直接网络调用）。
+U+FF1B	；	219	210	13	.ts|.vue|.scss	packages/client/src/api/client.ts:198 [注释] * @param apiKey 明文 Key；传空串表示清除。🔒 响应永不回显明文。
+U+FF1F	？	20	19	19	.vue|.ts	packages/client/src/components/dialog/MemberDetailDialog.vue:168 [代码] 移除后本地角色「{{ entity.name }}」及其自定义配置将被删除，确认移除？
+U+FF5C	｜	1	1	1	.vue	packages/client/src/components/layout/StatusBar.vue:71 [代码] return `${checkedText.value}｜失败原因：${reason}`;
+U+FFFD	�	14	5	1	.vue|.ts	packages/client/src/App.vue:10 [注释] * - `<router-view>` 直接���染（LayoutShell 由路由注入）
+U+1F310	🌐	1	1	1	.vue	packages/client/src/components/chat/OutputPanel.vue:212 [代码] <template #icon>🌐</template>
+U+1F319	🌙	4	4	3	.vue	packages/client/src/components/AppNav.vue:78 [代码] >{{ theme.isDark.value ? '🌙' : '☀️' }}</button>
+U+1F39B	🎛	1	1	1	.ts	packages/client/src/constants/layout.ts:120 [代码] { key: 'general', label: '系统设置', icon: '🎛️' },
+U+1F3A8	🎨	1	1	1	.ts	packages/client/src/types/agent.ts:57 [代码] 'designing': '🎨',
+U+1F3AF	🎯	2	2	2	.vue	packages/client/src/components/chat/ChatInput.vue:250 [代码] { label: '🎯 Steer', key: 'steer' as const },
+U+1F44B	👋	2	2	2	.ts	packages/client/src/locales/en.ts:53 [代码] 'empty.chat': 'Start a new conversation 👋',
+U+1F464	👤	1	1	1	.ts	packages/client/src/constants/layout.ts:121 [代码] { key: 'account', label: '账号设置', icon: '👤' },
+U+1F4AC	💬	3	3	3	.vue	packages/client/src/components/AppNav.vue:25 [代码] { path: '/', labelKey: 'nav.chat', icon: '💬' },
+U+1F4AD	💭	1	1	1	.ts	packages/client/src/types/agent.ts:47 [代码] 'thinking': '💭',
+U+1F4BC	💼	2	2	2	.vue	packages/client/src/components/dialog/MemberDetailDialog.vue:91 [代码] <span class="km-md-icon">{{ entity.icon || '🧑‍💼' }}</span>
+U+1F4C1	📁	5	5	5	.vue|.ts	packages/client/src/components/chat/SessionConfigBar.vue:140 [代码] <span class="km-config-icon">📁</span>
+U+1F4C2	📂	2	2	2	.vue	packages/client/src/components/chat/ShareDialog.vue:158 [代码] <n-button size="small" type="primary" @click="openInRightPanel">📂 在右栏查看</n-button>
+U+1F4C4	📄	4	4	4	.vue	packages/client/src/components/chat/ChatInput.vue:310 [代码] >📄 {{ u.filename }}<button class="km-chip-x" @click="removeUpload(i)">×</button></span>
+U+1F4CA	📊	2	2	2	.vue|.ts	packages/client/src/components/AppNav.vue:28 [代码] { path: '/usage', labelKey: 'nav.usage', icon: '📊' },
+U+1F4CB	📋	16	16	16	.vue|.ts	packages/client/src/components/chat/AgentMarkdown.vue:14 [代码] const copyBtn = '<button class="km-code-copy" title="复制代码">📋</button>';
+U+1F4CC	📌	1	1	1	.vue	packages/client/src/components/sidebar/SidebarSessionItem.vue:182 [代码] >📌</button>
+U+1F4D6	📖	1	1	1	.ts	packages/client/src/types/agent.ts:54 [代码] 'reading': '📖',
+U+1F4DC	📜	1	1	1	.vue	packages/client/src/views/ChatView.vue:269 [代码] <template #icon>📜</template>
+U+1F4DD	📝	3	3	3	.vue|.ts	packages/client/src/components/chat/MessageItem.vue:324 [代码] 📝 复制代码
+U+1F4E1	📡	2	2	2	.vue|.ts	packages/client/src/components/settings/MonitorSection.vue:62 [代码] <n-card size="small" title="📡 Channels">
+U+1F4E5	📥	6	6	6	.vue|.ts	packages/client/src/components/AppNav.vue:29 [代码] { path: '/queue', labelKey: 'nav.queue', icon: '📥' },
+U+1F4E6	📦	8	8	8	.vue|.ts	packages/client/src/components/common/MarketLayout.vue:57 [代码] const fallbackIcon = computed(() => FALLBACK_ICONS[props.config.entityType] || '📦');
+U+1F504	🔄	4	4	4	.vue|.ts	packages/client/src/components/chat/MessageItem.vue:331 [代码] 🔄 重新生成
+U+1F50C	🔌	9	9	9	.vue|.ts	packages/client/src/components/cards/McpCard.vue:102 [代码] <span class="km-mcp-icon-text">{{ mcp.icon || '🔌' }}</span>
+U+1F50D	🔍	4	4	2	.vue|.ts	packages/client/src/components/common/MarketLayout.vue:213 [代码] <template #prefix>🔍</template>
+U+1F510	🔐	2	2	2	.vue|.ts	packages/client/src/components/chat/ApprovalCard.vue:15 [代码] <div class="km-approval-title">🔐 需要授权：{{ req.tool }}</div>
+U+1F512	🔒	10	10	2	.ts|.vue	packages/client/src/api/client.ts:190 [注释] * 🔒 返回体不含明文 Key，只有 `configured` 与 `masked`（FR21.5）。
+U+1F527	🔧	3	3	3	.vue|.ts	packages/client/src/components/market/McpDetail.vue:176 [代码] <div class="km-schema-name">🔧 {{ ts.name }}</div>
+U+1F52C	🔬	1	1	1	.ts	packages/client/src/types/agent.ts:56 [代码] 'researching': '🔬',
+U+1F534	🔴	4	4	0	.ts	packages/client/src/composables/useSessionList.ts:153 [注释] // 🔴 B10-③（F30）：先排除归档会话。存量实现 `base = store.sessions` **完全不过滤
+U+1F53D	🔽	1	1	1	.vue	packages/client/src/components/layout/LeftSidebar.vue:317 [代码] <template #icon>🔽</template>
+U+1F5D1	🗑	6	6	6	.vue|.ts	packages/client/src/components/layout/LeftSidebar.vue:514 [代码] <button title="删除" class="danger">🗑</button>
+U+1F6AB	🚫	8	8	0	.ts|.vue	packages/client/src/api/terminal.ts:6 [注释] //   🚫 TerminalPane.vue / stores/terminal.ts 不得 import 'socket.io-client'。
+U+1F6D2	🛒	1	1	1	.vue	packages/client/src/components/settings/AgentRoleSection.vue:55 [代码] { key: 'market', label: '🛒 从市场添加' },
+U+1F6E0	🛠	2	2	2	.vue|.ts	packages/client/src/components/cards/SkillCard.vue:79 [代码] <span class="km-skill-icon-text">{{ skill.icon || '🛠️' }}</span>
+U+1F6E1	🛡	1	1	1	.vue	packages/client/src/components/chat/SessionConfigBar.vue:165 [代码] <span class="km-config-icon">🛡</span>
+U+1F916	🤖	14	14	14	.vue|.ts	packages/client/src/components/cards/ExpertCard.vue:100 [代码] <span class="km-expert-icon-text">{{ expert.icon || '🤖' }}</span>
+U+1F9D1	🧑	2	2	2	.vue	packages/client/src/components/dialog/MemberDetailDialog.vue:91 [代码] <span class="km-md-icon">{{ entity.icon || '🧑‍💼' }}</span>
+U+1F9E0	🧠	4	4	4	.vue|.ts	packages/client/src/components/AppNav.vue:26 [代码] { path: '/memory', labelKey: 'nav.memory', icon: '🧠' },
+U+1F9E9	🧩	9	9	9	.vue|.ts	packages/client/src/components/chat/ChatInput.vue:354 [代码] >🧩 {{ skill.name }}</n-checkbox>
+U+1F9EA	🧪	2	2	2	.vue|.ts	packages/client/src/components/settings/MonitorSection.vue:53 [代码] <n-card size="small" title="🧪 Models">
+U+1F9F0	🧰	2	2	2	.vue|.ts	packages/client/src/components/settings/PlaceholderSection.vue:18 [代码] { label: '该模块', icon: '🧰' }
+
+══════════ 逐码位样例明细（每码位最多 4 条）══════════
+
+【U+00A7】 §  字符102次 / 位点95 / 非注释位点2
+   packages/client/src/api/client.ts:2 [注释] // 契约基准：docs/design/TECHNICAL-SOLUTION-M4.md §3.6 + packages/server/src/routes/*。
+   packages/client/src/api/client.ts:38 [注释] * 从异常中提取**人类可读**的错误文案（§7.5）。
+   packages/client/src/api/client.ts:370 [注释] * 上层 toast 必须走 `errText(e)` 而不是 `e.message`（§7.2 / §7.5）。
+   packages/client/src/api/terminal.ts:1 [注释] // F20 内置终端 · `/terminal` socket.io 封装（方案 §3.2 / §4.2）
+
+【U+00B7】 ·  字符40次 / 位点35 / 非注释位点24
+   packages/client/src/api/client.ts:364 [注释] * 用于置顶 / 归档 / 重命名 / 改 skills·mcp。落库走 kmaster.db 侧车
+   packages/client/src/api/terminal.ts:1 [注释] // F20 内置终端 · `/terminal` socket.io 封装（方案 §3.2 / §4.2）
+   packages/client/src/components/chat/RightPanel.vue:41 [代码] return sname ? `分享配置 · ${sname}` : '分享配置';
+   packages/client/src/components/chat/SettingsDrawer.vue:17 [代码] const modeOptions = CHAT_MODES.map((m) => ({ label: `${m.label} · ${m.desc}`, value: m.token }))
+
+【U+00D7】 ×  字符18次 / 位点15 / 非注释位点6
+   packages/client/src/components/chat/ChatInput.vue:310 [代码] >📄 {{ u.filename }}<button class="km-chip-x" @click="removeUpload(i)">×</button></span>
+   packages/client/src/components/chat/MessageList.vue:144 [代码] <button class="km-compression-dismiss" @click="dismissCompression" title="关闭" aria-label="关闭压缩提示
+   packages/client/src/components/chat/MessageList.vue:151 [代码] <button class="km-mirror-dismiss" @click="dismissMirror" title="收起" aria-label="收起镜像提示">×</butto
+   packages/client/src/components/chat/OutputPanel.vue:154 [代码] <span v-if="tab.closable" class="km-output-tab-close" @click.stop="closeTab(tab.id)">×</span>
+
+【U+200D】 ‍  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/dialog/MemberDetailDialog.vue:91 [代码] <span class="km-md-icon">{{ entity.icon || '🧑‍💼' }}</span>
+   packages/client/src/components/settings/ExpertPickerPanel.vue:138 [代码] <div class="epp-icon">{{ entity.icon || '🧑‍💼' }}</div>
+   全部位点: packages/client/src/components/dialog/MemberDetailDialog.vue:91, packages/client/src/components/settings/ExpertPickerPanel.vue:138
+
+【U+2013】 –  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/settings/AgentRoleDetail.vue:238 [代码] <div class="ard-hint">单个 Emoji 或 1–4 个字符，用于列表与下拉的视觉标识</div>
+   全部位点: packages/client/src/components/settings/AgentRoleDetail.vue:238
+
+【U+2014】 —  字符452次 / 位点235 / 非注释位点34
+   packages/client/src/api/client.ts:41 [注释] * `` `${res.status} ${text}` `` —— 即「状态码 + 响应体原文」，例如
+   packages/client/src/api/client.ts:170 [注释] * ⚠️ `active_profile` 是只读镜像，**不可**经此写入 —— 走 `useProfile()`。
+   packages/client/src/api/client.ts:189 [注释] * `GET /api/config/providers` —— provider 配置态。
+   packages/client/src/api/client.ts:197 [注释] * `PUT /api/config/providers` —— 写入 / 清除 API Key。
+
+【U+2026】 …  字符50次 / 位点43 / 非注释位点38
+   packages/client/src/components/AppNav.vue:6 [注释] * 顶部导航条（M4/q-2，M5/F21 追加「设置」）：聊天 / 记忆 / 自动化 / 用量 / 队列 …… 设置
+   packages/client/src/components/chat/ClarifyCard.vue:23 [代码] <input v-model="free" placeholder="或输入自定义回答…" @keyup.enter="submit" />
+   packages/client/src/components/chat/MessageList.vue:168 [代码] <span>正在生成…</span>
+   packages/client/src/components/chat/RightPanel.vue:147 [代码] {{ msg.content.slice(0, 80) }}{{ msg.content.length > 80 ? '…' : '' }}
+
+【U+2139】 ℹ  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/dialog/ResultDialog.vue:63 [代码] info: { icon: 'ℹ️', title: '提示', color: 'var(--km-accent)' },
+   全部位点: packages/client/src/components/dialog/ResultDialog.vue:63
+
+【U+2190】 ←  字符10次 / 位点10 / 非注释位点1
+   packages/client/src/components/layout/LayoutShell.vue:7 [注释] *   var(--km-left-w)   ← 左栏（折叠 0px）
+   packages/client/src/components/layout/LayoutShell.vue:8 [注释] *   var(--km-lh-w)     ← 左拖拽柄（折叠 0px）
+   packages/client/src/components/layout/LayoutShell.vue:9 [注释] *   minmax(0, 1fr)     ← 主体（永不溢出）
+   packages/client/src/components/layout/LayoutShell.vue:10 [注释] *   var(--km-rh-w)     ← 右拖拽柄（隐藏 0px）
+   全部位点: packages/client/src/components/layout/LayoutShell.vue:7, packages/client/src/components/layout/LayoutShell.vue:8, packages/client/src/components/layout/LayoutShell.vue:9, packages/client/src/components/layout/LayoutShell.vue:10, packages/client/src/components/layout/LayoutShell.vue:11, packages/client/src/components/layout/LayoutShell.vue:12, packages/client/src/components/layout/SettingsNav.vue:9, packages/client/src/components/layout/SettingsNav.vue:64, packages/client/src/stores/agentRoles.ts:252, packages/client/src/stores/agentRoles.ts:253
+
+【U+2191】 ↑  字符1次 / 位点1 / 非注释位点0
+   packages/client/src/components/common/DirPickerModal.vue:65 [注释] /** ↑ 键：上移 */
+   全部位点: packages/client/src/components/common/DirPickerModal.vue:65
+
+【U+2192】 →  字符215次 / 位点171 / 非注释位点3
+   packages/client/src/api/client.ts:113 [注释] /** T07: MCP 聚合端点 → { deployed, candidates } */
+   packages/client/src/api/client.ts:487 [注释] * 安装 Agent（marketplace → 本地）。
+   packages/client/src/api/client.ts:498 [注释] * 卸载 Agent（本地 → 移除）。
+   packages/client/src/api/terminal.ts:4 [注释] //   组件 → store → api → server，逐层单向。
+
+【U+2193】 ↓  字符2次 / 位点2 / 非注释位点1
+   packages/client/src/components/chat/MessageList.vue:181 [代码] ↓ 滚动到底部
+   packages/client/src/components/common/DirPickerModal.vue:71 [注释] /** ↓ 键：下移 */
+   全部位点: packages/client/src/components/chat/MessageList.vue:181, packages/client/src/components/common/DirPickerModal.vue:71
+
+【U+2197】 ↗  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/types/agent.ts:46 [代码] 'sending-msg': '↗',
+   全部位点: packages/client/src/types/agent.ts:46
+
+【U+21AA】 ↪  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/locales/en.ts:17 [代码] 'chat.steer': '↪ Steer',
+   packages/client/src/locales/zh-CN.ts:17 [代码] 'chat.steer': '↪ 引导',
+   全部位点: packages/client/src/locales/en.ts:17, packages/client/src/locales/zh-CN.ts:17
+
+【U+21BB】 ↻  字符3次 / 位点3 / 非注释位点3
+   packages/client/src/components/chat/McpManager.vue:70 [代码] <n-button size="small" secondary type="primary" block @click="store.loadMcp().catch(() => {})">↻
+   packages/client/src/components/chat/MessageItem.vue:293 [代码] >↻ 重试</button>
+   packages/client/src/components/chat/SkillPanel.vue:51 [代码] <n-button size="small" secondary type="primary" @click="store.loadSkills().catch(() => {})">↻ 刷新
+   全部位点: packages/client/src/components/chat/McpManager.vue:70, packages/client/src/components/chat/MessageItem.vue:293, packages/client/src/components/chat/SkillPanel.vue:51
+
+【U+222A】 ∪  字符5次 / 位点3 / 非注释位点0
+   packages/client/src/composables/useSessionList.ts:121 [注释] /** Agent 角色候选项：本地角色库 ∪ 会话里出现过的角色名。 */
+   packages/client/src/composables/useSessionList.ts:193 [注释] * Recent 并集算法（§3.5 规范实现）：`running ∪ 前 maxCount 条 ∪ withinHours 小时内活跃`。
+   packages/client/src/constants/sidebar.ts:11 [注释] /** Q2：Recent 分组口径（「倒序前 N 条」∪「N 小时内活跃」∪ running）。 */
+   全部位点: packages/client/src/composables/useSessionList.ts:121, packages/client/src/composables/useSessionList.ts:193, packages/client/src/constants/sidebar.ts:11
+
+【U+2248】 ≈  字符1次 / 位点1 / 非注释位点0
+   packages/client/src/components/chat/ContextRing.vue:35 [注释] /** 将 tokens 转为 KB（1 token ≈ 4 bytes → /256 = KB） */
+   全部位点: packages/client/src/components/chat/ContextRing.vue:35
+
+【U+2260】 ≠  字符1次 / 位点1 / 非注释位点0
+   packages/client/src/components/layout/LayoutShell.vue:20 [注释] * - 折叠 ≠ 卸载：轨道宽度置 0，DOM 保留 → R-36 滚动位置/标签状态免费保住。
+   全部位点: packages/client/src/components/layout/LayoutShell.vue:20
+
+【U+2265】 ≥  字符4次 / 位点4 / 非注释位点0
+   packages/client/src/constants/sidebar.ts:110 [注释] /** 成功率徽标阈值（E1）：`≥90` success、`60-89` warning、`<60` error、`-1` 不渲染。 */
+   packages/client/src/utils/time.ts:78 [注释] *   `<60s` → 刚刚；`<60min` → N 分钟前；`<24h` → N 小时前；`<7d` → N 天前；`≥7d` → `YYYY-MM-DD`
+   packages/client/src/utils/time.ts:81 [注释] *   `<60s` → 即将；`<60min` → N 分钟后；`<24h` → N 小时后；`<7d` → N 天后；`≥7d` → `YYYY-MM-DD`
+   packages/client/src/utils/time.ts:95 [注释] // ≥7 天一律显示绝对日期（过去未来同规则）
+   全部位点: packages/client/src/constants/sidebar.ts:110, packages/client/src/utils/time.ts:78, packages/client/src/utils/time.ts:81, packages/client/src/utils/time.ts:95
+
+【U+2297】 ⊗  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/settings/AgentRoleSection.vue:231 [代码] {{ role.disabled ? '○' : '⊗' }}
+   全部位点: packages/client/src/components/settings/AgentRoleSection.vue:231
+
+【U+22EF】 ⋯  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/sidebar/SidebarSessionItem.vue:201 [代码] <button class="km-icon-btn" :aria-label="t('sidebar.action.more')">⋯</button>
+   全部位点: packages/client/src/components/sidebar/SidebarSessionItem.vue:201
+
+【U+2328】 ⌨  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/types/agent.ts:53 [代码] 'coding': '⌨️',
+   全部位点: packages/client/src/types/agent.ts:53
+
+【U+23F0】 ⏰  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/AppNav.vue:27 [代码] { path: '/jobs', labelKey: 'nav.jobs', icon: '⏰' },
+   packages/client/src/constants/layout.ts:130 [代码] { key: 'jobs', label: '定时任务管理', icon: '⏰' },
+   全部位点: packages/client/src/components/AppNav.vue:27, packages/client/src/constants/layout.ts:130
+
+【U+23F3】 ⏳  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/chat/ToolCallCard.vue:13 [代码] <span class="ico">{{ tool.status === 'running' ? '⏳' : tool.status === 'error' ? '✕' : '✓' }}</s
+   packages/client/src/types/agent.ts:48 [代码] 'busy': '⏳',
+   全部位点: packages/client/src/components/chat/ToolCallCard.vue:13, packages/client/src/types/agent.ts:48
+
+【U+23F8】 ⏸  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/chat/ChatInput.vue:249 [代码] { label: '⏸ Interrupt', key: 'interrupt' as const },
+   packages/client/src/components/chat/SessionConfigBar.vue:63 [代码] { label: '⏸ Interrupt — 中断并引导', key: 'interrupt' as const },
+   全部位点: packages/client/src/components/chat/ChatInput.vue:249, packages/client/src/components/chat/SessionConfigBar.vue:63
+
+【U+23F9】 ⏹  字符3次 / 位点3 / 非注释位点3
+   packages/client/src/locales/en.ts:18 [代码] 'chat.stop': '⏹ Stop',
+   packages/client/src/locales/zh-CN.ts:18 [代码] 'chat.stop': '⏹ 停止',
+   packages/client/src/views/ChatView.vue:299 [代码] <button v-if="running" class="km-stop-btn" @click="sid && store.stop(sid)">⏹ 停止</button>
+   全部位点: packages/client/src/locales/en.ts:18, packages/client/src/locales/zh-CN.ts:18, packages/client/src/views/ChatView.vue:299
+
+【U+2460】 ①  字符25次 / 位点25 / 非注释位点1
+   packages/client/src/components/chat/OutputPanel.vue:49 [注释] // 产物变化时补标签（R-11①②：首次新建，再次点击只激活不重复建）
+   packages/client/src/components/common/MarketLayout.vue:9 [注释] *   ① 分类标签 + 排序合并一行（ml-tabs-sort-row）
+   packages/client/src/components/dialog/AddModelDialog.vue:6 [注释] *   ① 连通性测试（10s）：写 Key → 校验后端 configured → 数一次模型列表；
+   packages/client/src/components/dialog/AddModelDialog.vue:7 [注释] *   ② 深度测试（30s）：**必须先通过 ①**，且必须选定一个目标模型，
+
+【U+2461】 ②  字符28次 / 位点28 / 非注释位点1
+   packages/client/src/components/chat/OutputPanel.vue:49 [注释] // 产物变化时补标签（R-11①②：首次新建，再次点击只激活不重复建）
+   packages/client/src/components/common/MarketLayout.vue:10 [注释] *   ② 分类标签显示数量
+   packages/client/src/components/dialog/AddModelDialog.vue:7 [注释] *   ② 深度测试（30s）：**必须先通过 ①**，且必须选定一个目标模型，
+   packages/client/src/components/dialog/AddModelDialog.vue:270 [注释] /** ② 深度测试（30s，必须先通过 ①） */
+
+【U+2462】 ③  字符19次 / 位点19 / 非注释位点1
+   packages/client/src/components/common/MarketLayout.vue:11 [注释] *   ③ CSS Grid 替代 flex-wrap
+   packages/client/src/components/dialog/MemberDetailDialog.vue:3 [注释] * MemberDetailDialog — 专家 / 专家团详情弹窗（V3 T5 / S5.2 / N22 / R-13② R-14③）。
+   packages/client/src/components/dialog/NewTaskDialog.vue:12 [注释] *   ③ Provider / 模型默认值优先取 `stores/modelConfig.defaults.default`
+   packages/client/src/components/dialog/NewTaskDialog.vue:52 [注释] * S5.4③：默认模型解析。
+
+【U+2463】 ④  字符7次 / 位点7 / 非注释位点0
+   packages/client/src/components/chat/OutputPanel.vue:72 [注释] /** 关闭标签；关闭当前标签后自动激活相邻标签（R-11④）。 */
+   packages/client/src/components/common/MarketLayout.vue:12 [注释] *   ④ handleCardClick emit card-click
+   packages/client/src/components/dialog/NewTaskDialog.vue:239 [注释] <!-- ④ Skills -->
+   packages/client/src/components/dialog/SchemaDialog.vue:3 [注释] * SchemaDialog — MCP tool / resource / prompt 的 inputSchema 详情弹窗（V3 T5 / S5.2 / N23 / R-13④）。
+   全部位点: packages/client/src/components/chat/OutputPanel.vue:72, packages/client/src/components/common/MarketLayout.vue:12, packages/client/src/components/dialog/NewTaskDialog.vue:239, packages/client/src/components/dialog/SchemaDialog.vue:3, packages/client/src/components/layout/ResizeHandle.vue:10, packages/client/src/components/settings/AgentRoleDetail.vue:275, packages/client/src/styles/variables.scss:134
+
+【U+2464】 ⑤  字符3次 / 位点3 / 非注释位点0
+   packages/client/src/components/dialog/NewTaskDialog.vue:269 [注释] <!-- ⑤ MCP Servers -->
+   packages/client/src/components/dialog/ResultDialog.vue:3 [注释] * ResultDialog — 通用结果弹窗（V3 T5 / S5.1 / R-13③⑤⑥ R-23）。
+   packages/client/src/components/settings/AgentRoleDetail.vue:282 [注释] <!-- ⑤ MCP -->
+   全部位点: packages/client/src/components/dialog/NewTaskDialog.vue:269, packages/client/src/components/dialog/ResultDialog.vue:3, packages/client/src/components/settings/AgentRoleDetail.vue:282
+
+【U+2465】 ⑥  字符3次 / 位点3 / 非注释位点0
+   packages/client/src/components/dialog/NewTaskDialog.vue:299 [注释] <!-- ⑥ 安全模式 -->
+   packages/client/src/components/dialog/ResultDialog.vue:3 [注释] * ResultDialog — 通用结果弹窗（V3 T5 / S5.1 / R-13③⑤⑥ R-23）。
+   packages/client/src/components/settings/AgentRoleDetail.vue:289 [注释] <!-- ⑥ 标签 -->
+   全部位点: packages/client/src/components/dialog/NewTaskDialog.vue:299, packages/client/src/components/dialog/ResultDialog.vue:3, packages/client/src/components/settings/AgentRoleDetail.vue:289
+
+【U+2466】 ⑦  字符2次 / 位点2 / 非注释位点0
+   packages/client/src/components/dialog/NewTaskDialog.vue:308 [注释] <!-- ⑦ Workspace -->
+   packages/client/src/components/settings/AgentRoleDetail.vue:295 [注释] <!-- ⑦ 样例 Prompt -->
+   全部位点: packages/client/src/components/dialog/NewTaskDialog.vue:308, packages/client/src/components/settings/AgentRoleDetail.vue:295
+
+【U+2500】 ─  字符1262次 / 位点177 / 非注释位点0
+   packages/client/src/api/client.ts:96 [注释] // ───────────────────────── M3 管理面 REST 封装 ─────────────────────────
+   packages/client/src/api/client.ts:186 [注释] // ───────────────────────── M5/F21 设置页（Provider / Profile / 诊断）─────────────────────────
+   packages/client/src/api/client.ts:228 [注释] // ───────────────────────── M4/F13 记忆管理 ─────────────────────────
+   packages/client/src/api/client.ts:257 [注释] // ───────────────────────── M4/F15 自动化任务 ─────────────────────────
+
+【U+2514】 └  字符2次 / 位点2 / 非注释位点0
+   packages/client/src/components/layout/RightPanel.vue:8 [注释] * └── 内容槽（v-if mode 分派）
+   packages/client/src/components/layout/RightPanel.vue:13 [注释] *     └── expert-picker         → ExpertPickerPanel.vue（T4 接入）
+   全部位点: packages/client/src/components/layout/RightPanel.vue:8, packages/client/src/components/layout/RightPanel.vue:13
+
+【U+251C】 ├  字符5次 / 位点5 / 非注释位点0
+   packages/client/src/components/layout/RightPanel.vue:7 [注释] * ├── title 栏：RIGHT_PANEL_TITLE[mode] + ⛶ 全屏 + ✕ 关闭
+   packages/client/src/components/layout/RightPanel.vue:9 [注释] *     ├── output                → OutputPanel.vue
+   packages/client/src/components/layout/RightPanel.vue:10 [注释] *     ├── expert|team|skill|mcp → ExpertDetail / TeamDetail / SkillDetail / McpDetail
+   packages/client/src/components/layout/RightPanel.vue:11 [注释] *     ├── job-artifact          → 内联渲染（AgentMarkdown / <pre> + 截断条 + 外部打开）
+   全部位点: packages/client/src/components/layout/RightPanel.vue:7, packages/client/src/components/layout/RightPanel.vue:9, packages/client/src/components/layout/RightPanel.vue:10, packages/client/src/components/layout/RightPanel.vue:11, packages/client/src/components/layout/RightPanel.vue:12
+
+【U+2550】 ═  字符5164次 / 位点121 / 非注释位点0
+   packages/client/src/api/client.ts:359 [注释] // ═══════════════════ B6：会话局部更新（PATCH）═══════════════════
+   packages/client/src/api/client.ts:384 [注释] // ═══════════════════ P1 #18：会话导出 ═══════════════════
+   packages/client/src/api/client.ts:395 [注释] // ═══════════════════ T04：新增端点 ═══════════════════
+   packages/client/src/api/client.ts:484 [注释] // ═══════════════════ T01：Agent 安装/卸载 API ═══════════════════
+
+【U+25B2】 ▲  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/chat/SubagentCard.vue:75 [代码] {{ expanded ? '收起产出 ▲' : '展开产出 ▼' }}
+   全部位点: packages/client/src/components/chat/SubagentCard.vue:75
+
+【U+25B6】 ▶  字符2次 / 位点2 / 非注释位点1
+   packages/client/src/components/preview/FileTreePane.vue:6 [注释] * 文件夹可折叠（▶/▼），文件单击预览。
+   packages/client/src/components/preview/FileTreePane.vue:51 [代码] h('span', { class: 'km-ft-arrow' }, node.collapsed ? '▶' : '▼'),
+   全部位点: packages/client/src/components/preview/FileTreePane.vue:6, packages/client/src/components/preview/FileTreePane.vue:51
+
+【U+25B8】 ▸  字符6次 / 位点6 / 非注释位点6
+   packages/client/src/components/chat/ThoughtBlock.vue:11 [代码] <span class="chev">{{ open ? '▾' : '▸' }}</span>
+   packages/client/src/components/chat/ToolCallCard.vue:16 [代码] <span class="chev">{{ open ? '▾' : '▸' }}</span>
+   packages/client/src/locales/en.ts:16 [代码] 'chat.send': 'Send ▸',
+   packages/client/src/locales/en.ts:19 [代码] 'chat.resend': 'Resend ▸',
+   全部位点: packages/client/src/components/chat/ThoughtBlock.vue:11, packages/client/src/components/chat/ToolCallCard.vue:16, packages/client/src/locales/en.ts:16, packages/client/src/locales/en.ts:19, packages/client/src/locales/zh-CN.ts:16, packages/client/src/locales/zh-CN.ts:19
+
+【U+25BC】 ▼  字符3次 / 位点3 / 非注释位点2
+   packages/client/src/components/chat/SubagentCard.vue:75 [代码] {{ expanded ? '收起产出 ▲' : '展开产出 ▼' }}
+   packages/client/src/components/preview/FileTreePane.vue:6 [注释] * 文件夹可折叠（▶/▼），文件单击预览。
+   packages/client/src/components/preview/FileTreePane.vue:51 [代码] h('span', { class: 'km-ft-arrow' }, node.collapsed ? '▶' : '▼'),
+   全部位点: packages/client/src/components/chat/SubagentCard.vue:75, packages/client/src/components/preview/FileTreePane.vue:6, packages/client/src/components/preview/FileTreePane.vue:51
+
+【U+25BE】 ▾  字符3次 / 位点3 / 非注释位点3
+   packages/client/src/components/chat/ThoughtBlock.vue:11 [代码] <span class="chev">{{ open ? '▾' : '▸' }}</span>
+   packages/client/src/components/chat/ToolCallCard.vue:16 [代码] <span class="chev">{{ open ? '▾' : '▸' }}</span>
+   packages/client/src/components/settings/AgentRoleSection.vue:167 [代码] <span class="ars-caret">▾</span>
+   全部位点: packages/client/src/components/chat/ThoughtBlock.vue:11, packages/client/src/components/chat/ToolCallCard.vue:16, packages/client/src/components/settings/AgentRoleSection.vue:167
+
+【U+25C9】 ◉  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/layout/LeftSidebar.vue:578 [代码] >{{ job.enabled ? '◉' : '○' }}</span>
+   packages/client/src/types/agent.ts:49 [代码] 'idle': '◉',
+   全部位点: packages/client/src/components/layout/LeftSidebar.vue:578, packages/client/src/types/agent.ts:49
+
+【U+25CB】 ○  字符5次 / 位点5 / 非注释位点5
+   packages/client/src/components/layout/LeftSidebar.vue:578 [代码] >{{ job.enabled ? '◉' : '○' }}</span>
+   packages/client/src/components/settings/AgentRoleSection.vue:231 [代码] {{ role.disabled ? '○' : '⊗' }}
+   packages/client/src/components/settings/McpManageSection.vue:48 [代码] return { label: '○ 未知', type: 'default' };
+   packages/client/src/components/settings/ProviderSection.vue:213 [代码] <n-tag v-else size="small" :bordered="false">○ 未配置</n-tag>
+   全部位点: packages/client/src/components/layout/LeftSidebar.vue:578, packages/client/src/components/settings/AgentRoleSection.vue:231, packages/client/src/components/settings/McpManageSection.vue:48, packages/client/src/components/settings/ProviderSection.vue:213, packages/client/src/types/agent.ts:44
+
+【U+25CF】 ●  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/settings/McpManageSection.vue:46 [代码] if (s.status === 'connected') return { label: '● 已连接', type: 'success' };
+   packages/client/src/components/settings/ProviderSection.vue:212 [代码] <n-tag v-else-if="pv.configured" size="small" type="success" :bordered="false">● 已配置</n-tag>
+   全部位点: packages/client/src/components/settings/McpManageSection.vue:46, packages/client/src/components/settings/ProviderSection.vue:212
+
+【U+25D0】 ◐  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/types/agent.ts:45 [代码] 'closing': '◐',
+   全部位点: packages/client/src/types/agent.ts:45
+
+【U+2600】 ☀  字符4次 / 位点4 / 非注释位点3
+   packages/client/src/components/AppNav.vue:78 [代码] >{{ theme.isDark.value ? '🌙' : '☀️' }}</button>
+   packages/client/src/components/layout/LeftSidebar.vue:10 [注释] * - 底栏改为「⚙️ 设置 ⟷ 🌙/☀️」同行两端。
+   packages/client/src/components/layout/LeftSidebar.vue:613 [代码] <template #icon>{{ theme.isDark.value ? '🌙' : '☀️' }}</template>
+   packages/client/src/components/layout/StatusBar.vue:113 [代码] <template #icon>{{ theme.isDark.value ? '🌙' : '☀️' }}</template>
+   全部位点: packages/client/src/components/AppNav.vue:78, packages/client/src/components/layout/LeftSidebar.vue:10, packages/client/src/components/layout/LeftSidebar.vue:613, packages/client/src/components/layout/StatusBar.vue:113
+
+【U+2630】 ☰  字符3次 / 位点3 / 非注释位点1
+   packages/client/src/components/layout/PageHeader.vue:6 [注释] *   `[☰ 左栏显隐] [Title] [#title-extra] ……… [🔍 搜索框] [#actions] [⧉ 右栏显隐]`
+   packages/client/src/components/layout/PageHeader.vue:107 [注释] <!-- 左区：[☰] [Title] [#title-extra] -->
+   packages/client/src/components/layout/PageHeader.vue:118 [代码] <template #icon>☰</template>
+   全部位点: packages/client/src/components/layout/PageHeader.vue:6, packages/client/src/components/layout/PageHeader.vue:107, packages/client/src/components/layout/PageHeader.vue:118
+
+【U+267B】 ♻  字符5次 / 位点5 / 非注释位点0
+   packages/client/src/api/client.ts:141 [注释] /** ♻️ 旧版兼容：仅返回 deployed 列表（供现有 useMcpList / chat store 使用） */
+   packages/client/src/api/client.ts:223 [注释] /** `GET /api/health` —— ♻️ 复用既有端点的扩展返回体（FR21.8，字段全部可选需容错）。 */
+   packages/client/src/components/settings/DiagnosticsSection.vue:3 [注释] // ♻️ 数据源是扩展后的 GET /api/health（🚫 未新建诊断端点）。
+   packages/client/src/components/settings/GeneralSection.vue:2 [注释] // F21「通用」分组：主题（♻️ styles/theme.ts 的 useTheme）/ 语言 / 默认工作目录 / 日志。
+   全部位点: packages/client/src/api/client.ts:141, packages/client/src/api/client.ts:223, packages/client/src/components/settings/DiagnosticsSection.vue:3, packages/client/src/components/settings/GeneralSection.vue:2, packages/client/src/components/settings/GeneralSection.vue:3
+
+【U+2699】 ⚙  字符4次 / 位点4 / 非注释位点2
+   packages/client/src/components/AppNav.vue:36 [代码] const SETTINGS_ITEM: NavItem = { path: '/settings', labelKey: 'nav.settings', icon: '⚙️' };
+   packages/client/src/components/layout/LeftSidebar.vue:8 [注释] * - `navMode === 'home'` → 首页导航（原内容，菜单区已移除「⚙️ 设置」按钮）；
+   packages/client/src/components/layout/LeftSidebar.vue:10 [注释] * - 底栏改为「⚙️ 设置 ⟷ 🌙/☀️」同行两端。
+   packages/client/src/components/layout/SettingsNav.vue:43 [代码] <span class="km-setnav-title">⚙️ 设置</span>
+   全部位点: packages/client/src/components/AppNav.vue:36, packages/client/src/components/layout/LeftSidebar.vue:8, packages/client/src/components/layout/LeftSidebar.vue:10, packages/client/src/components/layout/SettingsNav.vue:43
+
+【U+26A0】 ⚠  字符34次 / 位点34 / 非注释位点6
+   packages/client/src/api/client.ts:170 [注释] * ⚠️ `active_profile` 是只读镜像，**不可**经此写入 —— 走 `useProfile()`。
+   packages/client/src/api/client.ts:367 [注释] * ⚠️ 错误处理：`http()` 抛出的是 `HttpError`，其 `.message` 为
+   packages/client/src/components/chat/AgentMarkdown.vue:57 [代码] btn.textContent = '⚠';
+   packages/client/src/components/chat/MessageItem.vue:298 [代码] <span>⚠ 发送失败，点击重试</span>
+
+【U+26D4】 ⛔  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/dialog/ResultDialog.vue:61 [代码] error: { icon: '⛔', title: '操作失败', color: 'var(--km-danger)' },
+   全部位点: packages/client/src/components/dialog/ResultDialog.vue:61
+
+【U+26F6】 ⛶  字符5次 / 位点5 / 非注释位点1
+   packages/client/src/components/chat/OutputPanel.vue:9 [注释] * - 删 tabs 栏的 ⛶ 按钮（上移到 `RightPanel`）；
+   packages/client/src/components/chat/OutputPanel.vue:143 [注释] <!-- 标签栏（⛶ 已上移到 RightPanel） -->
+   packages/client/src/components/layout/RightPanel.vue:7 [注释] * ├── title 栏：RIGHT_PANEL_TITLE[mode] + ⛶ 全屏 + ✕ 关闭
+   packages/client/src/components/layout/RightPanel.vue:143 [注释] <!-- title 栏：内容态名称 + ⛶ + ✕ -->
+   全部位点: packages/client/src/components/chat/OutputPanel.vue:9, packages/client/src/components/chat/OutputPanel.vue:143, packages/client/src/components/layout/RightPanel.vue:7, packages/client/src/components/layout/RightPanel.vue:143, packages/client/src/components/layout/RightPanel.vue:154
+
+【U+2705】 ✅  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/dialog/ResultDialog.vue:60 [代码] success: { icon: '✅', title: '操作成功', color: 'var(--km-success)' },
+   packages/client/src/composables/useSessionList.ts:224 [代码] if (s.archived) continue; // ✅ 必须保留：归档过滤（B10-③ / F30）
+   全部位点: packages/client/src/components/dialog/ResultDialog.vue:60, packages/client/src/composables/useSessionList.ts:224
+
+【U+270D】 ✍  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/settings/AgentRoleSection.vue:54 [代码] { key: 'manual', label: '✍️ 手动添加' },
+   全部位点: packages/client/src/components/settings/AgentRoleSection.vue:54
+
+【U+270E】 ✎  字符7次 / 位点7 / 非注释位点7
+   packages/client/src/components/chat/MessageItem.vue:285 [代码] >✎</button>
+   packages/client/src/components/layout/LeftSidebar.vue:627 [代码] ✎ 重命名
+   packages/client/src/components/settings/AgentRoleSection.vue:238 [代码] <button class="ars-op" title="编辑角色配置" @click="onEdit(role)">✎</button>
+   packages/client/src/locales/en.ts:20 [代码] 'chat.editing': '✎ Editing message',
+   全部位点: packages/client/src/components/chat/MessageItem.vue:285, packages/client/src/components/layout/LeftSidebar.vue:627, packages/client/src/components/settings/AgentRoleSection.vue:238, packages/client/src/locales/en.ts:20, packages/client/src/locales/en.ts:31, packages/client/src/locales/zh-CN.ts:20, packages/client/src/locales/zh-CN.ts:31
+
+【U+270F】 ✏  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/types/agent.ts:52 [代码] 'writing': '✏️',
+   全部位点: packages/client/src/types/agent.ts:52
+
+【U+2713】 ✓  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/chat/AgentMarkdown.vue:50 [代码] btn.textContent = '✓';
+   packages/client/src/components/chat/ToolCallCard.vue:13 [代码] <span class="ico">{{ tool.status === 'running' ? '⏳' : tool.status === 'error' ? '✕' : '✓' }}</s
+   全部位点: packages/client/src/components/chat/AgentMarkdown.vue:50, packages/client/src/components/chat/ToolCallCard.vue:13
+
+【U+2715】 ✕  字符8次 / 位点8 / 非注释位点6
+   packages/client/src/components/chat/ToolCallCard.vue:13 [代码] <span class="ico">{{ tool.status === 'running' ? '⏳' : tool.status === 'error' ? '✕' : '✓' }}</s
+   packages/client/src/components/dialog/NewTaskDialog.vue:261 [代码] ✕
+   packages/client/src/components/dialog/NewTaskDialog.vue:291 [代码] ✕
+   packages/client/src/components/layout/RightPanel.vue:7 [注释] * ├── title 栏：RIGHT_PANEL_TITLE[mode] + ⛶ 全屏 + ✕ 关闭
+   全部位点: packages/client/src/components/chat/ToolCallCard.vue:13, packages/client/src/components/dialog/NewTaskDialog.vue:261, packages/client/src/components/dialog/NewTaskDialog.vue:291, packages/client/src/components/layout/RightPanel.vue:7, packages/client/src/components/layout/RightPanel.vue:143, packages/client/src/components/layout/RightPanel.vue:157, packages/client/src/components/settings/McpManageSection.vue:47, packages/client/src/types/agent.ts:51
+
+【U+2728】 ✨  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/common/MarketLayout.vue:237 [代码] <h3 class="ml-section-title">✨ 精选推荐</h3>
+   全部位点: packages/client/src/components/common/MarketLayout.vue:237
+
+【U+2753】 ❓  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/chat/ClarifyCard.vue:18 [代码] <div class="km-clarify-q">❓ {{ req.question }}</div>
+   全部位点: packages/client/src/components/chat/ClarifyCard.vue:18
+
+【U+27F7】 ⟷  字符2次 / 位点2 / 非注释位点0
+   packages/client/src/components/layout/LeftSidebar.vue:10 [注释] * - 底栏改为「⚙️ 设置 ⟷ 🌙/☀️」同行两端。
+   packages/client/src/components/layout/LeftSidebar.vue:600 [注释] <!-- 底栏（V3：设置 ⟷ 主题图标，同行两端） -->
+   全部位点: packages/client/src/components/layout/LeftSidebar.vue:10, packages/client/src/components/layout/LeftSidebar.vue:600
+
+【U+29C9】 ⧉  字符4次 / 位点4 / 非注释位点2
+   packages/client/src/components/layout/PageHeader.vue:6 [注释] *   `[☰ 左栏显隐] [Title] [#title-extra] ……… [🔍 搜索框] [#actions] [⧉ 右栏显隐]`
+   packages/client/src/components/layout/PageHeader.vue:126 [注释] <!-- 右区：[🔍 搜索框] [#actions] [⧉] -->
+   packages/client/src/components/layout/PageHeader.vue:152 [代码] <template #icon>⧉</template>
+   packages/client/src/views/ChatView.vue:295 [代码] <template #icon>⧉</template>
+   全部位点: packages/client/src/components/layout/PageHeader.vue:6, packages/client/src/components/layout/PageHeader.vue:126, packages/client/src/components/layout/PageHeader.vue:152, packages/client/src/views/ChatView.vue:295
+
+【U+3000】 　  字符2次 / 位点1 / 非注释位点1
+   packages/client/src/components/settings/AgentRoleSection.vue:145 [代码] return parts.length === 0 ? '尚未配置专长与技能' : parts.join('　·　');
+   全部位点: packages/client/src/components/settings/AgentRoleSection.vue:145
+
+【U+3001】 、  字符88次 / 位点49 / 非注释位点6
+   packages/client/src/api/terminal.ts:9 [注释] //   不持有任何业务状态（term 表、活跃 term、可用性判定全在 store）。
+   packages/client/src/components/chat/ChatInput.vue:9 [注释] * T03 新增：NTag chips、文件缩略图、更多{N}聚合、语音输入、可配置快捷键、sendMode dropdown。
+   packages/client/src/components/chat/OutputPanel.vue:14 [注释] * 组件本身不控制宽度、不带 header，永远铺满父容器。
+   packages/client/src/components/chat/SettingsDrawer.vue:78 [代码] <div class="set-hint">主题、API Key、Profile、技能、MCP 与诊断信息在设置整页中管理</div>
+
+【U+3002】 。  字符1145次 / 位点1089 / 非注释位点40
+   packages/client/src/api/client.ts:1 [注释] // REST 封装层：视图与 store 一律经此文件访问后端（NFR1 视图零直接网络调用）。
+   packages/client/src/api/client.ts:2 [注释] // 契约基准：docs/design/TECHNICAL-SOLUTION-M4.md §3.6 + packages/server/src/routes/*。
+   packages/client/src/api/client.ts:22 [注释] /** 带状态码的 HTTP 错误（memory 409 stale_id / 423 locked 等分支判定用）。 */
+   packages/client/src/api/client.ts:38 [注释] * 从异常中提取**人类可读**的错误文案（§7.5）。
+
+【U+300C】 「  字符221次 / 位点205 / 非注释位点43
+   packages/client/src/api/client.ts:41 [注释] * `` `${res.status} ${text}` `` —— 即「状态码 + 响应体原文」，例如
+   packages/client/src/api/client.ts:207 [注释] /** `GET /api/profiles` —— hermes profile 列表（懒创建缺失时回落「仅 default」）。 */
+   packages/client/src/api/client.ts:250 [注释] /** 删除后返回备份文件路径（UI 提示「已自动备份，可回滚」）。 */
+   packages/client/src/api/client.ts:368 [注释] * 「状态码 + 响应体原文」，**不是**服务端那句干净的 `message`（缺陷 #1）。
+
+【U+300D】 」  字符221次 / 位点205 / 非注释位点43
+   packages/client/src/api/client.ts:41 [注释] * `` `${res.status} ${text}` `` —— 即「状态码 + 响应体原文」，例如
+   packages/client/src/api/client.ts:207 [注释] /** `GET /api/profiles` —— hermes profile 列表（懒创建缺失时回落「仅 default」）。 */
+   packages/client/src/api/client.ts:250 [注释] /** 删除后返回备份文件路径（UI 提示「已自动备份，可回滚」）。 */
+   packages/client/src/api/client.ts:368 [注释] * 「状态码 + 响应体原文」，**不是**服务端那句干净的 `message`（缺陷 #1）。
+
+【U+3010】 【  字符3次 / 位点3 / 非注释位点0
+   packages/client/src/components/layout/SettingsNav.vue:9 [注释] *   - 底栏【← 返回】（回到进入设置前的首页路由）
+   packages/client/src/components/settings/AgentRoleSection.vue:52 [注释] /** 【＋】下拉的两个入口（R-14①）。 */
+   packages/client/src/composables/useSessionList.ts:225 [注释] // ⚠️ 这里【没有】跳过 pinned 的分支 —— 置顶会话必须同时出现在工作区组（Q8 非互斥）。
+   全部位点: packages/client/src/components/layout/SettingsNav.vue:9, packages/client/src/components/settings/AgentRoleSection.vue:52, packages/client/src/composables/useSessionList.ts:225
+
+【U+3011】 】  字符3次 / 位点3 / 非注释位点0
+   packages/client/src/components/layout/SettingsNav.vue:9 [注释] *   - 底栏【← 返回】（回到进入设置前的首页路由）
+   packages/client/src/components/settings/AgentRoleSection.vue:52 [注释] /** 【＋】下拉的两个入口（R-14①）。 */
+   packages/client/src/composables/useSessionList.ts:225 [注释] // ⚠️ 这里【没有】跳过 pinned 的分支 —— 置顶会话必须同时出现在工作区组（Q8 非互斥）。
+   全部位点: packages/client/src/components/layout/SettingsNav.vue:9, packages/client/src/components/settings/AgentRoleSection.vue:52, packages/client/src/composables/useSessionList.ts:225
+
+【U+FE0F】 ️  字符52次 / 位点51 / 非注释位点16
+   packages/client/src/api/client.ts:141 [注释] /** ♻️ 旧版兼容：仅返回 deployed 列表（供现有 useMcpList / chat store 使用） */
+   packages/client/src/api/client.ts:170 [注释] * ⚠️ `active_profile` 是只读镜像，**不可**经此写入 —— 走 `useProfile()`。
+   packages/client/src/api/client.ts:223 [注释] /** `GET /api/health` —— ♻️ 复用既有端点的扩展返回体（FR21.8，字段全部可选需容错）。 */
+   packages/client/src/api/client.ts:367 [注释] * ⚠️ 错误处理：`http()` 抛出的是 `HttpError`，其 `.message` 为
+
+【U+FF01】 ！  字符3次 / 位点3 / 非注释位点3
+   packages/client/src/components/market/McpDetail.vue:33 [代码] deployResultText.value = `MCP 服务器「${props.mcp.name}」部署成功！配置已生效。`;
+   packages/client/src/components/market/McpDetail.vue:42 [代码] toast.success(`MCP「${props.mcp.name}」测试连接成功！`);
+   packages/client/src/components/market/SkillDetail.vue:29 [代码] resultText.value = `技能「${props.skill.name}」安装成功！`;
+   全部位点: packages/client/src/components/market/McpDetail.vue:33, packages/client/src/components/market/McpDetail.vue:42, packages/client/src/components/market/SkillDetail.vue:29
+
+【U+FF08】 （  字符1049次 / 位点1015 / 非注释位点66
+   packages/client/src/api/client.ts:1 [注释] // REST 封装层：视图与 store 一律经此文件访问后端（NFR1 视图零直接网络调用）。
+   packages/client/src/api/client.ts:22 [注释] /** 带状态码的 HTTP 错误（memory 409 stale_id / 423 locked 等分支判定用）。 */
+   packages/client/src/api/client.ts:38 [注释] * 从异常中提取**人类可读**的错误文案（§7.5）。
+   packages/client/src/api/client.ts:49 [注释] * @param fallback 兜底文案（连 Error 都不是时使用）
+
+【U+FF09】 ）  字符1049次 / 位点1015 / 非注释位点66
+   packages/client/src/api/client.ts:1 [注释] // REST 封装层：视图与 store 一律经此文件访问后端（NFR1 视图零直接网络调用）。
+   packages/client/src/api/client.ts:22 [注释] /** 带状态码的 HTTP 错误（memory 409 stale_id / 423 locked 等分支判定用）。 */
+   packages/client/src/api/client.ts:38 [注释] * 从异常中提取**人类可读**的错误文案（§7.5）。
+   packages/client/src/api/client.ts:49 [注释] * @param fallback 兜底文案（连 Error 都不是时使用）
+
+【U+FF0B】 ＋  字符9次 / 位点9 / 非注释位点8
+   packages/client/src/components/chat/McpManager.vue:95 [代码] <n-button type="primary" block @click="add">＋ 添加</n-button>
+   packages/client/src/components/settings/AgentRoleSection.vue:52 [注释] /** 【＋】下拉的两个入口（R-14①）。 */
+   packages/client/src/components/settings/AgentRoleSection.vue:166 [代码] ＋
+   packages/client/src/components/settings/ModelManageSection.vue:205 [代码] <n-button size="small" type="primary" @click="onAddProvider">＋ 新增供应商</n-button>
+   全部位点: packages/client/src/components/chat/McpManager.vue:95, packages/client/src/components/settings/AgentRoleSection.vue:52, packages/client/src/components/settings/AgentRoleSection.vue:166, packages/client/src/components/settings/ModelManageSection.vue:205, packages/client/src/views/JobsView.vue:224, packages/client/src/views/JobsView.vue:237, packages/client/src/views/MemoryView.vue:123, packages/client/src/views/MemoryView.vue:134, packages/client/src/views/MemoryView.vue:153
+
+【U+FF0C】 ，  字符838次 / 位点759 / 非注释位点85
+   packages/client/src/api/client.ts:41 [注释] * `` `${res.status} ${text}` `` —— 即「状态码 + 响应体原文」，例如
+   packages/client/src/api/client.ts:43 [注释] * 若沿用全仓惯例 `e instanceof Error ? e.message : String(e)` 直接 toast，
+   packages/client/src/api/client.ts:46 [注释] * 因此**所有面向用户的 toast 一律用本函数**，不要直接读 `.message`。
+   packages/client/src/api/client.ts:169 [注释] * M5/FR21.9：入参扩展 theme / locale / terminal_cwd（全部可选，未传即保持原值）。
+
+【U+FF1A】 ：  字符776次 / 位点773 / 非注释位点69
+   packages/client/src/api/client.ts:1 [注释] // REST 封装层：视图与 store 一律经此文件访问后端（NFR1 视图零直接网络调用）。
+   packages/client/src/api/client.ts:2 [注释] // 契约基准：docs/design/TECHNICAL-SOLUTION-M4.md §3.6 + packages/server/src/routes/*。
+   packages/client/src/api/client.ts:40 [注释] * 缺陷 #1 的收敛点：`http()` 抛出的 `HttpError.message` 是
+   packages/client/src/api/client.ts:141 [注释] /** ♻️ 旧版兼容：仅返回 deployed 列表（供现有 useMcpList / chat store 使用） */
+
+【U+FF1B】 ；  字符219次 / 位点210 / 非注释位点13
+   packages/client/src/api/client.ts:198 [注释] * @param apiKey 明文 Key；传空串表示清除。🔒 响应永不回显明文。
+   packages/client/src/api/client.ts:369 [注释] * 本函数**不做 try/catch**，交由上层做乐观更新回滚 + toast；
+   packages/client/src/api/client.ts:373 [注释] * @param patch 补丁体；空对象服务端返回 `400 no_valid_field`
+   packages/client/src/api/terminal.ts:5 [注释] //   本文件是终端特性**唯一**允许出现 socket.io 的前端文件；
+
+【U+FF1F】 ？  字符20次 / 位点19 / 非注释位点19
+   packages/client/src/components/dialog/MemberDetailDialog.vue:168 [代码] 移除后本地角色「{{ entity.name }}」及其自定义配置将被删除，确认移除？
+   packages/client/src/components/layout/LeftSidebar.vue:516 [代码] 确认删除会话「{{ s.title || '新会话' }}」？
+   packages/client/src/components/layout/LeftSidebar.vue:557 [代码] 确认删除会话「{{ s.title }}」？
+   packages/client/src/components/layout/LeftSidebar.vue:639 [代码] 确认删除会话「{{ sl.contextMenu.value!.session.title || '新会话' }}」？
+
+【U+FF5C】 ｜  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/layout/StatusBar.vue:71 [代码] return `${checkedText.value}｜失败原因：${reason}`;
+   全部位点: packages/client/src/components/layout/StatusBar.vue:71
+
+【U+FFFD】 �  字符14次 / 位点5 / 非注释位点1
+   packages/client/src/App.vue:10 [注释] * - `<router-view>` 直接���染（LayoutShell 由路由注入）
+   packages/client/src/components/chat/MessageItem.vue:117 [注释] // —— V4：仅复制消息中所有代码块 —���
+   packages/client/src/components/market/ExpertDetail.vue:45 [注释] <!-- ���用场景 -->
+   packages/client/src/stores/chat.ts:85 [注释] // —— UI 重设计 T02：置顶会话 & Agent ���态 ——
+   全部位点: packages/client/src/App.vue:10, packages/client/src/components/chat/MessageItem.vue:117, packages/client/src/components/market/ExpertDetail.vue:45, packages/client/src/stores/chat.ts:85, packages/client/src/types/dataSource.ts:11
+
+【U+1F310】 🌐  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/chat/OutputPanel.vue:212 [代码] <template #icon>🌐</template>
+   全部位点: packages/client/src/components/chat/OutputPanel.vue:212
+
+【U+1F319】 🌙  字符4次 / 位点4 / 非注释位点3
+   packages/client/src/components/AppNav.vue:78 [代码] >{{ theme.isDark.value ? '🌙' : '☀️' }}</button>
+   packages/client/src/components/layout/LeftSidebar.vue:10 [注释] * - 底栏改为「⚙️ 设置 ⟷ 🌙/☀️」同行两端。
+   packages/client/src/components/layout/LeftSidebar.vue:613 [代码] <template #icon>{{ theme.isDark.value ? '🌙' : '☀️' }}</template>
+   packages/client/src/components/layout/StatusBar.vue:113 [代码] <template #icon>{{ theme.isDark.value ? '🌙' : '☀️' }}</template>
+   全部位点: packages/client/src/components/AppNav.vue:78, packages/client/src/components/layout/LeftSidebar.vue:10, packages/client/src/components/layout/LeftSidebar.vue:613, packages/client/src/components/layout/StatusBar.vue:113
+
+【U+1F39B】 🎛  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/constants/layout.ts:120 [代码] { key: 'general', label: '系统设置', icon: '🎛️' },
+   全部位点: packages/client/src/constants/layout.ts:120
+
+【U+1F3A8】 🎨  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/types/agent.ts:57 [代码] 'designing': '🎨',
+   全部位点: packages/client/src/types/agent.ts:57
+
+【U+1F3AF】 🎯  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/chat/ChatInput.vue:250 [代码] { label: '🎯 Steer', key: 'steer' as const },
+   packages/client/src/components/chat/SessionConfigBar.vue:64 [代码] { label: '🎯 Steer — 引导', key: 'steer' as const },
+   全部位点: packages/client/src/components/chat/ChatInput.vue:250, packages/client/src/components/chat/SessionConfigBar.vue:64
+
+【U+1F44B】 👋  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/locales/en.ts:53 [代码] 'empty.chat': 'Start a new conversation 👋',
+   packages/client/src/locales/zh-CN.ts:53 [代码] 'empty.chat': '开始一段新对话吧 👋',
+   全部位点: packages/client/src/locales/en.ts:53, packages/client/src/locales/zh-CN.ts:53
+
+【U+1F464】 👤  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/constants/layout.ts:121 [代码] { key: 'account', label: '账号设置', icon: '👤' },
+   全部位点: packages/client/src/constants/layout.ts:121
+
+【U+1F4AC】 💬  字符3次 / 位点3 / 非注释位点3
+   packages/client/src/components/AppNav.vue:25 [代码] { path: '/', labelKey: 'nav.chat', icon: '💬' },
+   packages/client/src/components/market/McpDetail.vue:198 [代码] <div class="km-schema-name">💬 {{ ps.name }}</div>
+   packages/client/src/components/settings/MonitorSection.vue:65 [代码] <n-card size="small" title="💬 Sessions">
+   全部位点: packages/client/src/components/AppNav.vue:25, packages/client/src/components/market/McpDetail.vue:198, packages/client/src/components/settings/MonitorSection.vue:65
+
+【U+1F4AD】 💭  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/types/agent.ts:47 [代码] 'thinking': '💭',
+   全部位点: packages/client/src/types/agent.ts:47
+
+【U+1F4BC】 💼  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/dialog/MemberDetailDialog.vue:91 [代码] <span class="km-md-icon">{{ entity.icon || '🧑‍💼' }}</span>
+   packages/client/src/components/settings/ExpertPickerPanel.vue:138 [代码] <div class="epp-icon">{{ entity.icon || '🧑‍💼' }}</div>
+   全部位点: packages/client/src/components/dialog/MemberDetailDialog.vue:91, packages/client/src/components/settings/ExpertPickerPanel.vue:138
+
+【U+1F4C1】 📁  字符5次 / 位点5 / 非注释位点5
+   packages/client/src/components/chat/SessionConfigBar.vue:140 [代码] <span class="km-config-icon">📁</span>
+   packages/client/src/components/layout/LeftSidebar.vue:633 [代码] 📁 绑定工作区
+   packages/client/src/components/preview/FileTreePane.vue:52 [代码] h('span', { class: 'km-ft-icon' }, node.collapsed ? '📁' : '📂'),
+   packages/client/src/locales/en.ts:33 [代码] 'session.bindWorkspace': '📁 Bind Workspace',
+   全部位点: packages/client/src/components/chat/SessionConfigBar.vue:140, packages/client/src/components/layout/LeftSidebar.vue:633, packages/client/src/components/preview/FileTreePane.vue:52, packages/client/src/locales/en.ts:33, packages/client/src/locales/zh-CN.ts:33
+
+【U+1F4C2】 📂  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/chat/ShareDialog.vue:158 [代码] <n-button size="small" type="primary" @click="openInRightPanel">📂 在右栏查看</n-button>
+   packages/client/src/components/preview/FileTreePane.vue:52 [代码] h('span', { class: 'km-ft-icon' }, node.collapsed ? '📁' : '📂'),
+   全部位点: packages/client/src/components/chat/ShareDialog.vue:158, packages/client/src/components/preview/FileTreePane.vue:52
+
+【U+1F4C4】 📄  字符4次 / 位点4 / 非注释位点4
+   packages/client/src/components/chat/ChatInput.vue:310 [代码] >📄 {{ u.filename }}<button class="km-chip-x" @click="removeUpload(i)">×</button></span>
+   packages/client/src/components/chat/ChatInput.vue:339 [代码] >📄 选择文件</div>
+   packages/client/src/components/chat/MessageItem.vue:237 [代码] <button v-else class="km-file-chip" :title="seg.value" @click="copyPath(seg.value)">📄 {{ seg.va
+   packages/client/src/components/preview/FileTreePane.vue:58 [代码] h('span', { class: 'km-ft-icon' }, '📄'),
+   全部位点: packages/client/src/components/chat/ChatInput.vue:310, packages/client/src/components/chat/ChatInput.vue:339, packages/client/src/components/chat/MessageItem.vue:237, packages/client/src/components/preview/FileTreePane.vue:58
+
+【U+1F4CA】 📊  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/AppNav.vue:28 [代码] { path: '/usage', labelKey: 'nav.usage', icon: '📊' },
+   packages/client/src/constants/layout.ts:119 [代码] { key: 'monitor', label: '监控', icon: '📊' },
+   全部位点: packages/client/src/components/AppNav.vue:28, packages/client/src/constants/layout.ts:119
+
+【U+1F4CB】 📋  字符16次 / 位点16 / 非注释位点16
+   packages/client/src/components/chat/AgentMarkdown.vue:14 [代码] const copyBtn = '<button class="km-code-copy" title="复制代码">📋</button>';
+   packages/client/src/components/chat/AgentMarkdown.vue:53 [代码] btn.textContent = '📋';
+   packages/client/src/components/chat/AgentMarkdown.vue:58 [代码] setTimeout(() => { btn.textContent = '📋'; }, 1500);
+   packages/client/src/components/chat/ChatInput.vue:248 [代码] { label: '📋 Queue', key: 'queue' as const },
+
+【U+1F4CC】 📌  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/sidebar/SidebarSessionItem.vue:182 [代码] >📌</button>
+   全部位点: packages/client/src/components/sidebar/SidebarSessionItem.vue:182
+
+【U+1F4D6】 📖  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/types/agent.ts:54 [代码] 'reading': '📖',
+   全部位点: packages/client/src/types/agent.ts:54
+
+【U+1F4DC】 📜  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/views/ChatView.vue:269 [代码] <template #icon>📜</template>
+   全部位点: packages/client/src/views/ChatView.vue:269
+
+【U+1F4DD】 📝  字符3次 / 位点3 / 非注释位点3
+   packages/client/src/components/chat/MessageItem.vue:324 [代码] 📝 复制代码
+   packages/client/src/locales/en.ts:46 [代码] 'msg.copyCode': '📝 Copy Code',
+   packages/client/src/locales/zh-CN.ts:46 [代码] 'msg.copyCode': '📝 复制代码',
+   全部位点: packages/client/src/components/chat/MessageItem.vue:324, packages/client/src/locales/en.ts:46, packages/client/src/locales/zh-CN.ts:46
+
+【U+1F4E1】 📡  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/settings/MonitorSection.vue:62 [代码] <n-card size="small" title="📡 Channels">
+   packages/client/src/constants/layout.ts:127 [代码] { key: 'channel', label: 'Channel 管理', icon: '📡' },
+   全部位点: packages/client/src/components/settings/MonitorSection.vue:62, packages/client/src/constants/layout.ts:127
+
+【U+1F4E5】 📥  字符6次 / 位点6 / 非注释位点6
+   packages/client/src/components/AppNav.vue:29 [代码] { path: '/queue', labelKey: 'nav.queue', icon: '📥' },
+   packages/client/src/components/chat/OutputPanel.vue:206 [代码] <template #icon>📥</template>
+   packages/client/src/components/layout/LeftSidebar.vue:511 [代码] <button title="导出" @click="sl.doExport(s)">📥</button>
+   packages/client/src/components/layout/LeftSidebar.vue:630 [代码] 📥 导出 Markdown
+   全部位点: packages/client/src/components/AppNav.vue:29, packages/client/src/components/chat/OutputPanel.vue:206, packages/client/src/components/layout/LeftSidebar.vue:511, packages/client/src/components/layout/LeftSidebar.vue:630, packages/client/src/locales/en.ts:32, packages/client/src/locales/zh-CN.ts:32
+
+【U+1F4E6】 📦  字符8次 / 位点8 / 非注释位点8
+   packages/client/src/components/common/MarketLayout.vue:57 [代码] const fallbackIcon = computed(() => FALLBACK_ICONS[props.config.entityType] || '📦');
+   packages/client/src/components/market/EntityCard.vue:89 [代码] <span class="km-entity-card-icon-text">{{ entity.icon || '📦' }}</span>
+   packages/client/src/components/market/InstalledCard.vue:52 [代码] <span class="km-installed-icon">{{ entity.icon || '📦' }}</span>
+   packages/client/src/components/market/McpDetail.vue:187 [代码] <div class="km-schema-name">📦 {{ rs.name }}</div>
+   全部位点: packages/client/src/components/common/MarketLayout.vue:57, packages/client/src/components/market/EntityCard.vue:89, packages/client/src/components/market/InstalledCard.vue:52, packages/client/src/components/market/McpDetail.vue:187, packages/client/src/components/settings/McpManageSection.vue:154, packages/client/src/components/sidebar/SidebarSessionItem.vue:189, packages/client/src/locales/en.ts:41, packages/client/src/locales/zh-CN.ts:41
+
+【U+1F504】 🔄  字符4次 / 位点4 / 非注释位点4
+   packages/client/src/components/chat/MessageItem.vue:331 [代码] 🔄 重新生成
+   packages/client/src/components/chat/OutputPanel.vue:209 [代码] <template #icon>🔄</template>
+   packages/client/src/locales/en.ts:47 [代码] 'msg.regenerate': '🔄 Regenerate',
+   packages/client/src/locales/zh-CN.ts:47 [代码] 'msg.regenerate': '🔄 重新生成',
+   全部位点: packages/client/src/components/chat/MessageItem.vue:331, packages/client/src/components/chat/OutputPanel.vue:209, packages/client/src/locales/en.ts:47, packages/client/src/locales/zh-CN.ts:47
+
+【U+1F50C】 🔌  字符9次 / 位点9 / 非注释位点9
+   packages/client/src/components/cards/McpCard.vue:102 [代码] <span class="km-mcp-icon-text">{{ mcp.icon || '🔌' }}</span>
+   packages/client/src/components/chat/ChatInput.vue:371 [代码] >🔌 {{ mcp.name }}</n-checkbox>
+   packages/client/src/components/common/MarketLayout.vue:54 [代码] mcp: '🔌',
+   packages/client/src/components/settings/McpManageSection.vue:113 [代码] <span class="mcm-card-icon">🔌</span>
+   全部位点: packages/client/src/components/cards/McpCard.vue:102, packages/client/src/components/chat/ChatInput.vue:371, packages/client/src/components/common/MarketLayout.vue:54, packages/client/src/components/settings/McpManageSection.vue:113, packages/client/src/composables/useMcpList.ts:57, packages/client/src/composables/useMcpList.ts:72, packages/client/src/constants/layout.ts:124, packages/client/src/views/McpView.vue:21, packages/client/src/views/SettingsView.vue:291
+
+【U+1F50D】 🔍  字符4次 / 位点4 / 非注释位点2
+   packages/client/src/components/common/MarketLayout.vue:213 [代码] <template #prefix>🔍</template>
+   packages/client/src/components/layout/PageHeader.vue:6 [注释] *   `[☰ 左栏显隐] [Title] [#title-extra] ……… [🔍 搜索框] [#actions] [⧉ 右栏显隐]`
+   packages/client/src/components/layout/PageHeader.vue:126 [注释] <!-- 右区：[🔍 搜索框] [#actions] [⧉] -->
+   packages/client/src/types/agent.ts:55 [代码] 'searching': '🔍',
+   全部位点: packages/client/src/components/common/MarketLayout.vue:213, packages/client/src/components/layout/PageHeader.vue:6, packages/client/src/components/layout/PageHeader.vue:126, packages/client/src/types/agent.ts:55
+
+【U+1F510】 🔐  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/chat/ApprovalCard.vue:15 [代码] <div class="km-approval-title">🔐 需要授权：{{ req.tool }}</div>
+   packages/client/src/types/agent.ts:50 [代码] 'waiting-approval': '🔐',
+   全部位点: packages/client/src/components/chat/ApprovalCard.vue:15, packages/client/src/types/agent.ts:50
+
+【U+1F512】 🔒  字符10次 / 位点10 / 非注释位点2
+   packages/client/src/api/client.ts:190 [注释] * 🔒 返回体不含明文 Key，只有 `configured` 与 `masked`（FR21.5）。
+   packages/client/src/api/client.ts:198 [注释] * @param apiKey 明文 Key；传空串表示清除。🔒 响应永不回显明文。
+   packages/client/src/components/dialog/AddModelDialog.vue:386 [代码] 🔒 出于安全约定，API Key 不会写入 localStorage；刷新页面后本地只保留「已配置」标记，
+   packages/client/src/components/settings/DiagnosticsSection.vue:4 [注释] // 🔒 NFR-M5-5：复制出去的文本会把绝对路径中的用户名替换为 <user>，避免贴到 issue 时泄露身份。
+   全部位点: packages/client/src/api/client.ts:190, packages/client/src/api/client.ts:198, packages/client/src/components/dialog/AddModelDialog.vue:386, packages/client/src/components/settings/DiagnosticsSection.vue:4, packages/client/src/components/settings/DiagnosticsSection.vue:156, packages/client/src/components/settings/ProviderSection.vue:8, packages/client/src/stores/modelConfig.ts:11, packages/client/src/stores/modelConfig.ts:468, packages/client/src/types/chat.ts:518, packages/client/src/types/chat.ts:541
+
+【U+1F527】 🔧  字符3次 / 位点3 / 非注释位点3
+   packages/client/src/components/market/McpDetail.vue:176 [代码] <div class="km-schema-name">🔧 {{ ts.name }}</div>
+   packages/client/src/components/settings/MonitorSection.vue:59 [代码] <n-card size="small" title="🔧 MCP Tools">
+   packages/client/src/constants/layout.ts:125 [代码] { key: 'tools', label: 'Tools 管理', icon: '🔧' },
+   全部位点: packages/client/src/components/market/McpDetail.vue:176, packages/client/src/components/settings/MonitorSection.vue:59, packages/client/src/constants/layout.ts:125
+
+【U+1F52C】 🔬  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/types/agent.ts:56 [代码] 'researching': '🔬',
+   全部位点: packages/client/src/types/agent.ts:56
+
+【U+1F534】 🔴  字符4次 / 位点4 / 非注释位点0
+   packages/client/src/composables/useSessionList.ts:153 [注释] // 🔴 B10-③（F30）：先排除归档会话。存量实现 `base = store.sessions` **完全不过滤
+   packages/client/src/composables/useSessionList.ts:174 [注释] * 🔴 **不要改回 `store.agentStates`**（缺陷 #4，主理人已采信）：
+   packages/client/src/composables/useSessionList.ts:245 [注释] * 🔴 Q8 **非互斥**：同一会话可同时出现在 recent、pinned、某工作区组里。
+   packages/client/src/composables/useSessionList.ts:247 [注释] * 🔴 B10-②：`pinned` 判据是 **`s.pinned`（服务端字段）**，不再读
+   全部位点: packages/client/src/composables/useSessionList.ts:153, packages/client/src/composables/useSessionList.ts:174, packages/client/src/composables/useSessionList.ts:245, packages/client/src/composables/useSessionList.ts:247
+
+【U+1F53D】 🔽  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/layout/LeftSidebar.vue:317 [代码] <template #icon>🔽</template>
+   全部位点: packages/client/src/components/layout/LeftSidebar.vue:317
+
+【U+1F5D1】 🗑  字符6次 / 位点6 / 非注释位点6
+   packages/client/src/components/layout/LeftSidebar.vue:514 [代码] <button title="删除" class="danger">🗑</button>
+   packages/client/src/components/layout/LeftSidebar.vue:555 [代码] <button title="删除" class="danger">🗑</button>
+   packages/client/src/components/layout/LeftSidebar.vue:637 [代码] <button class="km-cm-item km-cm-danger">🗑 删除</button>
+   packages/client/src/components/settings/AgentRoleSection.vue:241 [代码] <button class="ars-op ars-op-danger" title="从系统中删除">🗑</button>
+   全部位点: packages/client/src/components/layout/LeftSidebar.vue:514, packages/client/src/components/layout/LeftSidebar.vue:555, packages/client/src/components/layout/LeftSidebar.vue:637, packages/client/src/components/settings/AgentRoleSection.vue:241, packages/client/src/locales/en.ts:34, packages/client/src/locales/zh-CN.ts:34
+
+【U+1F6AB】 🚫  字符8次 / 位点8 / 非注释位点0
+   packages/client/src/api/terminal.ts:6 [注释] //   🚫 TerminalPane.vue / stores/terminal.ts 不得 import 'socket.io-client'。
+   packages/client/src/api/terminal.ts:58 [注释] * 🚫 不硬编码 `127.0.0.1` / `0.0.0.0`（NekoBox TUN 会拦截 127.0.0.1）。
+   packages/client/src/components/chat/SettingsDrawer.vue:4 [注释] // 此处保留原有全部能力不变，仅在底部补一个跳转入口，🚫 不删任何既有功能。
+   packages/client/src/components/preview/TerminalPane.vue:5 [注释] //   本组件 🚫 不得 import 'socket.io-client'，所有网络行为一律经 stores/terminal。
+   全部位点: packages/client/src/api/terminal.ts:6, packages/client/src/api/terminal.ts:58, packages/client/src/components/chat/SettingsDrawer.vue:4, packages/client/src/components/preview/TerminalPane.vue:5, packages/client/src/components/settings/DiagnosticsSection.vue:3, packages/client/src/components/settings/GeneralSection.vue:3, packages/client/src/stores/terminal.ts:4, packages/client/src/utils/desktop-bridge.ts:6
+
+【U+1F6D2】 🛒  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/settings/AgentRoleSection.vue:55 [代码] { key: 'market', label: '🛒 从市场添加' },
+   全部位点: packages/client/src/components/settings/AgentRoleSection.vue:55
+
+【U+1F6E0】 🛠  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/cards/SkillCard.vue:79 [代码] <span class="km-skill-icon-text">{{ skill.icon || '🛠️' }}</span>
+   packages/client/src/composables/useSkillList.ts:110 [代码] icon: c.icon || '🛠️',
+   全部位点: packages/client/src/components/cards/SkillCard.vue:79, packages/client/src/composables/useSkillList.ts:110
+
+【U+1F6E1】 🛡  字符1次 / 位点1 / 非注释位点1
+   packages/client/src/components/chat/SessionConfigBar.vue:165 [代码] <span class="km-config-icon">🛡</span>
+   全部位点: packages/client/src/components/chat/SessionConfigBar.vue:165
+
+【U+1F916】 🤖  字符14次 / 位点14 / 非注释位点14
+   packages/client/src/components/cards/ExpertCard.vue:100 [代码] <span class="km-expert-icon-text">{{ expert.icon || '🤖' }}</span>
+   packages/client/src/components/chat/SessionConfigBar.vue:153 [代码] <span class="km-config-icon">🤖</span>
+   packages/client/src/components/common/MarketLayout.vue:52 [代码] expert: '🤖',
+   packages/client/src/components/common/ResourceCard.vue:23 [代码] fallbackIcon: '🤖',
+
+【U+1F9D1】 🧑  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/dialog/MemberDetailDialog.vue:91 [代码] <span class="km-md-icon">{{ entity.icon || '🧑‍💼' }}</span>
+   packages/client/src/components/settings/ExpertPickerPanel.vue:138 [代码] <div class="epp-icon">{{ entity.icon || '🧑‍💼' }}</div>
+   全部位点: packages/client/src/components/dialog/MemberDetailDialog.vue:91, packages/client/src/components/settings/ExpertPickerPanel.vue:138
+
+【U+1F9E0】 🧠  字符4次 / 位点4 / 非注释位点4
+   packages/client/src/components/AppNav.vue:26 [代码] { path: '/memory', labelKey: 'nav.memory', icon: '🧠' },
+   packages/client/src/components/chat/SessionConfigBar.vue:195 [代码] <span class="km-config-icon">🧠</span>
+   packages/client/src/components/settings/MonitorSection.vue:50 [代码] <n-card size="small" title="🧠 Agents">
+   packages/client/src/constants/layout.ts:128 [代码] { key: 'memory', label: '记忆管理', icon: '🧠' },
+   全部位点: packages/client/src/components/AppNav.vue:26, packages/client/src/components/chat/SessionConfigBar.vue:195, packages/client/src/components/settings/MonitorSection.vue:50, packages/client/src/constants/layout.ts:128
+
+【U+1F9E9】 🧩  字符9次 / 位点9 / 非注释位点9
+   packages/client/src/components/chat/ChatInput.vue:354 [代码] >🧩 {{ skill.name }}</n-checkbox>
+   packages/client/src/components/common/MarketLayout.vue:53 [代码] skill: '🧩',
+   packages/client/src/components/settings/MonitorSection.vue:56 [代码] <n-card size="small" title="🧩 Skills">
+   packages/client/src/components/settings/SkillManageSection.vue:44 [代码] icon: '🧩',
+   全部位点: packages/client/src/components/chat/ChatInput.vue:354, packages/client/src/components/common/MarketLayout.vue:53, packages/client/src/components/settings/MonitorSection.vue:56, packages/client/src/components/settings/SkillManageSection.vue:44, packages/client/src/components/settings/SkillManageSection.vue:81, packages/client/src/composables/useSkillList.ts:71, packages/client/src/constants/layout.ts:123, packages/client/src/views/SettingsView.vue:241, packages/client/src/views/SkillsView.vue:21
+
+【U+1F9EA】 🧪  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/settings/MonitorSection.vue:53 [代码] <n-card size="small" title="🧪 Models">
+   packages/client/src/constants/layout.ts:129 [代码] { key: 'model', label: '模型管理', icon: '🧪' },
+   全部位点: packages/client/src/components/settings/MonitorSection.vue:53, packages/client/src/constants/layout.ts:129
+
+【U+1F9F0】 🧰  字符2次 / 位点2 / 非注释位点2
+   packages/client/src/components/settings/PlaceholderSection.vue:18 [代码] { label: '该模块', icon: '🧰' }
+   packages/client/src/constants/layout.ts:126 [代码] { key: 'plugins', label: 'Plugins 管理', icon: '🧰' },
+   全部位点: packages/client/src/components/settings/PlaceholderSection.vue:18, packages/client/src/constants/layout.ts:126

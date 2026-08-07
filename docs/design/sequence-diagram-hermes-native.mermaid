@@ -1,0 +1,450 @@
+%% kmaster-studio hermes-native —— 关键流程时序图（6 条主流程）
+%% 来源：docs/design/TECHNICAL-SOLUTION-hermes-native.md §5
+%% 说明：本文件含 6 个独立 sequenceDiagram 块（沿用 docs/design/sequence-diagram.mermaid 的多图惯例）
+%% v2：新增流程六（bridge 身份握手与幽灵 home 拦截）
+
+
+%% ══════════════════════════════════════════════════════════════════════
+%% 流程一：hermes 探测与诚实降级（启动链路 · §5.1 · U-04）
+%% 覆盖 HN-P002 / D-11 / D-22 / D-14 / D-15
+%% ══════════════════════════════════════════════════════════════════════
+sequenceDiagram
+    autonumber
+    actor U as 用户
+    participant CS as HermesStatusStore<br/>(client)
+    participant API as GET /api/hermes/probe
+    participant PB as HermesProbe<br/>(hermes/probe.ts)
+    participant ENV as getHermesEnv()<br/>(hermes/env.ts)
+    participant FS as $HERMES_HOME 磁盘
+    participant DB as state.db<br/>(better-sqlite3 只读)
+    participant PY as runPython
+    participant BR as Bridge<br/>tcp 127.0.0.1:16765
+    participant OS as OS 进程表
+
+    U->>CS: 启动应用 / 进入诊断页
+    CS->>API: GET /api/hermes/probe
+    API->>PB: probe()
+
+    PB->>ENV: getHermesEnv()
+    Note over ENV: 优先级链<br/>HERMES_AGENT_DIR →<br/>HERMES_WEBUI_AGENT_DIR →<br/>{activeHome}/hermes-agent<br/>★ 所有路径基于 activeHome (SC-2)
+    ENV-->>PB: { root, activeProfile, activeHome,<br/>agentDir, agentDirSource, paths(frozen) }
+
+    par 并行探测（单项超时 1.5s / 总超时 3s）
+        PB->>FS: stat config.yaml / skills/ / agents/<br/>logs/ / auth.json / cron/jobs.json
+        FS-->>PB: exists + readable + writable
+    and
+        PB->>DB: open(readonly) + count(sessions/messages)
+        DB-->>PB: detail = "sessions=35, messages=8083"
+    and
+        PB->>PY: import hermes_cli 并打印 hermes_cli.__file__
+        Note over PY: ★ D-11 修复：不再只 print(1)<br/>三要素齐备(SC-4)：<br/>venv 解释器 + cwd=agentDir + 原生 Windows 路径
+        alt import 成功
+            PY-->>PB: hermesModuleOk = true
+        else ModuleNotFoundError
+            PY-->>PB: hermesModuleOk = false + error
+        end
+    and
+        PB->>BR: ping()（独立探活，不依赖构造成功）
+        Note over BR: HN-P014②：RealBridge 现连现用<br/>构造不建连 → 必须独立 ping
+        BR-->>PB: connected + lastPingMs
+    and
+        PB->>FS: read gateway_state.json → pid 48564
+        PB->>OS: 校验 pid 是否真实存活
+        Note over OS: ★ 实测：JSON 记 running 但进程已不存在<br/>禁止直接信任 JSON
+        OS-->>PB: pidAlive = false → state = "stale"
+    end
+
+    PB->>PB: 汇总 checks[] + 计算 degradedSources[]
+    Note over PB: C3 双状态：wiring × liveness<br/>wired + degraded = 最危险组合<br/>例：/api/skills wired 但 liveness=degraded
+
+    alt 全部正常
+        PB-->>API: { configured:true, degradedSources: [] }
+        API-->>CS: 200
+        CS->>U: 状态栏绿 · 全站 live
+    else 部分降级
+        PB-->>API: { degradedSources: [ {/api/skills, wired, degraded, "ModuleNotFoundError"} ] }
+        API-->>CS: 200
+        CS->>U: 状态栏黄标 + 诊断页列出降级项<br/>★ 不静默兜底 (SC-5)
+    else hermes 未配置 / 不可达
+        PB-->>API: { configured:false }
+        API-->>CS: 200
+        CS->>U: 全局离线徽标 · 所有面板 state=offline<br/>写操作置灰
+    end
+
+    opt bridgeMode === "mock"
+        CS->>U: 常驻「模拟模式」角标 (MockBadge · HN-P000b②)
+    end
+
+
+%% ══════════════════════════════════════════════════════════════════════
+%% 流程二：技能枚举 —— 快照直读 + Python 兜底（§5.2 · U-05 · C1 裁定）
+%% 覆盖 HN-P003 / HN-P008 / D-01 / D-02
+%% ══════════════════════════════════════════════════════════════════════
+sequenceDiagram
+    autonumber
+    actor U as 用户
+    participant SV as SkillsView<br/>+ DataStateBoundary
+    participant API as GET /api/skills
+    participant SR as SkillsReader<br/>(hermes/read/skills.ts)
+    participant SNAP as .skills_prompt_snapshot.json
+    participant DIR as $HERMES_HOME/skills/
+    participant MF as 安装清单 ×2<br/>.kmaster / .webui
+    participant PY as runPython<br/>_find_all_skills()
+
+    U->>SV: 打开技能页
+    SV->>API: GET /api/skills
+    API->>SR: list()
+
+    SR->>SNAP: 读取（file-direct，零 Python 依赖）
+    alt 快照可用
+        SNAP-->>SR: manifest 191 (SKILL.md 174 + DESCRIPTION.md 17)<br/>skills[] 174 · categories 16
+
+        SR->>SR: ① 平台门控 platforms[]
+        Note over SR: 排除 11 条：<br/>apple-notes/apple-reminders/findmy/imessage (macos)<br/>lm-evaluation-harness/vllm/audiocraft (linux,macos)<br/>research-paper-writing/xurl/python-debugpy (linux,macos)<br/>windows-software-manager (linux)<br/>174 → 163
+
+        SR->>SR: ② 条件门控 conditions
+        Note over SR: 排除 2 条：<br/>mcp-manager (requires terminal/web/skills)<br/>maps (requires terminal)<br/>163 → 161  ★权威值
+
+        SR->>DIR: lstat 顶层条目
+        DIR-->>SR: ls -1 = 47 包（含 7 个既有 symlink）<br/>ls -1A = 54
+        SR->>MF: 读 .kmaster-managed-skills.json<br/>+ .webui-managed-skills.json (owner=hermes-web-ui, 5 条)
+        MF-->>SR: 判定 installed / installKind / managedBy
+
+        SR->>SR: 比对 snapshot.mtime vs skillsDir.mtime
+        alt 快照陈旧
+            SR--)PY: 异步触发刷新（不阻塞响应）
+            SR-->>API: state=live, stale=true, snapshotStale=true
+        else 快照新鲜
+            SR-->>API: state=live, source="snapshot"
+        end
+
+    else 快照缺失 / 损坏
+        SR->>PY: _find_all_skills()
+        Note over PY: SC-3/SC-4：原生 Windows 路径 +<br/>MSYS 路径污染会得到 0（QA 的假象根因）
+        alt Python 成功
+            PY-->>SR: 161 条
+            SR-->>API: state=live, source="api"
+        else Python 失败
+            PY-->>SR: ModuleNotFoundError
+            Note over SR: ★ 绝不返回 SKILLS_SNAPSHOT<br/>该常量已被物理删除 (S-2)
+            SR-->>API: 5xx { state:"error", reason, hermesPath }
+        end
+    end
+
+    API-->>SV: SkillsResponse<br/>counts { available:161, declared:174, packages:47,<br/>excludedByPlatform:11, excludedByCondition:2 }
+
+    alt state === live
+        SV->>U: 渲染 161 条真实技能<br/>断言含 research/ddd-skill/quant-data<br/>断言不含 summarize/pdf-extract/data-clean
+    else state === error
+        SV->>U: 错误态 + reason + hermesPath（可复制自查）
+    end
+
+
+%% ══════════════════════════════════════════════════════════════════════
+%% 流程三：技能装卸写回 —— junction → copy（§5.3 · U-21 · PRD v2 Q-3 定案）
+%% 覆盖 HN-P101 / D-07
+%% ══════════════════════════════════════════════════════════════════════
+sequenceDiagram
+    autonumber
+    actor U as 用户
+    participant SM as SkillManageSection.vue
+    participant API as POST /api/skills/:name/install
+    participant SI as SkillInstaller<br/>(hermes/write/skills-install.ts)
+    participant MF as 安装清单 ×2
+    participant FS as $HERMES_HOME/skills/
+    participant SRC as 源目录<br/>optional-skills/ 或 .agents/skills/
+    participant SR as SkillsReader
+
+    U->>SM: 点击「安装」
+    SM->>API: POST /api/skills/foo/install
+    API->>SI: install("foo")
+
+    rect rgb(255, 245, 235)
+        Note over SI,MF: ★ SC-9 互操作护栏（先于任何写操作）
+        SI->>MF: 读 .webui-managed-skills.json
+        MF-->>SI: owner 映射
+        alt 目标名已被 owner != kmaster-studio 占用
+            SI-->>API: 409 「该技能由 hermes-web-ui 安装，<br/>请在对应界面管理」
+            API-->>SM: 拒绝 + 提示
+        end
+    end
+
+    SI->>SRC: 解析源路径 target
+    SI->>SI: assertInsideHermesHome(linkPath) (SC-10)
+
+    rect rgb(235, 245, 255)
+        Note over SI,FS: 三级降级链（实测：本机免管理员全部可用）
+        SI->>FS: ① fs.symlink(target, link, "dir")
+        alt 成功
+            FS-->>SI: method = "symlink"
+        else EPERM（无开发者模式）
+            SI->>FS: ② fs.symlink(target, link, "junction")
+            Note over FS: junction 不依赖开发者模式<br/>任何 Windows 免权限可用<br/>★ 推荐默认直接用此级
+            alt 成功
+                FS-->>SI: method = "junction", fallbackFrom = "symlink"
+            else 跨盘符 / 非 NTFS
+                SI->>FS: ③ 递归复制
+                FS-->>SI: method = "copy", fallbackFrom = "junction"
+            end
+        end
+    end
+
+    SI->>SR: 装后回读校验：重新枚举
+    SR-->>SI: "foo" ∈ 结果集？
+    alt 可见
+        SI->>MF: 登记 .kmaster-managed-skills.json<br/>{ owner:"kmaster-studio", name, method, target, installedAt }
+        SI-->>API: { ok:true, method, verified:true }
+        API-->>SM: 200
+        SM->>U: 已安装 · 标注安装方式
+    else 不可见
+        SI->>FS: 回滚（删除刚建的链接/副本）
+        SI-->>API: 500 { ok:false, verified:false, reason }
+        SM->>U: 安装失败 + 原因（不谎报成功）
+    end
+
+    %% ── 卸载 ──
+    U->>SM: 点击「卸载」
+    SM->>API: POST /api/skills/foo/uninstall
+    API->>SI: uninstall("foo")
+    SI->>MF: assertOwnership("foo")
+    alt managedBy === unknown（如 7 个手工 symlink）
+        SI-->>API: 403 「外部安装，不可在此卸载」
+    else owner === kmaster-studio
+        SI->>FS: lstat 判别类型
+        alt isSymbolicLink
+            SI->>FS: fs.unlink(link)
+            Note over FS,SRC: ★ 实测安全：不穿透删源<br/>绝不使用 rm -rf
+        else junction
+            SI->>FS: fs.rmSync(path, { recursive:false })
+            Note over FS,SRC: ★ 实测安全：不穿透删源
+        else copy
+            SI->>FS: 递归删除副本
+        end
+        SI->>SRC: 校验源目录内容完好
+        SRC-->>SI: OK
+        SI->>MF: 清理清单条目
+        SI-->>API: { ok:true }
+        SM->>U: 已卸载
+    end
+
+
+%% ══════════════════════════════════════════════════════════════════════
+%% 流程四：Agent 角色 CRUD 写回 $HERMES_HOME/agents/*.md（§5.4 · U-22 · 决策 D-B）
+%% 覆盖 HN-P015 / HN-P102 / D-05 / D-12 · 含 localStorage 迁移
+%% ══════════════════════════════════════════════════════════════════════
+sequenceDiagram
+    autonumber
+    actor U as 用户
+    participant AS as AgentRoleSection.vue
+    participant ST as AgentsStore
+    participant LS as localStorage<br/>km.v3.agentRoles
+    participant API as /api/agents
+    participant AR as AgentsReader
+    participant AW as AgentsWriter
+    participant MD as $HERMES_HOME/agents/*.md
+    participant CY as config.yaml<br/>agent.personalities (14)
+    participant SK as SkillsReader (161)
+
+    %% ── M1 一次性迁移 ──
+    rect rgb(245, 240, 255)
+        Note over ST,MD: M1 迁移（首次，仅当 agents/ 为空且 localStorage 非空）
+        ST->>API: GET /api/agents
+        API->>AR: list()
+        AR->>MD: 扫描 agents/*.md
+        MD-->>AR: 目录不存在 → 0 条
+        AR->>CY: 读 personalities（只读）
+        CY-->>AR: 14 条 → origin="personalities", readonly=true
+        AR-->>ST: { state:"live", data:[14 条只读] }
+        ST->>LS: 读 km.v3.agentRoles
+        LS-->>ST: N 条本地角色
+        ST->>U: 弹窗「发现 N 个本地角色，导入到 hermes？」
+        U->>ST: 确认
+        ST->>API: POST /api/agents/import
+        API->>AW: importBatch(source="imported")
+        loop 每条角色
+            AW->>MD: 写 agents/{id}.md<br/>front-matter: name/avatar/desc/specialties/<br/>skills/mcp/tags/samplePrompts/source/schemaVersion<br/>正文 = agentMd（无损）
+        end
+        AW-->>API: { created[], skipped[] }（按 id 幂等）
+        ST->>LS: 改键为 km.v3.agentRoles.backup.{ts}（保留，不删）
+    end
+
+    %% ── 读取 + 引用完整性校验 ──
+    U->>AS: 打开 Agent 管理页
+    AS->>ST: fetch()
+    ST->>API: GET /api/agents
+    API->>AR: list()
+    AR->>MD: 扫描 agents/*.md → gray-matter 解析
+    MD-->>AR: front-matter + body
+
+    par 引用完整性校验
+        AR->>SK: skills[] 每项 ∈ 161 可用技能？
+        SK-->>AR: 缺失 → issue{kind:"missing"}<br/>平台排除 → issue{kind:"platform-excluded"}
+    and
+        AR->>CY: mcp[] 每项 ∈ mcp_servers(5)？
+        CY-->>AR: 缺失 → issue{kind:"missing"}
+    and
+        AR->>CY: personalityRef ∈ personalities(14)？
+        CY-->>AR: 命中则该 personality 不再单独列出
+    end
+
+    AR->>AR: 合并 origin="agents-dir" + 未被引用的 personalities
+    AR-->>API: AgentDescriptor[] + issues[]
+    API-->>ST: DataEnvelope
+    ST->>AS: 渲染
+    AS->>U: 正常=无标 / issues非空=🟡黄标 / 解析失败=🔴红标(不进可选列表)
+
+    %% ── 更新（乐观锁）──
+    U->>AS: 编辑并保存
+    AS->>API: PUT /api/agents/:id<br/>If-Match: {updatedAt}
+    API->>AW: update(id, dto, ifMatch)
+    AW->>MD: 读现文件 front-matter.updatedAt
+    alt 版本一致
+        AW->>MD: 写 agents/.tmp/{id}.{rand}.md
+        AW->>MD: fsync + rename（原子替换）
+        Note over MD,CY: ★ 全程不触碰 config.yaml<br/>§4.3 核心收益：规避最高频并发写风险
+        AW-->>API: 200 AgentDescriptor（含 issues，不阻断保存）
+        AS->>U: 已保存（有 issues 时黄标提示）
+    else 版本不一致
+        AW-->>API: 409 Conflict + 当前版本
+        AS->>U: 「该角色已被其他窗口修改」+ 差异对比
+    end
+
+    %% ── 删除（软删）──
+    U->>AS: 删除角色
+    AS->>API: DELETE /api/agents/:id
+    API->>AW: remove(id)
+    AW->>MD: 复制到 agents/.trash/{id}.{ts}.md
+    AW->>MD: unlink agents/{id}.md
+    AW-->>API: 204
+    Note over AS,U: 联动：引用该 Agent 的专家团<br/>memberHealth = "missing" → teamStatus="broken"<br/>🔴 红标 + 禁用「启动此团队」（决策 D-C）
+
+    %% ── M2 真源验证 ──
+    rect rgb(240, 255, 240)
+        Note over U,MD: HN-P015③ 验收：清空 localStorage 后重启
+        U->>ST: 清空 localStorage + 重启
+        ST->>API: GET /api/agents
+        API-->>ST: 完整角色列表（来自 agents/*.md）
+        ST->>U: ✅ 完整恢复 → 证明 localStorage 已非真源
+    end
+
+
+%% ══════════════════════════════════════════════════════════════════════
+%% 流程五：config.yaml 并发安全写入（§5.5 · U-25）
+%% 覆盖 HN-P105 · 取证支撑：本机存在 config.yaml.corrupt.20260717-195724.bak
+%% ══════════════════════════════════════════════════════════════════════
+sequenceDiagram
+    autonumber
+    actor U1 as 窗口 A
+    actor U2 as 窗口 B
+    participant API as PUT /api/config/*
+    participant CW as ConfigYamlWriter
+    participant LK as FileLock<br/>.kmaster-config.lock
+    participant CY as config.yaml
+    participant BAK as config.yaml.bak
+
+    par 并发写入
+        U1->>API: 保存 provider 设置<br/>expectedVersion = 32
+    and
+        U2->>API: 保存默认模型<br/>expectedVersion = 32
+    end
+
+    API->>CW: update(patchA, 32)
+
+    rect rgb(255, 250, 235)
+        Note over CW,LK: 步骤 1：获取跨进程锁
+        CW->>LK: acquire(lockPath, ttl=30s)
+        LK->>LK: O_EXCL 创建 + 写 { pid, ts }
+        alt 锁已存在
+            LK->>LK: 判断 stale（ts 超 30s？持锁 pid 是否存活？）
+            alt stale
+                LK-->>CW: 接管锁
+            else 活跃
+                LK-->>CW: 等待 / 超时 423 Locked
+            end
+        else 空闲
+            LK-->>CW: Release 句柄
+        end
+    end
+
+    Note over CW,CY: 步骤 2：读取并解析
+    CW->>CY: read + js-yaml.safeLoad
+    CY-->>CW: currentVersion = 32<br/>（实测 personalities=14, mcp_servers=5,<br/>custom_providers=7, model.default=glm-5.2）
+
+    Note over CW: 步骤 3：CAS 版本校验
+    alt expectedVersion === currentVersion
+        Note over CW,BAK: 步骤 4：备份 + 原子写
+        CW->>BAK: cp config.yaml → config.yaml.bak<br/>（沿用 hermes 既有 .bak 惯例）
+        CW->>CW: 应用 patch；_config_version = 33
+        CW->>CY: 写 tmp → fsync → rename（原子）
+
+        Note over CW,CY: 步骤 5：回读校验
+        CW->>CY: 重新 read + parse
+        CY-->>CW: 解析结果
+        alt 关键字段逐一比对通过
+            CW->>LK: release()
+            CW-->>API: 200 { _config_version: 33 }
+            API-->>U1: 已保存
+        else 校验失败（YAML 损坏 / 字段丢失）
+            CW->>BAK: 立即回滚 config.yaml ← config.yaml.bak
+            CW->>LK: release()
+            CW-->>API: 500 { reason: "写入校验失败，已回滚" }
+            API-->>U1: 保存失败（数据未损坏）
+        end
+    else 版本不匹配（窗口 B 抢先写成了 33）
+        CW->>LK: release()
+        CW-->>API: 409 Conflict + 最新完整配置
+        API-->>U2: 「配置已被其他窗口修改」<br/>提供「查看差异 / 以 hermes 为准刷新 / 覆盖」
+    end
+
+    Note over U1,BAK: ★ 三重保护：备份 + 回读 + 回滚<br/>取证依据：config.yaml.corrupt.20260717-195724.bak<br/>证明历史上确实发生过配置损坏，本流程非过度设计
+    Note over CW,CY: ★ 写入面已被 §4.3 大幅收窄：<br/>Agent 角色改走 agents/*.md，<br/>config.yaml 仅剩 provider / mcp / model.default 三类低频写
+
+%% ══════════════════════════════════════════════════════════════════════
+%% 流程六：bridge 身份握手与幽灵 home 拦截（§1.7 / §1.8 · U-20 · SC-14）
+%% 覆盖 Q-10 裁定 / D-29 / D-28
+%% ══════════════════════════════════════════════════════════════════════
+sequenceDiagram
+    autonumber
+    participant CH as run-chat.ts
+    participant EN as hermes/env.ts
+    participant BI as hermes/bridge-identity.ts
+    participant BR as broker 16765
+    participant WK as worker 17567
+    participant UI as 客户端
+
+    Note over CH,UI: SC-14：首次 chat 前必须完成一次身份断言<br/>未通过禁止发起对话
+
+    CH->>BI: ensureIdentityVerified(profile)
+    alt 缓存命中且未过期
+        BI-->>CH: verified，跳过握手
+    else 需要握手
+        BI->>EN: getHermesEnv()
+        EN-->>BI: activeHome / agentDir / activeProfile
+        Note over EN: 解析时已对 POSIX 形式做 normalizeHostPath<br/>并把污染记入 pathAnomalies
+
+        BI->>BR: TCP NDJSON action=ping
+        alt 连不通
+            BR--x BI: ECONNREFUSED
+            BI-->>UI: liveness=offline 进 S4<br/>提示 bridge 未启动，kmaster 不会代为拉起
+        else 连通
+            BR-->>BI: mode=broker + worker_details 的 endpoint
+            Note over BR: broker 的 ping 不含 agentRoot 与 hermesHome<br/>故必须再打一次 worker
+
+            BI->>WK: TCP NDJSON action=ping
+            WK-->>BI: pid / agentRoot / hermesHome / profile
+            BI->>BI: 比对三元组与 env 解析结果
+
+            alt hermesHome 不一致且形如幽灵路径
+                BI-->>UI: ghostHomeDetected=true 进 S4<br/>并排展示 Node 侧与 bridge 侧路径<br/>提示改用原生路径重启 bridge
+                Note over BI,UI: D-29：此时若放行，对话会写进幽灵 state.db<br/>幽灵库已实测积累 3 会话 6 消息 1MB WAL
+            else agentRoot 或 profile 不一致
+                BI-->>UI: 进 S4，提示重启 bridge 以对齐 profile
+            else 全等
+                BI->>BI: 缓存 BridgeIdentity 至 profile 切换或断连
+                BI-->>CH: verified
+                CH->>WK: action=chat，经 broker 路由
+            end
+        end
+    end
+
+    Note over BR,WK: D-28：broker 登记的 worker pid 可能是中间启动器<br/>实测 broker 记 63272，真正持 17567 的是 59920<br/>故终止 worker 须按端口反查持有者或按进程树递归

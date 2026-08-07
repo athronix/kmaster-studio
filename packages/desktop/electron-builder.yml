@@ -1,0 +1,98 @@
+# electron-builder 配置 · kmaster-studio
+# 三平台 target + node-pty prebuild 裁剪 + asarUnpack + publish（TECHNICAL-SOLUTION-M5 §0.3 / §2.3）
+#
+# resolveServerEntry() 打包态候选（server-process.ts L113-117）：
+#   resourcesPath/server/dist/index.js
+#   resourcesPath/app.asar.unpacked/packages/server/dist/index.js
+# → extraResources 将 server/dist 映射到 resources/server/dist，命中第一候选。
+
+appId: com.kmaster.studio
+productName: kmaster-studio
+
+directories:
+  output: dist-electron
+
+# R-M5-2 架构：server 跑在独立 Node 子进程（ELECTRON_RUN_AS_NODE=1），
+# node-pty / better-sqlite3 全部按 Node ABI 加载 → 彻底绕开 electron-rebuild。
+nodeGypRebuild: false
+npmRebuild: false
+
+# 原生 .node 模块不能进 asar（否则 spawn 出来的 Node 子进程无法加载）。
+# 桌面壳主进程本身无原生依赖，此为防御性配置（T0-2 结论）。
+asarUnpack:
+  - "**/*.node"
+  - "**/node_modules/node-pty/**"
+
+# ---- 桌面壳自带文件 ----
+files:
+  - "dist/**/*"
+  - "package.json"
+
+# ---- 平台无关的 prebuild 裁剪（仅对 files 生效，不作用于 extraResources） ----
+# 若将来桌面壳直��依赖 node-pty，以下规则可裁掉非目标平台的 prebuild（体积 ~12MB → ~1MB）。
+# 当前 node-pty 在 server 侧，裁剪由 extraResources filter 处理。
+  - "!**/node-pty/prebuilds/!(${platform}-${arch})/**"
+  - "!**/node-pty/build/**"
+  - "**/node-pty/build/Release/pty.node"
+
+# ---- 外部资源：server 运行时（独立 Node 子进程入口 + 依赖） ----
+# resolveServerEntry() 在打包态优先走 resourcesPath/server/dist/index.js。
+# server 的 node_modules 因 monorepo hoisting 托管在根 node_modules。
+extraResources:
+  - from: ../server/dist
+    to: server/dist
+    filter:
+      - "**/*"
+
+  # server 依赖（koa / socket.io / better-sqlite3 / node-pty 等）
+  # 因 npm workspaces hoisting，实际模块在根 node_modules。
+  - from: ../../node_modules
+    to: server/node_modules
+    filter:
+      - "**/*"
+      - "!**/.cache/**"
+      - "!**/man/**"
+      - "!**/*.md"
+      - "!**/LICENSE"
+      - "!**/CHANGELOG*"
+
+# ===================== Windows =====================
+win:
+  target:
+    - nsis
+  icon: build/icon.ico
+  # T0-3：未签名时发布走内测通道（verifyUpdateCodeSignature: false），
+  # 证书到位后删除此配置项即开通正式通道。
+  verifyUpdateCodeSignature: false
+
+nsis:
+  allowToChangeInstallationDirectory: true
+  oneClick: false
+  perMachine: false
+
+# ===================== macOS =====================
+mac:
+  target:
+    - dmg
+  icon: build/icon.icns
+  # T0-3：未签名 / 未公证时置 identity: null；证书到位后改为 Developer ID Application 名称。
+  identity: null
+  hardenedRuntime: false
+
+dmg:
+  title: kmaster-studio ${version}
+
+# ===================== Linux =====================
+linux:
+  target:
+    - AppImage
+  icon: build/icon.png
+  category: Development
+
+# ===================== 自动更新 =====================
+# T0-3 结论：默认 github provider（零基础设施端到端），域名/CDN 到位后改 3 行切 generic。
+# macOS 自动更新强制要求签名+公证（T0-3），未签名时 updater.ts 短路返回（§0.4 策略）。
+publish:
+  provider: github
+  owner: athronix
+  repo: kmaster-studio

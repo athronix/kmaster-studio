@@ -1,0 +1,131 @@
+classDiagram
+    direction TB
+
+    %% ── 类型层 ──
+    class Message {
+        +string id
+        +string session_id
+        +Role role
+        +string content
+        +string reasoning
+        +ToolCall[] toolCalls
+        +boolean guidance
+        +number created_at
+        +string usage_json
+        +string status
+        +string agentId
+    }
+
+    class Session {
+        +string id
+        +string title
+        +string profile
+        +number created_at
+        +number updated_at
+        +number archived
+        +string mode
+        +string model
+        +string workspace
+        +boolean pinned
+        +string[] skills
+        +string[] mcpServers
+        +string agent
+    }
+
+    %% ── Store 层 ──
+    class ChatStore {
+        +Ref~string~ activeAgentId
+        +Ref~Record~ agentStates
+        +Ref~Session[]~ sessions
+        +Ref~Record~ messagesBySession
+        +sendMessage(text)
+        +dispatch(ev, payload)
+    }
+
+    %% ── 组件层 ──
+    class AgentTabBar {
+        +AgentTabItem[] agents
+        +string activeAgentId
+        +emit('select', agentId)
+        +emit('close', agentId)
+        +agents.length===1 → closable=false
+    }
+
+    class ChatView {
+        +onAgentSelect(agentId)
+        +onAddModel() → router.push
+        +sendMode ref
+    }
+
+    class ChatInput {
+        +FileItem[] files
+        +ChipItem[] chips
+        +string text
+        +boolean voiceEnabled
+        +boolean isListening
+        +string sendShortcut
+        +string sendMode
+        +onVoiceClick()
+        +onKey(e)
+        +emit('send', payload)
+    }
+
+    class ContextRing {
+        +number percentage
+        +number used
+        +number max
+        +computed tooltip → KB格式
+    }
+
+    class SessionConfigBar {
+        +string workspace
+        +HermesMode mode
+        +string agent
+        +string model
+        +number contextPercent
+        +emit('add-model') → router.push
+        -sendMode 已移除
+    }
+
+    class ResourceCard {
+        +ResourceItem item
+        +boolean showActions
+        +string fallbackIcon
+        +emit('click', item)
+        +emit('summon', id)
+        +emit('install', id)
+        +emit('uninstall', id)
+        +新布局: header(icon+name+actions)/body(desc)/footer(category+tags)
+    }
+
+    class MarketLayout {
+        +MarketConfig config
+        +分类+排序同行(space-between)
+        +CSS Grid卡片区
+        +分类标签含count
+        +emit('card-click', item)
+    }
+
+    class SettingsDetailPanel {
+        +ResourceItem item
+        +string entityType
+        +显示: 图标/名称/installed/简介/大小/URL/关键词
+    }
+
+    class GeneralSection {
+        +sendShortcut: localStorage km_send_shortcut
+        +gridCols: localStorage km_grid_cols
+    }
+
+    %% ── 关系 ──
+    ChatStore --> Message : manages
+    ChatStore --> Session : manages
+    ChatView --> AgentTabBar : contains
+    ChatView --> ChatInput : contains
+    ChatView --> SessionConfigBar : contains
+    ChatView --> ChatStore : reads/writes
+    ChatInput --> ContextRing : N/A (moved to SessionConfigBar)
+    SessionConfigBar --> ContextRing : contains
+    MarketLayout --> ResourceCard : renders
+    MarketLayout ..> SettingsDetailPanel : emit card-click
+    GeneralSection ..> localStorage : writes km_send_shortcut / km_grid_cols

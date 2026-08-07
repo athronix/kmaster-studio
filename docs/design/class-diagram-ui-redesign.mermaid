@@ -1,0 +1,304 @@
+classDiagram
+    direction TB
+
+    %% ── 布局层 ──
+    class LayoutShell {
+        +Boolean leftCollapsed
+        +Boolean rightCollapsed
+        +Number leftWidth
+        +Number rightWidth
+        +toggleLeft()
+        +toggleRight()
+        +onResize(side, event)
+    }
+
+    class LeftSidebar {
+        +String search
+        +Ref~Boolean~ filterOpen
+        +GroupedSessions grouped
+        +Composable useSessionList
+        +focusSearch()
+        +onMenuClick(route)
+        +toggleTheme()
+    }
+
+    %% ── 聊天页层 ──
+    class ChatView {
+        +Boolean showRightSidebar
+        +Number rightWidth
+        +toggleRightSidebar()
+        +onResize(side, event)
+    }
+
+    class ChatHeader {
+        +String title
+        +String modeLabel
+        +String modelName
+        +Boolean running
+        +emit toggleLeft
+        +emit toggleRight
+        +emit share
+        +emit search
+        +emit history
+        +stop()
+        +toggleTheme()
+    }
+
+    class ChatPanel {
+        +Computed messages
+        +Computed socketReady
+    }
+
+    class MessageList {
+        +String agentFilter
+        +HTMLElement scrollContainer
+        +Boolean showScrollBtn
+        +filterByAgent(agentId)
+        +scrollToBottom()
+    }
+
+    class ChatInput {
+        +String text
+        +Ref~File[]~ uploads
+        +Boolean dragging
+        +Boolean isEditing
+        +String currentMode
+        +String currentModel
+        +String currentWorkspace
+        +AgentStatus[] activeAgents
+        +send()
+        +onKey(event)
+        +steer()
+        +attach(files)
+        +onDrop(event)
+        +removeUpload(idx)
+        +pickWorkspace()
+        +onLongPress()
+    }
+
+    class ContextRing {
+        +Number percentage
+        +Number used
+        +Number max
+        +String color
+        +String tooltip
+    }
+
+    class OutputPanel {
+        +Ref~ArtifactTab[]~ tabs
+        +String activeTabId
+        +Boolean fullscreen
+        +String urlInput
+        +openTab(artifactId)
+        +closeTab(artifactId)
+        +toggleFullscreen()
+        +copyUrl()
+        +download()
+        +refresh()
+        +openExternal()
+    }
+
+    class ShareDialog {
+        +Boolean show
+        +String shareUrl
+        +String expiry
+        +copyLink()
+        +generateUrl()
+    }
+
+    %% ── 市场页面层 ──
+    class ExpertsView {
+        +String search
+        +String category
+        +String sortBy
+        +Expert[] filteredList
+        +openDetail(expert)
+    }
+
+    class SkillsView {
+        +String search
+        +String category
+        +String sortBy
+        +Skill[] filteredList
+        +openDetail(skill)
+        +install(skillId)
+        +uninstall(skillId)
+    }
+
+    class McpView {
+        +String search
+        +String category
+        +String sortBy
+        +McpServer[] filteredList
+        +openDetail(server)
+        +addServer()
+        +deleteServer(id)
+        +editServer(id)
+    }
+
+    %% ── 设置页层 ──
+    class SettingsView {
+        +SectionMeta[] sections
+        +String activeId
+        +Boolean showSkills
+        +Boolean showMcp
+        +HTMLElement scrollEl
+        +goto(id)
+        +updateActive()
+    }
+
+    class AgentRoleSection {
+        +AgentDef[] agents
+        +AgentDef editingAgent
+        +saveAgent(agent)
+        +deleteAgent(id)
+    }
+
+    class ToolsSection {
+        +Tool[] tools
+        +Boolean loading
+    }
+
+    class ModelManageSection {
+        +ProviderGroup[] models
+        +Boolean loading
+        +refreshModels()
+    }
+
+    class MonitorSection {
+        +MonitorData data
+        +Boolean loading
+        +refresh()
+    }
+
+    %% ── Composable 层 ──
+    class useSessionList {
+        +Ref~String~ search
+        +Computed~Session[]~ list
+        +Ref~String~ editingId
+        +Ref~String~ editTitle
+        +Ref~Number~ dragIdx
+        +Ref~ContextMenuState~ contextMenu
+        +Ref~String~ exportingId
+        +startRename(session)
+        +commitRename()
+        +remove(session)
+        +doExport(session)
+        +openMenu(event, session)
+        +closeMenu()
+        +onMenuAction(action, session)
+        +onDragStart(event, idx)
+        +onDragOver(event, idx)
+        +onDrop(event, idx)
+        +onDragEnd()
+        +abbreviateWorkspace(path, max)
+        +focusSearch()
+    }
+
+    class useSkillList {
+        +Ref~String~ search
+        +Computed~Skill[]~ filtered
+        +Ref~Boolean~ loading
+        +install(skillId) Promise
+        +uninstall(skillId) Promise
+        +refresh() Promise
+    }
+
+    class useMcpList {
+        +Ref~String~ search
+        +Computed~McpServer[]~ filtered
+        +Ref~Boolean~ loading
+        +addServer(config) Promise
+        +deleteServer(id) Promise
+        +editServer(id, config) Promise
+        +refresh() Promise
+    }
+
+    %% ── Store 层 ──
+    class ChatStore {
+        +Ref~Session[]~ sessions
+        +Ref~Record~ messagesBySession
+        +Ref~Record~ runState
+        +Ref~String~ activeSessionId
+        +Ref~Record~ artifactsBySession
+        +Ref~Record~ usageBySession
+        +Ref~Boolean~ socketReady
+        +Ref~Settings~ globalSettings
+        +Ref~Record~ modeBySession
+        +Ref~Record~ modelBySession
+        +Ref~ProviderGroup[]~ models
+        +Ref~Skill[]~ skills
+        +Ref~McpServer[]~ mcpServers
+        +Ref~Record~ uploads
+        +Ref~Set~ pinnedSessions ★新增
+        +Ref~Record~ agentStates ���新增
+        +openSession(id)
+        +createSession()
+        +deleteSession(id)
+        +renameSession(id, title)
+        +sendMessage(text)
+        +stop(sid)
+        +steer(sid, text)
+        +togglePin(sid) ★新增
+        +getGroupedSessions() ★新增
+    }
+
+    %% ── 类型层 ──
+    class AgentStatus {
+        <<type>>
+        +String id
+        +String name
+        +String icon
+        +String color
+        +AgentState state
+    }
+
+    class GroupedSessions {
+        <<type>>
+        +Session[] pinned
+        +Record~string, Session[]~ byWorkspace
+        +Session[] cronJobs
+    }
+
+    class ArtifactTab {
+        <<type>>
+        +String id
+        +String name
+        +String kind
+        +Boolean closable
+    }
+
+    %% ── 关系 ──
+    LayoutShell *-- LeftSidebar : contains
+    LayoutShell --> ChatStore : uses
+    LayoutShell --> ChatView : router-view
+
+    ChatView *-- ChatHeader : contains
+    ChatView *-- ChatPanel : contains
+    ChatView *-- OutputPanel : contains
+    ChatView --> ChatStore : uses
+
+    ChatPanel *-- MessageList : contains
+    ChatPanel *-- ChatInput : contains
+
+    ChatInput *-- ContextRing : contains
+
+    LeftSidebar --> useSessionList : uses
+    LeftSidebar --> ChatStore : uses
+
+    SkillsView --> useSkillList : uses
+    SkillsView --> ChatStore : uses
+
+    McpView --> useMcpList : uses
+    McpView --> ChatStore : uses
+
+    ExpertsView --> ChatStore : uses
+
+    SettingsView *-- AgentRoleSection : contains
+    SettingsView *-- ToolsSection : contains
+    SettingsView *-- ModelManageSection : contains
+    SettingsView *-- MonitorSection : contains
+    SettingsView --> ChatStore : uses
+
+    ChatStore --> AgentStatus : manages
+    ChatStore --> GroupedSessions : derives
