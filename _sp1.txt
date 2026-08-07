@@ -1,0 +1,8 @@
+88:.sk-toolbar { display: flex; gap: var(--km-space-sm); margin-bottom: 10px; }
+89:.sk-body { display: flex; gap: 10px; min-height: 0; }
+90:.sk-cats { width: 96px; flex-shrink: 0; display: flex; flex-direction: column; gap: var(--km-space-xs); }
+92:  padding: 6px 8px;
+96:  border: 1px solid transparent;
+100:.sk-cards { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: auto; min-width: 0; }
+101:.sk-card { border: 1px solid var(--km-border); border-radius: var(--km-radius-lg); padding: 10px 12px; background: var(--km-panel); }
+104:.sk-desc { font-size: var(--km-font-sm); opacity: 0.7; margin: 6px 0 10px; line-height: 1.5; }

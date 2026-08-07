@@ -1,0 +1,10 @@
+156:  height: 230px;
+160:  transform: translateY(-2px);
+166:  top: 10px;
+167:  left: 10px;
+175:  padding: 16px 0 6px;
+179:  font-size: 36px;
+203:  padding: 4px 8px 0;
+213:  padding: 8px 0 4px;
+227:  width: 6px;
+228:  height: 6px;

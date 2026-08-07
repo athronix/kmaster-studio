@@ -1,0 +1,2 @@
+190:    :style="{ width: '520px' }"
+339:  gap: 14px;

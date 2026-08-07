@@ -1,0 +1,13 @@
+82:    :style="{ width: '520px', maxWidth: '92vw' }"
+181:  gap: 14px;
+182:  min-height: 80px;
+188:  gap: 10px;
+193:  font-size: 32px;
+215:  gap: 5px;
+223:  letter-spacing: 0.5px;
+233:  padding-left: 18px;
+249:  padding: 6px 8px;
+250:  border: 1px solid var(--km-border);
+284:  padding: 6px 10px;
+285:  border-left: 3px solid var(--km-border);
+287:  border-radius: 0 6px 6px 0;

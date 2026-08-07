@@ -1,0 +1,23 @@
+
+══════════ kmaster-studio UI/UX 合规度量 ══════════
+扫描 126 文件（82 个 .vue） · Token 定义 91 / 引用 63 / JS注入 5
+──────────────────────────────────────────────────────────────
+指标                                      数量   等级
+──────────────────────────────────────────────────────────────
+幽灵Token·无fallback(真bug)                      0   🔴
+幽灵Token·有fallback(主题失效)                      5   🟡
+硬编码 hex                                     25   🟡
+硬编码 rgba                                    23   🟡
+功能性 emoji(template)                          2   🔴
+outline:none(抵消focus环)                       5   🟡
+KIcon 采用率                         39/82 (47.6%)   🟡
+原始px(字号/间距未用Token)                575 (Token仅26.1%)   🔴
+缺状态的 view                                    5   🟡
+定义未使用的 Token                                38   🟢
+tsEmoji(.ts/.scss)                           0   🔴
+sfcScriptEmoji(.vue script)                  0   🔴
+──────────────────────────────────────────────────────────────
+参考：运行时注入Token 5 · 注释emoji 93（唯一不计入违规的 emoji 类） · 功能性 / sfcScript / tsEmoji 三类 emoji 均计入整改面
+计数单位 = 位点（file:line），非 emoji 字符数；多 emoji 同行记 1 位点
+扫描器自检：漏扫位点 0  ✅ 覆盖完整
+

@@ -1,0 +1,11 @@
+264:  gap: 14px;
+270:  padding: 48px 0;
+283:  gap: 10px;
+295:  margin-left: 2px;
+308:  margin: 48px 0;
+313:  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+322:  border: 1px solid var(--km-border);
+323:  border-radius: 10px;
+335:  box-shadow: inset 0 0 0 1px var(--km-accent);
+381:  border: 1px solid var(--km-border);
+387:  padding: 3px 5px;

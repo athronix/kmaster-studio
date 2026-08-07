@@ -1,0 +1,6 @@
+174:            style="max-width: 240px"
+187:            style="max-width: 240px"
+202:            style="max-width: 160px"
+258:.sec-row-block { gap: 10px; padding-top: var(--km-space-sm); border-top: 1px solid var(--km-border); }
+260:.sec-control { max-width: 520px; }
+261:.sec-inline { display: flex; gap: var(--km-space-sm); align-items: center; max-width: 640px; }

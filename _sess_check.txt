@@ -1,0 +1,3 @@
+209:  height: 32px;
+213:  border-top: 1px solid var(--km-border);
+249:  max-width: 100px;

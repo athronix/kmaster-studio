@@ -1,0 +1,16 @@
+143:.km-page { height: 100%; overflow: auto; padding: 0 24px 40px; }
+144:.km-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--km-space-md); margin-top: var(--km-space-lg); }
+146:.km-card-value { font-size: 26px; font-weight: 700; margin: 4px 0 2px; }
+148:.km-section-title { font-size: var(--km-font-base); margin: 24px 0 10px; }
+150:  border: 1px solid var(--km-border);
+152:  padding: 14px 16px 8px;
+158:  gap: 10px;
+159:  height: 180px;
+167:  min-width: 44px;
+173:  min-height: 3px;
+174:  border-radius: var(--km-radius-sm) 4px 0 0;
+180:.km-table-wrap { border: 1px solid var(--km-border); border-radius: var(--km-radius-lg); overflow: hidden; margin-top: 10px; }
+184:  padding: 9px 12px;
+189:  border-bottom: 1px solid var(--km-border);
+191:.km-table td { padding: var(--km-space-sm) var(--km-space-md); border-bottom: 1px solid var(--km-border); }
+194:.km-empty-block { padding: 22px 0; }

@@ -1,0 +1,4 @@
+188:  min-height: 480px;
+204:  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+205:  gap: 10px;
+214:  border: 1px solid var(--km-border);

@@ -1,0 +1,5 @@
+73:          style: { paddingLeft: `${indent + 8}px` },
+232:  padding: 4px 0;
+238:  padding: 5px 8px;
+250:  width: 14px;
+251:  min-width: 14px;

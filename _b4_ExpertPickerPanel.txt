@@ -1,0 +1,8 @@
+189:  padding: 12px 14px 8px;
+190:  border-bottom: 1px solid var(--km-border);
+205:  padding: 10px 14px 16px;
+212:  margin: 40px auto;
+217:  gap: 10px;
+219:  border: 1px solid var(--km-border);
+228:  transform: translateY(-1px);
+257:  margin-top: 1px;

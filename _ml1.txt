@@ -1,0 +1,17 @@
+194:  gap: 14px;
+201:  gap: 14px;
+215:  transform: translateY(8px);
+229:  border: 1px solid var(--km-accent);
+243:  padding: 0 2px;
+254:  border: 1px dashed var(--km-border);
+256:  padding: 6px 12px;
+263:  width: 6px;
+264:  height: 6px;
+278:  padding: 0 2px;
+291:  padding: 6px 0;
+295:  width: 8px;
+296:  height: 8px;
+305:  bottom: 16px;
+311:  border-radius: 20px;
+312:  padding: 6px 16px;
+315:  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);

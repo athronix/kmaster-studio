@@ -1,0 +1,14 @@
+329:    style="width: 720px; max-width: 94vw"
+494:  gap: 14px;
+503:  gap: 10px 14px;
+542:  padding-top: 10px;
+543:  border-top: 1px solid var(--km-border);
+561:  max-height: 180px;
+563:  border: 1px solid var(--km-border);
+587:  gap: 3px;
+589:  max-width: 240px;
+593:  width: 44px;
+602:  border: 1px dashed var(--km-border);
+617:  width: 150px;
+623:  gap: 4px 12px;
+634:  width: 220px;

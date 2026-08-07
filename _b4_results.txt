@@ -1,0 +1,6 @@
+packages/client/src/views/JobsView.vue: 26 -> 26
+packages/client/src/components/chat/MessageItem.vue: 27 -> 27
+packages/client/src/components/chat/OutputPanel.vue: 20 -> 20
+packages/client/src/views/ChatView.vue: 13 -> 13
+packages/client/src/views/MemoryView.vue: 13 -> 13
+packages/client/src/views/SettingsView.vue: 4 -> 4

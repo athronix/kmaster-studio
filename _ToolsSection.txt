@@ -1,0 +1,2 @@
+74:  border: 1px solid var(--km-border);
+79:.km-tool-desc { font-size: var(--km-font-xs); opacity: 0.55; margin-top: 1px; }

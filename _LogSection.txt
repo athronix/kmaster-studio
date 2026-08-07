@@ -1,0 +1,16 @@
+38:    /** 列表最大高度（px）；内嵌时限制高度避免撑爆父容器 */
+70:const listStyle = computed(() => ({ maxHeight: `${props.maxHeight}px` }));
+185:        style="width: 120px"
+192:        style="width: 150px"
+199:        style="width: 140px"
+206:        style="width: 120px"
+270:  gap: 10px;
+282:  max-width: 720px;
+293:  width: 200px;
+315:  border: 1px solid var(--km-border);
+321:  padding: 32px 0;
+328:  padding: 6px 10px;
+329:  border-bottom: 1px solid var(--km-border);
+345:  width: 96px;
+352:  width: 60px;
+358:  width: 110px;
