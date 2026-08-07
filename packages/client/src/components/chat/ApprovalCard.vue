@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import KIcon from '../common/KIcon.vue';
+
 const props = defineProps<{ req: any }>();
 const emit = defineEmits<{ (e: 'respond', choice: string): void }>();
 const choices = ['once', 'session', 'always', 'deny'] as const;
@@ -12,7 +14,7 @@ const labels: Record<string, string> = {
 
 <template>
   <div class="km-approval">
-    <div class="km-approval-title">🔐 需要授权：{{ req.tool }}</div>
+    <div class="km-approval-title"><KIcon name="Lock" :size="16" /> 需要授权：{{ req.tool }}</div>
     <pre v-if="req.args" class="km-approval-args">{{ JSON.stringify(req.args, null, 2) }}</pre>
     <div class="km-approval-btns">
       <button v-for="c in choices" :key="c" :class="{ deny: c === 'deny' }" @click="emit('respond', c)">

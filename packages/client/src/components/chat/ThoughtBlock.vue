@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import KIcon from '../common/KIcon.vue';
+
 const props = defineProps<{ text: string }>();
 const open = ref(true);
 </script>
@@ -8,7 +10,7 @@ const open = ref(true);
   <div class="km-thought">
     <div class="km-thought-head" @click="open = !open">
       <span class="dot" /> 思考过程
-      <span class="chev">{{ open ? '▾' : '▸' }}</span>
+      <span class="chev"><KIcon :name="open ? 'ChevronDown' : 'ChevronRight'" :size="14" /></span>
     </div>
     <div v-show="open" class="km-thought-body">{{ props.text }}</div>
   </div>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import KIcon from '../common/KIcon.vue';
+
 const props = defineProps<{ req: any }>();
 const emit = defineEmits<{ (e: 'respond', choice: string): void }>();
 const choices: { key: string; label: string }[] = [
@@ -10,7 +12,7 @@ const choices: { key: string; label: string }[] = [
 
 <template>
   <div class="km-plan">
-    <div class="km-plan-title">📋 执行计划：{{ req.title }}</div>
+    <div class="km-plan-title"><KIcon name="Clipboard" :size="16" /> 执行计划：{{ req.title }}</div>
     <ol class="km-plan-steps">
       <li v-for="(s, i) in req.steps" :key="i">{{ s }}</li>
     </ol>

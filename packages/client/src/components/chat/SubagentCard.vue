@@ -3,6 +3,7 @@
 // 数据来自 chat store 的 subagentsBySession[sid][subagent_id]（subagent.* 事件 reducer 产物）。
 import { computed, ref } from 'vue';
 import { NTag, NProgress } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import type { SubagentState, SubagentStatus } from '../../types/chat';
 
 const props = defineProps<{ subagent: SubagentState }>();
@@ -72,7 +73,7 @@ const duration = computed(() =>
     <p v-if="s.summary" class="km-sub-summary">{{ s.summary }}</p>
 
     <button v-if="hasOutput" class="km-sub-toggle" @click="expanded = !expanded">
-      {{ expanded ? '收起产出 ▲' : '展开产出 ▼' }}
+      {{ expanded ? '收起产出' : '展开产出' }} <KIcon :name="expanded ? 'ChevronUp' : 'ChevronDown'" :size="14" />
     </button>
 
     <div v-if="expanded" class="km-sub-body">

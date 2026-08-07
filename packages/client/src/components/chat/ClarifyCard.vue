@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import KIcon from '../common/KIcon.vue';
+
 const props = defineProps<{ req: any }>();
 const emit = defineEmits<{ (e: 'respond', response: string): void }>();
 const free = ref('');
@@ -15,7 +17,7 @@ function submit() {
 
 <template>
   <div class="km-clarify">
-    <div class="km-clarify-q">❓ {{ req.question }}</div>
+    <div class="km-clarify-q"><KIcon name="QuestionMark" :size="16" /> {{ req.question }}</div>
     <div v-if="req.options?.length" class="km-clarify-opts">
       <button v-for="o in req.options" :key="o" @click="pick(o)">{{ o }}</button>
     </div>
