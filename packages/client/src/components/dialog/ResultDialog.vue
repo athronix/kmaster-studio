@@ -138,46 +138,46 @@ function onPrimary(): void {
 .km-result-head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .km-result-icon {
-  font-size: 16px;
+  font-size: var(--km-font-lg);
   line-height: 1;
 }
 
 .km-result-title {
-  font-size: 14px;
+  font-size: var(--km-font-base);
   font-weight: 600;
 }
 
 .km-result-body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--km-space-10);
   max-width: 720px;
 }
 
 .km-result-message {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   line-height: 1.7;
   word-break: break-word;
 }
 
 .km-result-meta {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.55;
 }
 
 .km-result-detail {
   margin: 0;
-  padding: 10px 12px;
+  padding: var(--km-space-10) var(--km-space-md);
   border: 1px solid var(--km-border);
-  border-radius: 8px;
+  border-radius: var(--km-radius-lg);
   background: var(--km-user-bubble);
   font-family: var(--km-mono, ui-monospace, monospace);
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   line-height: 1.7;
   max-height: 260px;
   overflow: auto;
@@ -188,6 +188,6 @@ function onPrimary(): void {
 .km-result-foot {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 </style>
