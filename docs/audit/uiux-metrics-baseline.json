@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-08-07T10:19:42.296Z",
+  "savedAt": "2026-08-07T10:23:15.702Z",
   "counts": {
     "ghostTokensNoFallback": 0,
     "ghostTokensWithFallback": 5,
@@ -14,7 +14,7 @@
     "sizeTokenAdoption": 773,
     "missingStates": 5,
     "unusedTokens": 16,
-    "tsEmoji": 63,
+    "tsEmoji": 30,
     "sfcScriptEmoji": 57
   }
 }
