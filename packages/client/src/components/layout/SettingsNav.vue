@@ -13,6 +13,7 @@
  */
 import { computed } from 'vue';
 import { NButton, NScrollbar } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { SETTINGS_CATEGORIES, type SettingsCategory } from '../../constants/layout';
 import { useLayoutStore } from '../../stores/layout';
 import StatusBar from './StatusBar.vue';
@@ -40,7 +41,7 @@ function onBack(): void {
 <template>
   <div class="km-setnav">
     <div class="km-setnav-head">
-      <span class="km-setnav-title">⚙️ 设置</span>
+      <span class="km-setnav-title"><KIcon name="Settings" :size="18" /> 设置</span>
     </div>
 
     <n-scrollbar class="km-setnav-list">
@@ -52,7 +53,7 @@ function onBack(): void {
         :class="{ active: cat.key === active }"
         @click="onSelect(cat.key)"
       >
-        <span class="km-setnav-icon">{{ cat.icon }}</span>
+        <span class="km-setnav-icon"><KIcon :name="cat.icon" :size="18" /></span>
         <span class="km-setnav-label">{{ cat.label }}</span>
       </button>
     </n-scrollbar>
@@ -61,7 +62,7 @@ function onBack(): void {
 
     <div class="km-setnav-foot">
       <n-button block size="small" secondary @click="onBack">
-        <template #icon>←</template>
+        <template #icon><KIcon name="ArrowLeft" :size="16" /></template>
         返回
       </n-button>
     </div>

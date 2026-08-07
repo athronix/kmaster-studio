@@ -20,6 +20,7 @@
  */
 import { computed, ref } from 'vue';
 import { NButton, NEmpty, NSpin } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { useChatStore } from '../../stores/chat';
 import { useLayoutStore } from '../../stores/layout';
 import { INTERACTION, RIGHT_PANEL_TITLE } from '../../constants/layout';
@@ -151,10 +152,10 @@ async function onSummonConfirm(config: NewTaskConfig): Promise<void> {
             :title="layout.rightFullscreen ? '退出全屏（Ctrl+Shift+Enter）' : '全屏（Ctrl+Shift+Enter）'"
             @click="onToggleFullscreen"
           >
-            <template #icon>⛶</template>
+            <template #icon><KIcon name="Maximize" :size="16" /></template>
           </n-button>
           <n-button quaternary circle size="tiny" title="关闭右栏" @click="onClose">
-            <template #icon>✕</template>
+            <template #icon><KIcon name="X" :size="16" /></template>
           </n-button>
         </div>
       </div>

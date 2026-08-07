@@ -12,6 +12,7 @@
  */
 import { computed } from 'vue';
 import { NButton, NTooltip } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { useStatusStore } from '../../stores/status';
 import { useTheme } from '../../styles/theme';
 
@@ -110,7 +111,7 @@ function onToggleTheme(): void {
         :title="theme.isDark.value ? '切换亮色模式' : '切换暗色模式'"
         @click="onToggleTheme"
       >
-        <template #icon>{{ theme.isDark.value ? '🌙' : '☀️' }}</template>
+        <template #icon><KIcon :name="theme.isDark.value ? 'Moon' : 'Sun'" :size="16" /></template>
       </n-button>
     </div>
   </div>

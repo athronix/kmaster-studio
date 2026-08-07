@@ -115,7 +115,7 @@ defineExpose({ focusSearch });
         :title="layout.leftCollapsed ? '展开左栏（Ctrl+B）' : '折叠左栏（Ctrl+B）'"
         @click="onToggleLeft"
       >
-        <template #icon>☰</template>
+        <template #icon><KIcon name="Menu2" :size="18" /></template>
       </n-button>
 
       <h1 class="km-ph-title">{{ title }}</h1>
@@ -149,7 +149,7 @@ defineExpose({ focusSearch });
         :title="layout.rightCollapsed ? '展开右栏（Ctrl+\\）' : '折叠右栏（Ctrl+\\）'"
         @click="onToggleRight"
       >
-        <template #icon>⧉</template>
+        <template #icon><KIcon name="LayoutGrid" :size="18" /></template>
       </n-button>
     </div>
   </header>
