@@ -81,16 +81,16 @@ function onSummon(): void {
 
 <style scoped>
 .km-detail {
-  padding: 14px;
+ padding: var(--km-space-14);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--km-space-lg);
 }
 
 .km-detail-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--km-space-10);
 }
 
 .km-detail-icon {
@@ -101,7 +101,7 @@ function onSummon(): void {
 .km-detail-name {
   flex: 1;
   margin: 0;
-  font-size: 18px;
+  font-size: var(--km-font-xl);
   font-weight: 700;
   min-width: 0;
 }
@@ -109,11 +109,11 @@ function onSummon(): void {
 .km-detail-section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 
 .km-detail-label {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   font-weight: 600;
   opacity: 0.55;
   text-transform: uppercase;
@@ -121,25 +121,25 @@ function onSummon(): void {
 }
 
 .km-detail-text {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   line-height: 1.6;
 }
 
 .km-detail-list {
   margin: 0;
-  padding-left: 18px;
-  font-size: 13px;
+  padding-left: var(--km-space-18);
+  font-size: var(--km-font-sm);
   line-height: 1.7;
   opacity: 0.85;
 }
 
 .km-detail-prompt-card {
-  margin-bottom: 6px;
+  margin-bottom: var(--km-space-6);
 }
 
 .km-detail-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 </style>
