@@ -170,29 +170,29 @@ function close(): void {
 .km-share {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--km-space-lg);
 }
 
 .km-share-info {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   opacity: 0.7;
 }
 
 .km-share-summary {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--km-space-10);
 }
 
 .km-share-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
   flex-wrap: wrap;
 }
 
 .km-share-label {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   opacity: 0.6;
   min-width: 48px;
@@ -200,16 +200,16 @@ function close(): void {
 }
 
 .km-share-none {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   opacity: 0.4;
 }
 
 .km-share-actions {
-  padding: 4px 0;
+  padding: var(--km-space-xs) 0;
 }
 
 .km-share-footer {
   border-top: 1px solid var(--km-border);
-  padding-top: 12px;
+  padding-top: var(--km-space-md);
 }
 </style>
