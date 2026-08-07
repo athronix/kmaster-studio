@@ -77,25 +77,25 @@ watch(html, () => {
 <style scoped>
 .km-md :deep(pre.hljs) {
   background: var(--km-code-bg);
-  padding: 12px;
+ padding: var(--km-space-md);
   border-radius: 0 0 var(--km-radius-lg) var(--km-radius-lg);
   overflow: auto;
   margin: 0;
 }
 .km-md :deep(code) {
   font-family: 'SFMono-Regular', Consolas, monospace;
-  font-size: 13px;
+  font-size: var(--km-font-sm);
 }
-.km-md :deep(p) { margin: 6px 0; }
+.km-md :deep(p) { margin: var(--km-space-6) 0; }
 .km-md :deep(ul), .km-md :deep(ol) { padding-left: 22px; }
 .km-md :deep(a) { color: var(--km-accent); }
 .km-md :deep(table) { border-collapse: collapse; }
-.km-md :deep(th), .km-md :deep(td) { border: 1px solid var(--km-border); padding: 4px 8px; }
+.km-md :deep(th), .km-md :deep(td) { border: 1px solid var(--km-border); padding: var(--km-space-xs) var(--km-space-sm); }
 
 /* V4：代码块容器 + 复制按钮（hover 显示） */
 .km-md :deep(.km-code-block) {
   position: relative;
-  margin: 10px 0;
+  margin: var(--km-space-10) 0;
   border-radius: var(--km-radius-lg);
   overflow: hidden;
   border: 1px solid var(--km-border);
@@ -105,11 +105,11 @@ watch(html, () => {
   justify-content: space-between;
   align-items: center;
   background: var(--km-code-head-bg);
-  padding: 5px 12px;
+  padding: var(--km-space-6) var(--km-space-md);
   border-bottom: 1px solid var(--km-border);
 }
 .km-md :deep(.km-code-lang) {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   color: var(--km-muted);
   text-transform: uppercase;
   font-family: 'SFMono-Regular', Consolas, monospace;
@@ -119,8 +119,8 @@ watch(html, () => {
   border: 1px solid var(--km-border);
   color: var(--km-muted);
   border-radius: var(--km-radius-sm);
-  padding: 2px 8px;
-  font-size: 12px;
+  padding: var(--km-space-2xs) var(--km-space-sm);
+  font-size: var(--km-font-sm);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.15s ease;

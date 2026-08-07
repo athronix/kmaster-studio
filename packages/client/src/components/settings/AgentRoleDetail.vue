@@ -325,7 +325,7 @@ function generateAgentMd(): void {
 .ard-head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
   padding: 12px 14px;
   border-bottom: 1px solid var(--km-border);
   flex-shrink: 0;
@@ -339,7 +339,7 @@ function generateAgentMd(): void {
 .ard-headline {
   flex: 1;
   min-width: 0;
-  font-size: 14px;
+  font-size: var(--km-font-base);
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -350,20 +350,20 @@ function generateAgentMd(): void {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 14px;
+ padding: var(--km-space-14);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--km-space-lg);
 }
 
 .ard-row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 
 .ard-label {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
 }
 
@@ -371,7 +371,7 @@ function generateAgentMd(): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .ard-req {
@@ -379,19 +379,19 @@ function generateAgentMd(): void {
 }
 
 .ard-hint {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.55;
   line-height: 1.6;
 }
 
 .ard-error {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   color: var(--km-danger, #e88);
 }
 
 .ard-mono :deep(textarea) {
   font-family: var(--km-mono, ui-monospace, monospace);
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   line-height: 1.7;
 }
 

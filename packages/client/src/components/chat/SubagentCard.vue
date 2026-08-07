@@ -101,7 +101,7 @@ const duration = computed(() =>
 .km-sub {
   border: 1px solid var(--km-border);
   border-left: 3px solid var(--km-accent);
-  border-radius: 8px;
+  border-radius: var(--km-radius-lg);
   padding: 10px 12px;
   background: var(--km-panel);
   min-width: 240px;
@@ -110,37 +110,37 @@ const duration = computed(() =>
 .km-sub-success { border-left-color: var(--km-success); }
 .km-sub-error { border-left-color: var(--km-danger); }
 .km-sub-warning { border-left-color: var(--km-warning); }
-.km-sub-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.km-sub-head { display: flex; align-items: center; justify-content: space-between; gap: var(--km-space-sm); }
 .km-sub-title {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.km-sub-meta { display: flex; gap: 10px; flex-wrap: wrap; font-size: 11px; opacity: 0.5; margin: 4px 0 6px; }
-.km-sub-progress { margin-bottom: 6px; }
-.km-sub-progress-text { margin: 0 0 4px; font-size: 11px; opacity: 0.65; }
-.km-sub-summary { margin: 0 0 6px; font-size: 12px; line-height: 1.6; }
+.km-sub-meta { display: flex; gap: 10px; flex-wrap: wrap; font-size: var(--km-font-xs); opacity: 0.5; margin: 4px 0 6px; }
+.km-sub-progress { margin-bottom: var(--km-space-6); }
+.km-sub-progress-text { margin: 0 0 4px; font-size: var(--km-font-xs); opacity: 0.65; }
+.km-sub-summary { margin: 0 0 6px; font-size: var(--km-font-sm); line-height: 1.6; }
 .km-sub-toggle {
   background: none;
   border: none;
   color: var(--km-accent);
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   cursor: pointer;
   padding: 0;
 }
-.km-sub-body { margin-top: 6px; border-top: 1px dashed var(--km-border); padding-top: 6px; }
-.km-sub-sec { margin: 6px 0 3px; font-size: 11px; opacity: 0.6; font-weight: 600; }
+.km-sub-body { margin-top: var(--km-space-6); border-top: 1px dashed var(--km-border); padding-top: var(--km-space-6); }
+.km-sub-sec { margin: 6px 0 3px; font-size: var(--km-font-xs); opacity: 0.6; font-weight: 600; }
 .km-sub-pre {
   margin: 0;
   max-height: 180px;
   overflow: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   line-height: 1.6;
 }
 .km-sub-dim { opacity: 0.6; font-style: italic; }
-.km-sub-tools { margin: 0; padding-left: 16px; font-size: 11px; line-height: 1.7; opacity: 0.8; }
+.km-sub-tools { margin: 0; padding-left: var(--km-space-lg); font-size: var(--km-font-xs); line-height: 1.7; opacity: 0.8; }
 </style>

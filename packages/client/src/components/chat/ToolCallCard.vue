@@ -31,28 +31,28 @@ const statusIcon = computed(() =>
 <style scoped>
 .km-tool {
   border: 1px solid var(--km-border);
-  border-radius: 6px;
-  margin: 6px 0;
-  font-size: 12px;
+  border-radius: var(--km-radius-md);
+  margin: var(--km-space-6) 0;
+  font-size: var(--km-font-sm);
   background: var(--km-tool-card-bg);
 }
 .km-tool-head {
   display: flex;
-  gap: 8px;
+  gap: var(--km-space-sm);
   align-items: center;
-  padding: 6px 10px;
+  padding: var(--km-space-6) var(--km-space-10);
   cursor: pointer;
 }
 .km-tool.done .ico { color: var(--km-success); }
 .km-tool.error .ico { color: var(--km-danger); }
 .name { font-weight: 600; }
 .status { opacity: 0.5; margin-left: auto; text-transform: uppercase; }
-.km-tool-body { padding: 0 10px 10px; }
-.lbl { opacity: 0.5; margin: 6px 0 2px; }
+.km-tool-body { padding: 0 var(--km-space-10) var(--km-space-10); }
+.lbl { opacity: 0.5; margin: var(--km-space-6) 0 var(--km-space-2xs); }
 pre {
   background: var(--km-code-bg);
-  padding: 8px;
-  border-radius: 6px;
+ padding: var(--km-space-sm);
+  border-radius: var(--km-radius-md);
   overflow: auto;
   margin: 0;
   white-space: pre-wrap;

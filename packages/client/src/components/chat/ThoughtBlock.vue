@@ -22,15 +22,15 @@ const open = ref(true);
   padding: 4px 10px;
   margin: 6px 0;
   opacity: 0.85;
-  font-size: 13px;
+  font-size: var(--km-font-sm);
 }
 .km-thought-head {
   cursor: pointer;
   color: var(--km-muted);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--km-muted); }
-.km-thought-body { white-space: pre-wrap; margin-top: 4px; }
+.km-thought-body { white-space: pre-wrap; margin-top: var(--km-space-xs); }
 </style>
