@@ -352,12 +352,12 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   display: inline-flex;
   align-items: center;
   gap: var(--km-space-2xs);
-  margin: 0 2px;
+  margin: 0 var(--km-space-2xs);
   background: var(--km-file-chip-bg);
   border: 1px solid var(--km-accent);
   color: var(--km-accent);
   border-radius: var(--km-radius-md);
-  padding: 1px 8px;
+  padding: 1px var(--km-space-sm);
   font-size: var(--km-font-sm);
   cursor: pointer;
   max-width: 280px;
@@ -388,7 +388,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   display: block;
   font-size: var(--km-font-xs);
   color: var(--km-muted);
-  margin-top: 4px;
+  margin-top: var(--km-space-xs);
   text-align: right;
 }
 
@@ -397,7 +397,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   display: flex;
   flex-wrap: wrap;
   gap: var(--km-space-sm);
-  margin-top: 8px;
+  margin-top: var(--km-space-sm);
   width: 100%;
 }
 
@@ -410,7 +410,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   border: 1px solid var(--km-border);
   color: var(--km-muted);
   border-radius: var(--km-radius-sm);
-  padding: 2px 6px;
+  padding: var(--km-space-2xs) var(--km-space-6);
   font-size: var(--km-font-sm);
   cursor: pointer;
   opacity: 0;
@@ -434,7 +434,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   border: 1px solid var(--km-border);
   color: var(--km-muted);
   border-radius: var(--km-radius-sm);
-  padding: 2px 6px;
+  padding: var(--km-space-2xs) var(--km-space-6);
   font-size: var(--km-font-sm);
   cursor: pointer;
   opacity: 0;
@@ -455,12 +455,12 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
 }
 .km-msg-retry {
   display: block;
-  margin-top: 6px;
+  margin-top: var(--km-space-6);
   background: transparent;
   border: 1px solid var(--km-danger);
   color: var(--km-danger);
   border-radius: var(--km-radius-sm);
-  padding: 2px 10px;
+  padding: var(--km-space-2xs) var(--km-space-10);
   font-size: var(--km-font-sm);
   cursor: pointer;
 }
@@ -470,7 +470,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
 .km-msg-error-tip {
   font-size: var(--km-font-xs);
   color: var(--km-danger);
-  margin-top: 4px;
+  margin-top: var(--km-space-xs);
   text-align: right;
 }
 
