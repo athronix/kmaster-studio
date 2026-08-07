@@ -307,12 +307,12 @@ onBeforeUnmount(() => {
 .km-term {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--km-space-sm);
   min-height: 260px;
   height: 100%;
 }
 .km-term-status {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.55;
   white-space: nowrap;
   overflow: hidden;
@@ -322,30 +322,30 @@ onBeforeUnmount(() => {
   flex: 1;
   min-height: 240px;
   border: 1px solid var(--km-border);
-  border-radius: 8px;
-  padding: 8px;
+  border-radius: var(--km-radius-lg);
+ padding: var(--km-space-sm);
   background: var(--km-bg);
   overflow: hidden;
 }
 .km-term-fallback {
   border: 1px solid var(--km-border);
-  border-radius: 8px;
-  padding: 14px;
+  border-radius: var(--km-radius-lg);
+ padding: var(--km-space-14);
   background: var(--km-bg);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
-.km-term-fallback-title { font-size: 13px; font-weight: 600; }
-.km-term-fallback-text { font-size: 12px; margin: 0; line-height: 1.7; opacity: 0.75; }
-.km-term-fallback-hint { font-size: 12px; margin: 0; line-height: 1.7; opacity: 0.55; }
+.km-term-fallback-title { font-size: var(--km-font-sm); font-weight: 600; }
+.km-term-fallback-text { font-size: var(--km-font-sm); margin: 0; line-height: 1.7; opacity: 0.75; }
+.km-term-fallback-hint { font-size: var(--km-font-sm); margin: 0; line-height: 1.7; opacity: 0.55; }
 .km-term-retry {
   align-self: flex-start;
   background: var(--km-panel);
   border: 1px solid var(--km-border);
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-size: 12px;
+  border-radius: var(--km-radius-md);
+  padding: var(--km-space-6) var(--km-space-md);
+  font-size: var(--km-font-sm);
   cursor: pointer;
   color: var(--km-text);
 }
