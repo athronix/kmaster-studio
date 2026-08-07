@@ -336,24 +336,24 @@ function onCancel(): void {
 .ntd-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--km-space-14);
 }
 
 .ntd-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 
 .ntd-label {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   opacity: 0.7;
 }
 
 .ntd-row {
   display: flex;
-  gap: 12px;
+  gap: var(--km-space-md);
 }
 
 .ntd-half {
@@ -364,8 +364,8 @@ function onCancel(): void {
 .ntd-dynamic-row {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 4px;
+  gap: var(--km-space-xs);
+  margin-bottom: var(--km-space-xs);
 }
 
 .ntd-dynamic-select {
