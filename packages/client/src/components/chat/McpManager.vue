@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { NDrawer, NDrawerContent, NButton, NInput, NEmpty, NTag, useMessage } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { useChatStore } from '../../stores/chat';
 
 const props = defineProps<{ show: boolean }>();
@@ -67,7 +68,7 @@ async function remove(name: string) {
 <template>
   <n-drawer :show="show" placement="right" :width="440" @update:show="(v: boolean) => emit('update:show', v)">
     <n-drawer-content title="MCP 连接器" :native-scrollbar="false">
-      <n-button size="small" secondary type="primary" block @click="store.loadMcp().catch(() => {})">↻ 重新加载列表</n-button>
+      <n-button size="small" secondary type="primary" block @click="store.loadMcp().catch(() => {})"><template #icon><KIcon name="Refresh" :size="14" /></template>重新加载列表</n-button>
 
       <div class="mcp-list">
         <n-empty v-if="!store.mcpServers.length" description="暂无 MCP 连接器" />
@@ -92,7 +93,7 @@ async function remove(name: string) {
         <n-input v-model:value="command" placeholder="command（如 npx / python）" size="small" />
         <n-input v-model:value="argsText" type="textarea" placeholder="args：每行或空格分隔一个参数" :autosize="{ minRows: 2, maxRows: 4 }" size="small" />
         <n-input v-model:value="envText" type="textarea" placeholder="env（可选）：每行 KEY=VALUE" :autosize="{ minRows: 1, maxRows: 3 }" size="small" />
-        <n-button type="primary" block @click="add">＋ 添加</n-button>
+        <n-button type="primary" block @click="add"><template #icon><KIcon name="Plus" :size="16" /></template>添加</n-button>
       </div>
     </n-drawer-content>
   </n-drawer>

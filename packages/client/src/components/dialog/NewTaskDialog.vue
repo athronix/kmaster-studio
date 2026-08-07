@@ -20,6 +20,7 @@ import {
   NButton,
   NSpace,
 } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { useChatStore } from '../../stores/chat';
 import { useAgentRolesStore } from '../../stores/agentRoles';
 import { useModelConfigStore } from '../../stores/modelConfig';
@@ -258,7 +259,7 @@ function onCancel(): void {
             type="error"
             @click="removeSkillRow(idx)"
           >
-            ✕
+            <KIcon name="X" :size="14" />
           </n-button>
         </div>
         <n-button size="tiny" quaternary @click="addSkillRow">
@@ -288,7 +289,7 @@ function onCancel(): void {
             type="error"
             @click="removeMcpRow(idx)"
           >
-            ✕
+            <KIcon name="X" :size="14" />
           </n-button>
         </div>
         <n-button size="tiny" quaternary @click="addMcpRow">

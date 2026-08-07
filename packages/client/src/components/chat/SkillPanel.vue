@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { NDrawer, NDrawerContent, NButton, NInput, NEmpty, NTag } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { useChatStore } from '../../stores/chat';
 
 const props = defineProps<{ show: boolean }>();
@@ -48,7 +49,7 @@ function invoke(name: string) {
           clearable
           size="small"
         />
-        <n-button size="small" secondary type="primary" @click="store.loadSkills().catch(() => {})">↻ 刷新</n-button>
+        <n-button size="small" secondary type="primary" @click="store.loadSkills().catch(() => {})"><template #icon><KIcon name="Refresh" :size="14" /></template>刷新</n-button>
       </div>
 
       <div class="sk-body">
