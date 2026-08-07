@@ -19,8 +19,8 @@ import type { AgentRole, RoleSource, SelectOption } from '../types/settings';
 import type { EntityDef, Expert, ExpertTeam } from '../types/market';
 import { isExpert, isExpertTeam } from '../types/market';
 
-/** 新建角色的默认头像。 */
-const DEFAULT_AVATAR = '🤖';
+/** 新建角色的默认头像（KIcon 图标名）。 */
+const DEFAULT_AVATAR = 'Robot';
 
 /** 生成一条空白角色（AgentRoleDetail 新建态的初始值）。 */
 export function blankRole(): AgentRole {

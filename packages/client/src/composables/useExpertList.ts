@@ -78,7 +78,7 @@ export function useExpertList() {
     return entries.map((a) => ({
       id: a.id,
       name: a.name,
-      icon: '🤖',
+      icon: 'Robot',
       description: a.prompt?.slice(0, 120) ?? '',
       tags: a.specialties ?? [],
       source: 'hermes' as const,
@@ -95,7 +95,7 @@ export function useExpertList() {
       description: c.description,
       source: c.source,
       category: c.category,
-      icon: c.icon || '🤖',
+      icon: c.icon || 'Robot',
       installed: c.installed,
       profession: c.profession,
       tags: c.tags,

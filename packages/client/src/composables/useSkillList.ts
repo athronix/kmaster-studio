@@ -68,7 +68,7 @@ export function useSkillList() {
     return raw.map((s) => ({
       id: `skill-${s.name}`,
       name: s.name,
-      icon: '🧩',
+      icon: 'Puzzle',
       description: s.description ?? '',
       tags: s.category ? [s.category] : [],
       source: 'hermes',
@@ -107,7 +107,7 @@ export function useSkillList() {
         allCandidates.value = (res.candidates ?? []).map((c: SkillAsset) => ({
           id: c.id,
           name: c.name,
-          icon: c.icon || '🛠️',
+          icon: c.icon || 'Tool',
           description: c.description,
           tags: c.tags ?? [],
           source: c.source,

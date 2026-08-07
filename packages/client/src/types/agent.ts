@@ -39,22 +39,22 @@ export interface AgentStatus {
   state: AgentState;
 }
 
-/** 状态 → 图标（emoji）映射 */
+/** 状态 → 图标（KIcon 图标名）映射 */
 export const AGENT_STATUS_ICONS: Record<AgentState, string> = {
-  'init': '○',
-  'closing': '◐',
-  'sending-msg': '↗',
-  'thinking': '💭',
-  'busy': '⏳',
-  'idle': '◉',
-  'waiting-approval': '🔐',
-  'error': '✕',
-  'writing': '✏️',
-  'coding': '⌨️',
-  'reading': '📖',
-  'searching': '🔍',
-  'researching': '🔬',
-  'designing': '🎨',
+  'init': 'Circle',
+  'closing': 'CircleHalf2',
+  'sending-msg': 'ArrowUpRight',
+  'thinking': 'MessageDots',
+  'busy': 'Hourglass',
+  'idle': 'CircleDot',
+  'waiting-approval': 'Lock',
+  'error': 'X',
+  'writing': 'Pencil',
+  'coding': 'Code',
+  'reading': 'Book',
+  'searching': 'Search',
+  'researching': 'Microscope',
+  'designing': 'Palette',
 };
 
 /** 状态 → CSS 颜色类名 */

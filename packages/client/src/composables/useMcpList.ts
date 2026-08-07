@@ -54,7 +54,7 @@ export function useMcpList() {
     return raw.map((s) => ({
       id: `mcp-${s.name}`,
       name: s.name,
-      icon: '🔌',
+      icon: 'PlugConnected',
       description: s.command ?? '',
       tags: [],
       source: 'hermes',
@@ -69,7 +69,7 @@ export function useMcpList() {
     return raw.map((a) => ({
       id: a.id,
       name: a.name,
-      icon: a.icon || '🔌',
+      icon: a.icon || 'PlugConnected',
       description: a.description,
       tags: [],
       source: a.source,

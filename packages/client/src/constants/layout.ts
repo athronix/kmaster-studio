@@ -116,18 +116,18 @@ export interface SettingsCategoryDef {
 
 /** 设置类别单一真源（左栏 SettingsNav 与 SettingsView 共用，顺序即展示顺序）。 */
 export const SETTINGS_CATEGORIES: readonly SettingsCategoryDef[] = [
-  { key: 'monitor', label: '监控', icon: '📊' },
-  { key: 'general', label: '系统设置', icon: '🎛️' },
-  { key: 'account', label: '账号设置', icon: '👤' },
-  { key: 'agent-role', label: 'Agent 角色管理', icon: '🤖' },
-  { key: 'skills', label: 'Skill 管理', icon: '🧩' },
-  { key: 'mcp', label: 'MCP 管理', icon: '🔌' },
-  { key: 'tools', label: 'Tools 管理', icon: '🔧' },
-  { key: 'plugins', label: 'Plugins 管理', icon: '🧰' },
-  { key: 'channel', label: 'Channel 管理', icon: '📡' },
-  { key: 'memory', label: '记忆管理', icon: '🧠' },
-  { key: 'model', label: '模型管理', icon: '🧪' },
-  { key: 'jobs', label: '定时任务管理', icon: '⏰' },
+  { key: 'monitor', label: '监控', icon: 'ChartBar' },
+  { key: 'general', label: '系统设置', icon: 'Settings' },
+  { key: 'account', label: '账号设置', icon: 'User' },
+  { key: 'agent-role', label: 'Agent 角色管理', icon: 'Robot' },
+  { key: 'skills', label: 'Skill 管理', icon: 'Puzzle' },
+  { key: 'mcp', label: 'MCP 管理', icon: 'PlugConnected' },
+  { key: 'tools', label: 'Tools 管理', icon: 'Tool' },
+  { key: 'plugins', label: 'Plugins 管理', icon: 'Package' },
+  { key: 'channel', label: 'Channel 管理', icon: 'Broadcast' },
+  { key: 'memory', label: '记忆管理', icon: 'Brain' },
+  { key: 'model', label: '模型管理', icon: 'Flask' },
+  { key: 'jobs', label: '定时任务管理', icon: 'Clock' },
 ] as const;
 
 /** 首次进入设置的默认类别（R-06）。 */
