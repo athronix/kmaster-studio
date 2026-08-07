@@ -266,7 +266,7 @@ watch(
               title="提问历史"
               @click="historyOpen = !historyOpen"
             >
-              <template #icon>📜</template>
+              <template #icon><KIcon name="ScrollText" :size="16" /></template>
             </n-button>
           </template>
           <div class="km-history-popover">
@@ -292,11 +292,11 @@ watch(
           :title="chatRightPanelMode === 'hidden' ? '展开右栏' : '收起右栏'"
           @click="toggleChatRightPanel"
         >
-          <template #icon>⧉</template>
+          <template #icon><KIcon name="LayoutGrid" :size="16" /></template>
         </n-button>
 
         <!-- 停止 -->
-        <button v-if="running" class="km-stop-btn" @click="sid && store.stop(sid)">⏹ 停止</button>
+        <button v-if="running" class="km-stop-btn" @click="sid && store.stop(sid)"><KIcon name="Square" :size="14" /> 停止</button>
       </template>
     </PageHeader>
 

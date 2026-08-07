@@ -8,6 +8,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import {
   NButton, NInput, NModal, NSwitch, NTag, NEmpty, NSpin, NPopconfirm, NAlert, useMessage,
 } from 'naive-ui';
+import KIcon from '../components/common/KIcon.vue';
 import { useJobsStore } from '../stores/jobs';
 import { useChatStore } from '../stores/chat';
 import PageHeader from '../components/layout/PageHeader.vue';
@@ -221,7 +222,7 @@ function statusType(status?: string | null): 'success' | 'error' | 'default' {
       @search="(q: string) => (localSearch = q)"
     >
       <template #actions>
-        <n-button type="primary" @click="openCreate">＋ 新建任务</n-button>
+        <n-button type="primary" @click="openCreate"><template #icon><KIcon name="Plus" :size="16" /></template>新建任务</n-button>
       </template>
     </PageHeader>
 
@@ -234,7 +235,7 @@ function statusType(status?: string | null): 'success' | 'error' | 'default' {
             手动触发为「下个调度器 tick 执行」语义。
           </p>
         </div>
-        <n-button type="primary" @click="openCreate">＋ 新建任务</n-button>
+        <n-button type="primary" @click="openCreate"><template #icon><KIcon name="Plus" :size="16" /></template>新建任务</n-button>
       </header>
 
       <n-alert v-if="!store.schedulerRunning" type="warning" :bordered="false" class="km-alert">

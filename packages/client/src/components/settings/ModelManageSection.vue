@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/**
+import KIcon from '../common/KIcon.vue';/**
  * ModelManageSection — 设置 → 模型管理（V3 T4 / S4.7，覆盖 R-19 ~ R-25）。
  *
  * 三个区块：
@@ -202,7 +202,7 @@ const usageTable = computed<UsageRow[]>(() =>
         @click="subTab = tab.key"
       >{{ tab.label }}</button>
       <div class="mms-tabs-spacer"></div>
-      <n-button size="small" type="primary" @click="onAddProvider">＋ 新增供应商</n-button>
+      <n-button size="small" type="primary" @click="onAddProvider"><template #icon><KIcon name="Plus" :size="16" /></template>新增供应商</n-button>
     </div>
 
     <!-- ① 供应商 -->

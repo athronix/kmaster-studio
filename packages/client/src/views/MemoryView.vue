@@ -5,6 +5,7 @@
 // V3 S5.7 / A4：本视图同时服务 `/memory` 独立路由与「设置 → 记忆管理」类别，
 //   内嵌时（embedded=true）不渲染自带 PageHeader，搜索词由外层 title 栏透传。
 import { onMounted, ref, watch } from 'vue';
+import KIcon from '../components/common/KIcon.vue';
 import {
   NInput, NSelect, NButton, NModal, NCard, NSpin, NTag, NPopconfirm, useMessage,
 } from 'naive-ui';
@@ -120,7 +121,7 @@ function fmtTime(ts: number): string {
       @search="onSearch"
     >
       <template #actions>
-        <n-button type="primary" @click="openCreate('memory')">＋ 新增条目</n-button>
+        <n-button type="primary" @click="openCreate('memory')"><template #icon><KIcon name="Plus" :size="16" /></template>新增条目</n-button>
       </template>
     </PageHeader>
 
@@ -131,7 +132,7 @@ function fmtTime(ts: number): string {
           所有写操作前自动备份，可从 <code>~/.kmaster-studio/backups/memory/</code> 回滚。
         </p>
         <!-- 内嵌「设置 → 记忆管理」：标题与搜索由外壳 PageHeader 提供，主操作在此补齐 -->
-        <n-button v-if="embedded" type="primary" @click="openCreate('memory')">＋ 新增条目</n-button>
+        <n-button v-if="embedded" type="primary" @click="openCreate('memory')"><template #icon><KIcon name="Plus" :size="16" /></template>新增条目</n-button>
       </header>
 
       <div class="km-toolbar">
@@ -150,7 +151,7 @@ function fmtTime(ts: number): string {
             <h3 class="km-group-title">
               {{ MEMORY_GROUP_LABELS[g] }}
               <n-tag size="small" :bordered="false">{{ store.groups[g].length }}</n-tag>
-              <n-button size="tiny" tertiary @click="openCreate(g)">＋</n-button>
+              <n-button size="tiny" tertiary @click="openCreate(g)"><template #icon><KIcon name="Plus" :size="14" /></template></n-button>
             </h3>
             <EmptyState v-if="!store.groups[g].length" icon="Database" title="暂无记忆" />
             <n-card
