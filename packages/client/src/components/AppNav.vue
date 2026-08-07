@@ -9,6 +9,7 @@
 // V3 #24：无障碍补全 — 当前页标记 aria-current，主题按钮 aria-label。
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import KIcon from '../components/common/KIcon.vue';
 import { useChatStore } from '../stores/chat';
 import { useTheme } from '../styles/theme';
 import { useI18n } from '../composables/useI18n';
@@ -22,18 +23,18 @@ interface NavItem {
 const { t } = useI18n();
 
 const NAV_ITEMS: NavItem[] = [
-  { path: '/', labelKey: 'nav.chat', icon: '💬' },
-  { path: '/memory', labelKey: 'nav.memory', icon: '🧠' },
-  { path: '/jobs', labelKey: 'nav.jobs', icon: '⏰' },
-  { path: '/usage', labelKey: 'nav.usage', icon: '📊' },
-  { path: '/queue', labelKey: 'nav.queue', icon: '📥' },
+  { path: '/', labelKey: 'nav.chat', icon: 'MessageCircle' },
+  { path: '/memory', labelKey: 'nav.memory', icon: 'Brain' },
+  { path: '/jobs', labelKey: 'nav.jobs', icon: 'Clock' },
+  { path: '/usage', labelKey: 'nav.usage', icon: 'ChartBar' },
+  { path: '/queue', labelKey: 'nav.queue', icon: 'Download' },
 ];
 
 /**
  * M5/F21：设置入口靠右（与主题按钮同侧），与左侧五个业务页在视觉上分区，
  * 因此单独声明而不并入 NAV_ITEMS；高亮判定复用同一个 isActive()。
  */
-const SETTINGS_ITEM: NavItem = { path: '/settings', labelKey: 'nav.settings', icon: '⚙️' };
+const SETTINGS_ITEM: NavItem = { path: '/settings', labelKey: 'nav.settings', icon: 'Settings' };
 
 const route = useRoute();
 const store = useChatStore();
@@ -57,7 +58,7 @@ function isActive(path: string): boolean {
       :to="item.path"
       :aria-current="isActive(item.path) ? 'page' : undefined"
     >
-      <span class="km-nav-icon">{{ item.icon }}</span>{{ t(item.labelKey) }}
+      <span class="km-nav-icon"><KIcon :name="item.icon" :size="18" /></span>{{ t(item.labelKey) }}
       <span v-if="item.path === '/queue' && queued > 0" class="km-nav-badge">{{ queued }}</span>
     </router-link>
     <span class="km-nav-spacer" />
@@ -68,14 +69,14 @@ function isActive(path: string): boolean {
       title="设置（通用 / Provider / Profile / 技能 / MCP / 诊断）"
       :aria-current="isActive(SETTINGS_ITEM.path) ? 'page' : undefined"
     >
-      <span class="km-nav-icon">{{ SETTINGS_ITEM.icon }}</span>{{ t(SETTINGS_ITEM.labelKey) }}
+      <span class="km-nav-icon"><KIcon :name="SETTINGS_ITEM.icon" :size="18" /></span>{{ t(SETTINGS_ITEM.labelKey) }}
     </router-link>
     <button
       class="km-nav-theme"
       :title="theme.isDark.value ? '切换到亮色' : '切换到暗色'"
       :aria-label="theme.isDark.value ? '切换到亮色主题' : '切换到暗色主题'"
       @click="theme.toggle()"
-    >{{ theme.isDark.value ? '🌙' : '☀️' }}</button>
+    ><KIcon :name="theme.isDark.value ? 'Moon' : 'Sun'" :size="18" /></button>
   </nav>
 </template>
 

@@ -180,7 +180,7 @@ function onDragEnd(): void {
             :class="{ 'km-on': isPinned }"
             :aria-label="isPinned ? t('sidebar.action.unpin') : t('sidebar.action.pin')"
             @click="emit('toggle-pin', session.id)"
-          >📌</button>
+          ><KIcon name="Pinned" :size="14" /></button>
         </template>
         {{ isPinned ? t('sidebar.action.unpin') : t('sidebar.action.pin') }}
       </n-tooltip>
@@ -199,7 +199,7 @@ function onDragEnd(): void {
         placement="bottom-end"
         @select="onMoreSelect"
       >
-        <button class="km-icon-btn" :aria-label="t('sidebar.action.more')">⋯</button>
+        <button class="km-icon-btn" :aria-label="t('sidebar.action.more')"><KIcon name="Dots" :size="16" /></button>
       </n-dropdown>
     </div>
   </div>
