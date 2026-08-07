@@ -343,7 +343,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   max-width: 80%;
   padding: var(--km-space-sm) var(--km-space-md);
   line-height: 1.6;
-  font-size: 14px;
+  font-size: var(--km-font-base);
   min-width: 0;
   position: relative;
 }
@@ -351,14 +351,14 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
 .km-file-chip {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--km-space-2xs);
   margin: 0 2px;
   background: var(--km-file-chip-bg);
   border: 1px solid var(--km-accent);
   color: var(--km-accent);
-  border-radius: 6px;
+  border-radius: var(--km-radius-md);
   padding: 1px 8px;
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   cursor: pointer;
   max-width: 280px;
   overflow: hidden;
@@ -386,7 +386,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
 /* P0 #6：消息时间戳 */
 .km-msg-time {
   display: block;
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   color: var(--km-muted);
   margin-top: 4px;
   text-align: right;
@@ -396,7 +396,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
 .km-subagents {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--km-space-sm);
   margin-top: 8px;
   width: 100%;
 }
@@ -409,9 +409,9 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   background: var(--km-hover-bg);
   border: 1px solid var(--km-border);
   color: var(--km-muted);
-  border-radius: 4px;
+  border-radius: var(--km-radius-sm);
   padding: 2px 6px;
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.15s ease;
@@ -433,9 +433,9 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   background: var(--km-hover-bg);
   border: 1px solid var(--km-border);
   color: var(--km-muted);
-  border-radius: 4px;
+  border-radius: var(--km-radius-sm);
   padding: 2px 6px;
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.15s ease;
@@ -459,16 +459,16 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   background: transparent;
   border: 1px solid var(--km-danger);
   color: var(--km-danger);
-  border-radius: 4px;
+  border-radius: var(--km-radius-sm);
   padding: 2px 10px;
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   cursor: pointer;
 }
 .km-msg-retry:hover {
   background: var(--km-danger-bg);
 }
 .km-msg-error-tip {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   color: var(--km-danger);
   margin-top: 4px;
   text-align: right;
@@ -496,8 +496,8 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   z-index: 9999;
   background: var(--km-panel);
   border: 1px solid var(--km-border);
-  border-radius: 8px;
-  padding: 4px;
+  border-radius: var(--km-radius-lg);
+  padding: var(--km-space-xs);
   min-width: 160px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
@@ -508,9 +508,9 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   background: transparent;
   border: none;
   color: var(--km-text);
-  font-size: 13px;
-  padding: 8px 12px;
-  border-radius: 6px;
+  font-size: var(--km-font-sm);
+  padding: var(--km-space-sm) var(--km-space-md);
+  border-radius: var(--km-radius-md);
   cursor: pointer;
   transition: background 0.12s ease;
 }

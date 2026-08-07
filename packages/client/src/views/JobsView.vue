@@ -376,18 +376,18 @@ function statusType(status?: string | null): 'success' | 'error' | 'default' {
 /* 页面壳：PageHeader 常驻顶部（与 §7.1 其余整页一致），只有内容区滚动 */
 .km-page { display: flex; flex-direction: column; height: 100%; min-width: 0; flex: 1; }
 .km-page-body { flex: 1; min-height: 0; overflow: auto; padding: 20px 24px 40px; }
-.km-page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 14px; }
-.km-page-sub { margin: 0; font-size: 12px; opacity: 0.6; line-height: 1.7; max-width: 720px; }
-.km-page-sub code { background: rgba(127, 127, 127, 0.16); padding: 1px 4px; border-radius: 4px; }
+.km-page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--km-space-lg); margin-bottom: 14px; }
+.km-page-sub { margin: 0; font-size: var(--km-font-sm); opacity: 0.6; line-height: 1.7; max-width: 720px; }
+.km-page-sub code { background: rgba(127, 127, 127, 0.16); padding: 1px 4px; border-radius: var(--km-radius-sm); }
 .km-alert { margin-bottom: 14px; }
-.km-table-wrap { border: 1px solid var(--km-border); border-radius: 8px; overflow: hidden; }
-.km-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.km-table-wrap { border: 1px solid var(--km-border); border-radius: var(--km-radius-lg); overflow: hidden; }
+.km-table { width: 100%; border-collapse: collapse; font-size: var(--km-font-sm); }
 .km-table th {
   text-align: left;
   padding: 9px 12px;
   background: var(--km-panel);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   opacity: 0.8;
   border-bottom: 1px solid var(--km-border);
 }
@@ -397,13 +397,13 @@ function statusType(status?: string | null): 'success' | 'error' | 'default' {
 .km-job-row:hover { background: var(--km-user-bubble); }
 .km-job-row.selected { background: var(--km-user-bubble); box-shadow: inset 3px 0 0 var(--km-accent); }
 .km-job-name { font-weight: 600; }
-.km-job-id { font-size: 11px; opacity: 0.42; margin-top: 2px; }
+.km-job-id { font-size: var(--km-font-xs); opacity: 0.42; margin-top: 2px; }
 .km-job-prompt { opacity: 0.85; }
-.km-dim { font-size: 12px; opacity: 0.6; }
+.km-dim { font-size: var(--km-font-sm); opacity: 0.6; }
 .km-row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .km-empty-block { padding: 24px 0; }
-.km-section-title { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 14px; margin: 26px 0 12px; }
-.km-history-for { font-size: 12px; font-weight: 400; opacity: 0.55; }
+.km-section-title { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: var(--km-font-base); margin: 26px 0 12px; }
+.km-history-for { font-size: var(--km-font-sm); font-weight: 400; opacity: 0.55; }
 .km-timeline { list-style: none; margin: 0; padding: 0 0 0 6px; }
 .km-tl-item { display: flex; gap: 10px; padding: 0 0 14px 8px; border-left: 1px solid var(--km-border); position: relative; }
 .km-tl-dot {
@@ -418,9 +418,9 @@ function statusType(status?: string | null): 'success' | 'error' | 'default' {
 .km-tl-success { background: var(--km-success); }
 .km-tl-error { background: var(--km-danger); }
 .km-tl-body { flex: 1; min-width: 0; padding-left: 10px; }
-.km-tl-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; }
-.km-tl-excerpt { margin: 4px 0 2px; font-size: 12px; opacity: 0.8; line-height: 1.6; }
-.km-tl-file { font-size: 11px; opacity: 0.4; }
+.km-tl-head { display: flex; align-items: center; gap: var(--km-space-sm); flex-wrap: wrap; font-size: var(--km-font-sm); }
+.km-tl-excerpt { margin: 4px 0 2px; font-size: var(--km-font-sm); opacity: 0.8; line-height: 1.6; }
+.km-tl-file { font-size: var(--km-font-xs); opacity: 0.4; }
 .km-tl-clickable {
   cursor: pointer;
   text-decoration: underline;
@@ -430,6 +430,6 @@ function statusType(status?: string | null): 'success' | 'error' | 'default' {
 .km-tl-clickable:hover { opacity: 0.85; }
 .km-modal { width: 620px; max-width: 92vw; }
 .km-form { display: flex; flex-direction: column; gap: 6px; }
-.km-label { font-size: 12px; opacity: 0.65; margin-top: 6px; }
-.km-form-foot { display: flex; justify-content: flex-end; gap: 8px; }
+.km-label { font-size: var(--km-font-sm); opacity: 0.65; margin-top: 6px; }
+.km-form-foot { display: flex; justify-content: flex-end; gap: var(--km-space-sm); }
 </style>

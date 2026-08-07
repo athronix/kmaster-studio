@@ -274,7 +274,7 @@ defineExpose({ openTab });
 .km-output-tabs-bar {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--km-space-xs);
   height: 40px;
   padding: 0 8px;
   border-bottom: 1px solid var(--km-border);
@@ -285,19 +285,19 @@ defineExpose({ openTab });
   display: flex;
   flex: 1;
   overflow-x: auto;
-  gap: 2px;
+  gap: var(--km-space-2xs);
   min-width: 0;
 }
 
 .km-output-tab {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--km-space-xs);
   padding: 6px 10px;
   border: none;
   background: transparent;
   color: var(--km-text);
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   cursor: pointer;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
@@ -322,7 +322,7 @@ defineExpose({ openTab });
 }
 
 .km-output-tab-close {
-  font-size: 14px;
+  font-size: var(--km-font-base);
   opacity: 0.5;
   line-height: 1;
 }
@@ -340,7 +340,7 @@ defineExpose({ openTab });
 
 /* ── 任务概览 ── */
 .km-overview {
-  padding: 14px;
+  padding: var(--km-space-14);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -349,11 +349,11 @@ defineExpose({ openTab });
 .km-overview-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .km-overview-title {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   opacity: 0.55;
   text-transform: uppercase;
@@ -361,7 +361,7 @@ defineExpose({ openTab });
 }
 
 .km-overview-empty {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   opacity: 0.45;
   padding: 8px 0;
 }
@@ -369,11 +369,11 @@ defineExpose({ openTab });
 .km-artifact-list-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
   padding: 6px 10px;
   background: var(--km-bg);
   border: 1px solid var(--km-border);
-  border-radius: 6px;
+  border-radius: var(--km-radius-md);
   cursor: pointer;
   transition: background 0.12s ease;
 }
@@ -388,13 +388,13 @@ defineExpose({ openTab });
   text-transform: uppercase;
   opacity: 0.6;
   border: 1px solid var(--km-border);
-  border-radius: 4px;
+  border-radius: var(--km-radius-sm);
   padding: 1px 5px;
   flex-shrink: 0;
 }
 
 .km-artifact-list-name {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -405,7 +405,7 @@ defineExpose({ openTab });
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 10px;
+  padding: var(--km-space-10);
   gap: 10px;
 }
 
@@ -418,7 +418,7 @@ defineExpose({ openTab });
 
 .km-output-toolbar-actions {
   display: flex;
-  gap: 2px;
+  gap: var(--km-space-2xs);
 }
 
 .km-output-content {
@@ -426,8 +426,8 @@ defineExpose({ openTab });
   min-height: 0;
   overflow: auto;
   border: 1px solid var(--km-border);
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: var(--km-radius-lg);
+  padding: var(--km-space-10);
   background: var(--km-bg);
 }
 
@@ -435,12 +435,12 @@ defineExpose({ openTab });
   width: 100%;
   min-height: 300px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--km-radius-sm);
   background: #fff;
 }
 
 .km-output-text {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   white-space: pre-wrap;
   margin: 0;
   font-family: 'SFMono-Regular', Consolas, 'Cascadia Mono', 'Fira Code', Menlo, monospace;
@@ -448,11 +448,11 @@ defineExpose({ openTab });
 
 .km-output-img {
   max-width: 100%;
-  border-radius: 6px;
+  border-radius: var(--km-radius-md);
 }
 
 .km-output-unsupported {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   opacity: 0.5;
 }
 
@@ -460,7 +460,7 @@ defineExpose({ openTab });
 .km-output-files {
   flex: 1;
   min-height: 0;
-  padding: 8px;
+  padding: var(--km-space-sm);
 }
 
 /* ── 终端 ── */

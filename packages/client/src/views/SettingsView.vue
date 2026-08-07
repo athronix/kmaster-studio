@@ -483,7 +483,7 @@ watch(activeCategory, () => {
 }
 
 .km-settings-icon {
-  font-size: 14px;
+  font-size: var(--km-font-base);
   opacity: 0.7;
 }
 
@@ -548,10 +548,10 @@ watch(activeCategory, () => {
 .km-settings-loading {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
   padding: 40px 0;
   justify-content: center;
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   opacity: 0.6;
 }
 </style>

@@ -227,28 +227,28 @@ function fmtTime(ts: number): string {
   overflow: auto;
   padding: 20px 24px 40px;
 }
-.km-memory-intro { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
-.km-page-sub { margin: 0 0 14px; font-size: 12px; opacity: 0.6; line-height: 1.7; max-width: 720px; }
-.km-page-sub code { background: rgba(127, 127, 127, 0.16); padding: 1px 4px; border-radius: 4px; }
-.km-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+.km-memory-intro { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--km-space-lg); }
+.km-page-sub { margin: 0 0 14px; font-size: var(--km-font-sm); opacity: 0.6; line-height: 1.7; max-width: 720px; }
+.km-page-sub code { background: rgba(127, 127, 127, 0.16); padding: 1px 4px; border-radius: var(--km-radius-sm); }
+.km-toolbar { display: flex; gap: var(--km-space-sm); align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
 .km-group-filter { width: 200px; }
-.km-count { font-size: 12px; opacity: 0.55; }
-.km-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px; }
+.km-count { font-size: var(--km-font-sm); opacity: 0.55; }
+.km-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: var(--km-space-xl); }
 .km-group-title {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: var(--km-space-sm);
+  font-size: var(--km-font-sm);
   margin: 0 0 10px;
   opacity: 0.85;
 }
 .km-entry { margin-bottom: 10px; }
-.km-entry-content { margin: 0 0 8px; white-space: pre-wrap; line-height: 1.7; font-size: 13px; }
+.km-entry-content { margin: 0 0 8px; white-space: pre-wrap; line-height: 1.7; font-size: var(--km-font-sm); }
 .km-entry-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.km-entry-meta { font-size: 11px; opacity: 0.45; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.km-entry-meta { font-size: var(--km-font-xs); opacity: 0.45; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .km-entry-actions { display: flex; gap: 6px; flex: 0 0 auto; }
 .km-modal { width: 640px; max-width: 92vw; }
 .km-form { display: flex; flex-direction: column; gap: 10px; }
-.km-form-hint { margin: 0; font-size: 11px; opacity: 0.5; }
-.km-form-foot { display: flex; justify-content: flex-end; gap: 8px; }
+.km-form-hint { margin: 0; font-size: var(--km-font-xs); opacity: 0.5; }
+.km-form-foot { display: flex; justify-content: flex-end; gap: var(--km-space-sm); }
 </style>

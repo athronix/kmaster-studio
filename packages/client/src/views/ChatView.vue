@@ -393,10 +393,10 @@ watch(
   background: var(--km-danger);
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--km-radius-md);
   padding: 4px 10px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   font-weight: 500;
 }
 
@@ -405,17 +405,17 @@ watch(
   width: 300px;
   max-height: 360px;
   overflow-y: auto;
-  padding: 8px;
+  padding: var(--km-space-sm);
 }
 
 .km-history-title {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   margin-bottom: 8px;
 }
 
 .km-history-empty {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   opacity: 0.5;
   text-align: center;
   padding: 12px 0;
@@ -423,11 +423,11 @@ watch(
 
 .km-history-item {
   display: flex;
-  gap: 8px;
+  gap: var(--km-space-sm);
   padding: 6px 4px;
   cursor: pointer;
-  border-radius: 4px;
-  font-size: 12px;
+  border-radius: var(--km-radius-sm);
+  font-size: var(--km-font-sm);
   transition: background 0.12s ease;
 }
 
