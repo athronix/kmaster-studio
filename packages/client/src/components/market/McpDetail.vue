@@ -239,16 +239,16 @@ function copyJson(): void {
 
 <style scoped>
 .km-detail {
-  padding: 14px;
+ padding: var(--km-space-14);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--km-space-lg);
 }
 
 .km-detail-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--km-space-10);
 }
 
 .km-detail-icon {
@@ -263,63 +263,63 @@ function copyJson(): void {
 
 .km-detail-name {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--km-font-xl);
   font-weight: 700;
 }
 
 .km-detail-english {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
 }
 
 .km-detail-section {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 
 .km-detail-label {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   font-weight: 600;
   opacity: 0.55;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 
 .km-detail-text {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   line-height: 1.6;
 }
 
 .km-detail-list {
   margin: 0;
-  padding-left: 18px;
-  font-size: 13px;
+  padding-left: var(--km-space-18);
+  font-size: var(--km-font-sm);
   line-height: 1.7;
   opacity: 0.85;
 }
 
 .km-detail-prompt-card {
-  margin-bottom: 6px;
+  margin-bottom: var(--km-space-6);
 }
 
 .km-detail-caps {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .km-cap-card {
-  --n-padding-top: 8px;
-  --n-padding-bottom: 8px;
+  --n-padding-top: var(--km-space-sm);
+  --n-padding-bottom: var(--km-space-sm);
 }
 
 .km-detail-schemas {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 
 .km-schema-card {
@@ -327,19 +327,19 @@ function copyJson(): void {
 }
 
 .km-schema-name {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
 }
 
 .km-schema-desc {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.6;
-  margin-top: 2px;
+  margin-top: var(--km-space-2xs);
 }
 
 .km-detail-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 </style>
