@@ -6,6 +6,7 @@
  */
 import { computed } from 'vue';
 import { NModal, NButton, NSpace, NTag, useMessage } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { useChatStore } from '../../stores/chat';
 import { CHAT_MODES } from '../../types/chat';
 
@@ -154,8 +155,8 @@ function close(): void {
       </div>
 
       <n-space justify="center" class="km-share-actions">
-        <n-button size="small" @click="copyConfigJson">📋 复制配置 JSON</n-button>
-        <n-button size="small" type="primary" @click="openInRightPanel">📂 在右栏查看</n-button>
+        <n-button size="small" @click="copyConfigJson"><template #icon><KIcon name="Clipboard" :size="16" /></template>复制配置 JSON</n-button>
+        <n-button size="small" type="primary" @click="openInRightPanel"><template #icon><KIcon name="FolderOpen" :size="16" /></template>在右栏查看</n-button>
       </n-space>
 
       <n-space justify="end" class="km-share-footer">

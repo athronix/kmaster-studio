@@ -5,6 +5,7 @@
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { NDrawer, NDrawerContent, NButton, NSelect, useMessage } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { useChatStore } from '../../stores/chat';
 import { CHAT_MODES, type HermesMode } from '../../types/chat';
 
@@ -74,7 +75,7 @@ function openFullSettings() {
       <n-button type="primary" block @click="save">保存</n-button>
 
       <div class="set-more">
-        <n-button text type="primary" @click="openFullSettings">更多设置 →</n-button>
+        <n-button text type="primary" @click="openFullSettings">更多设置 <KIcon name="ArrowRight" :size="14" /></n-button>
         <div class="set-hint">主题、API Key、Profile、技能、MCP 与诊断信息在设置整页中管理</div>
       </div>
     </n-drawer-content>

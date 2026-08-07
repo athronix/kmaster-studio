@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import KIcon from '../common/KIcon.vue';
 import type { ToolCall } from '../../types/chat';
 
 const props = defineProps<{ tool: ToolCall }>();
 const open = ref(false);
 const statusClass = computed(() => props.tool.status);
+const statusIcon = computed(() =>
+  props.tool.status === 'running' ? 'Hourglass' : props.tool.status === 'error' ? 'X' : 'Check'
+);
 </script>
 
 <template>
   <div class="km-tool" :class="statusClass">
     <div class="km-tool-head" @click="open = !open">
-      <span class="ico">{{ tool.status === 'running' ? '⏳' : tool.status === 'error' ? '✕' : '✓' }}</span>
+      <span class="ico"><KIcon :name="statusIcon" :size="14" /></span>
       <span class="name">{{ tool.tool }}</span>
       <span class="status">{{ tool.status }}</span>
-      <span class="chev">{{ open ? '▾' : '▸' }}</span>
+      <span class="chev"><KIcon :name="open ? 'ChevronDown' : 'ChevronRight'" :size="14" /></span>
     </div>
     <div v-show="open" class="km-tool-body">
       <div class="lbl">参数</div>
