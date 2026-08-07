@@ -271,25 +271,25 @@ async function onDefaultModelChange(value: string | null): Promise<void> {
 </template>
 
 <style scoped>
-.prov-body { display: flex; flex-direction: column; gap: 16px; }
+.prov-body { display: flex; flex-direction: column; gap: var(--km-space-lg); }
 .prov-toolbar { display: flex; align-items: center; justify-content: space-between; }
-.prov-current { font-size: 12px; opacity: 0.75; }
-.prov-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.prov-current { font-size: var(--km-font-sm); opacity: 0.75; }
+.prov-table { width: 100%; border-collapse: collapse; font-size: var(--km-font-sm); }
 .prov-table th,
 .prov-table td {
   text-align: left;
-  padding: 8px 10px;
+  padding: var(--km-space-sm) var(--km-space-10);
   border-bottom: 1px solid var(--km-border);
   vertical-align: middle;
 }
-.prov-table th { font-size: 12px; opacity: 0.6; font-weight: 600; }
-.prov-name { display: flex; align-items: center; gap: 6px; }
-.prov-slug { font-size: 11px; opacity: 0.5; margin-top: 2px; }
-.prov-masked { font-family: var(--km-mono, ui-monospace, monospace); opacity: 0.8; font-size: 12px; }
-.prov-model-count { font-size: 13px; font-weight: 500; }
-.prov-ops { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
-.prov-row { display: flex; flex-direction: column; gap: 6px; }
-.prov-label { font-size: 13px; font-weight: 600; }
-.prov-warn { font-size: 11px; opacity: 0.6; }
+.prov-table th { font-size: var(--km-font-sm); opacity: 0.6; font-weight: 600; }
+.prov-name { display: flex; align-items: center; gap: var(--km-space-6); }
+.prov-slug { font-size: var(--km-font-xs); opacity: 0.5; margin-top: var(--km-space-2xs); }
+.prov-masked { font-family: var(--km-mono, ui-monospace, monospace); opacity: 0.8; font-size: var(--km-font-sm); }
+.prov-model-count { font-size: var(--km-font-sm); font-weight: 500; }
+.prov-ops { display: flex; gap: var(--km-space-6); align-items: center; white-space: nowrap; }
+.prov-row { display: flex; flex-direction: column; gap: var(--km-space-6); }
+.prov-label { font-size: var(--km-font-sm); font-weight: 600; }
+.prov-warn { font-size: var(--km-font-xs); opacity: 0.6; }
 .prov-warn code { font-family: var(--km-mono, ui-monospace, monospace); }
 </style>
