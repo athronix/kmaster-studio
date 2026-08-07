@@ -85,22 +85,22 @@ function invoke(name: string) {
 </template>
 
 <style scoped>
-.sk-toolbar { display: flex; gap: 8px; margin-bottom: 10px; }
-.sk-body { display: flex; gap: 10px; min-height: 0; }
-.sk-cats { width: 96px; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; }
+.sk-toolbar { display: flex; gap: var(--km-space-sm); margin-bottom: var(--km-space-10); }
+.sk-body { display: flex; gap: var(--km-space-10); min-height: 0; }
+.sk-cats { width: 96px; flex-shrink: 0; display: flex; flex-direction: column; gap: var(--km-space-xs); }
 .sk-cat {
-  padding: 6px 8px;
-  border-radius: 6px;
-  font-size: 13px;
+  padding: var(--km-space-6) var(--km-space-sm);
+  border-radius: var(--km-radius-md);
+  font-size: var(--km-font-sm);
   cursor: pointer;
   border: 1px solid transparent;
 }
 .sk-cat:hover { background: rgba(255, 255, 255, 0.05); }
 .sk-cat.active { background: rgba(59, 130, 246, 0.16); border-color: var(--km-accent); }
-.sk-cards { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: auto; min-width: 0; }
-.sk-card { border: 1px solid var(--km-border); border-radius: 8px; padding: 10px 12px; background: var(--km-panel); }
-.sk-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.sk-name { font-weight: 600; font-size: 14px; }
-.sk-desc { font-size: 12px; opacity: 0.7; margin: 6px 0 10px; line-height: 1.5; }
+.sk-cards { flex: 1; display: flex; flex-direction: column; gap: var(--km-space-10); overflow: auto; min-width: 0; }
+.sk-card { border: 1px solid var(--km-border); border-radius: var(--km-radius-lg); padding: var(--km-space-10) var(--km-space-md); background: var(--km-panel); }
+.sk-card-head { display: flex; align-items: center; justify-content: space-between; gap: var(--km-space-sm); }
+.sk-name { font-weight: 600; font-size: var(--km-font-base); }
+.sk-desc { font-size: var(--km-font-sm); opacity: 0.7; margin: var(--km-space-6) 0 var(--km-space-10); line-height: 1.5; }
 .sk-card-foot { display: flex; align-items: center; justify-content: space-between; }
 </style>
