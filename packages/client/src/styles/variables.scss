@@ -10,6 +10,17 @@
   --km-danger: #dc2626;
   --km-success: #34d399;
   --km-warning: #f59e0b;
+
+  /* ──────────── B1：修复 ghostToken 缺失定义 ──────────── */
+  --km-accent-bg: rgba(59, 130, 246, 0.12);
+  --km-danger-bg: rgba(220, 38, 38, 0.12);
+  --km-file-chip-bg: rgba(59, 130, 246, 0.1);
+
+  /* ──────────── B1：状态语义色（McpCard 等组件） ──────────── */
+  --km-status-success: #27ae60;
+  --km-status-warning: #f39c12;
+  --km-status-error: #e74c3c;
+  --km-status-muted: #95a5a6;
   /* T01：市场卡片主题变量（暗色默认） */
   --km-card-bg: rgba(255,255,255,0.04);
   --km-card-border: rgba(255,255,255,0.08);
@@ -76,6 +87,17 @@
   --km-danger: #dc2626;
   --km-success: #10b981;
   --km-warning: #d97706;
+
+  /* ──────────── B1：修复 ghostToken 缺失定义（亮色） ──────────── */
+  --km-accent-bg: rgba(37, 99, 235, 0.08);
+  --km-danger-bg: rgba(220, 38, 38, 0.08);
+  --km-file-chip-bg: rgba(37, 99, 235, 0.06);
+
+  /* ──────────── B1：状态语义色（亮色） ──────────── */
+  --km-status-success: #16a34a;
+  --km-status-warning: #d97706;
+  --km-status-error: #dc2626;
+  --km-status-muted: #9ca3af;
   /* T01：市场卡片主题变量（亮色） */
   --km-card-bg: #fff;
   --km-card-border: #e8e8e8;

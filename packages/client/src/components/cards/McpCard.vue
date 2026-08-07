@@ -59,11 +59,11 @@ const statusInfo = computed<{
 }>(() => {
   const status = props.mcp.status ?? 'unknown';
   const map: Record<string, { label: string; type: 'success' | 'error' | 'warning'; dot: string }> = {
-    connected: { label: '运行中', type: 'success', dot: '#27ae60' },
-    running: { label: '运行中', type: 'success', dot: '#27ae60' },
-    stopped: { label: '已停止', type: 'warning', dot: '#f39c12' },
-    error: { label: '错误', type: 'error', dot: '#e74c3c' },
-    unknown: { label: '未知', type: 'warning', dot: '#95a5a6' },
+    connected: { label: '运行中', type: 'success', dot: 'var(--km-status-success)' },
+    running: { label: '运行中', type: 'success', dot: 'var(--km-status-success)' },
+    stopped: { label: '已停止', type: 'warning', dot: 'var(--km-status-warning)' },
+    error: { label: '错误', type: 'error', dot: 'var(--km-status-error)' },
+    unknown: { label: '未知', type: 'warning', dot: 'var(--km-status-muted)' },
   };
   return map[status] ?? map.unknown;
 });
@@ -158,7 +158,7 @@ function onDelete(e: MouseEvent): void {
 
 .km-mcp-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--km-shadow-card);
 }
 
 .km-mcp-source {
