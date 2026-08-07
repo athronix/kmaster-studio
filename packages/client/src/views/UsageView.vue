@@ -140,22 +140,22 @@ onMounted(() => reload('day'));
 </template>
 
 <style scoped>
-.km-page { height: 100%; overflow: auto; padding: 0 24px 40px; }
-.km-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
-.km-card-label { font-size: 12px; opacity: 0.6; }
-.km-card-value { font-size: 26px; font-weight: 700; margin: 4px 0 2px; }
-.km-card-sub { font-size: 11px; opacity: 0.5; }
-.km-section-title { font-size: 14px; margin: 24px 0 10px; }
+.km-page { height: 100%; overflow: auto; padding: 0 var(--km-space-2xl) var(--km-space-40); }
+.km-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--km-space-md); margin-top: var(--km-space-lg); }
+.km-card-label { font-size: var(--km-font-sm); opacity: 0.6; }
+.km-card-value { font-size: 26px; font-weight: 700; margin: var(--km-space-xs) 0 var(--km-space-2xs); }
+.km-card-sub { font-size: var(--km-font-xs); opacity: 0.5; }
+.km-section-title { font-size: var(--km-font-base); margin: var(--km-space-2xl) 0 var(--km-space-10); }
 .km-chart {
   border: 1px solid var(--km-border);
-  border-radius: 8px;
-  padding: 14px 16px 8px;
+  border-radius: var(--km-radius-lg);
+  padding: var(--km-space-14) var(--km-space-lg) var(--km-space-sm);
   background: var(--km-panel);
 }
 .km-bars {
   display: flex;
   align-items: flex-end;
-  gap: 10px;
+  gap: var(--km-space-10);
   height: 180px;
   overflow-x: auto;
 }
@@ -171,25 +171,25 @@ onMounted(() => reload('day'));
 .km-bar {
   width: 70%;
   min-height: 3px;
-  border-radius: 4px 4px 0 0;
+  border-radius: var(--km-radius-sm) 4px 0 0;
   background: linear-gradient(180deg, var(--km-accent), transparent);
   transition: height 0.25s ease;
 }
-.km-bar-value { font-size: 10px; opacity: 0.65; margin-bottom: 4px; }
-.km-bar-label { font-size: 10px; opacity: 0.5; margin-top: 6px; white-space: nowrap; }
-.km-table-wrap { border: 1px solid var(--km-border); border-radius: 8px; overflow: hidden; margin-top: 10px; }
-.km-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.km-bar-value { font-size: var(--km-font-xs); opacity: 0.65; margin-bottom: var(--km-space-xs); }
+.km-bar-label { font-size: var(--km-font-xs); opacity: 0.5; margin-top: var(--km-space-6); white-space: nowrap; }
+.km-table-wrap { border: 1px solid var(--km-border); border-radius: var(--km-radius-lg); overflow: hidden; margin-top: var(--km-space-10); }
+.km-table { width: 100%; border-collapse: collapse; font-size: var(--km-font-sm); }
 .km-table th {
   text-align: left;
-  padding: 9px 12px;
+  padding: 9px var(--km-space-md);
   background: var(--km-panel);
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   opacity: 0.8;
   border-bottom: 1px solid var(--km-border);
 }
-.km-table td { padding: 8px 12px; border-bottom: 1px solid var(--km-border); }
+.km-table td { padding: var(--km-space-sm) var(--km-space-md); border-bottom: 1px solid var(--km-border); }
 .km-table tr:last-child td { border-bottom: none; }
-.km-key { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; }
-.km-empty-block { padding: 22px 0; }
+.km-key { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: var(--km-font-sm); }
+.km-empty-block { padding: var(--km-space-28) 0; }
 </style>
