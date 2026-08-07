@@ -121,22 +121,22 @@ onMounted(reload);
 </template>
 
 <style scoped>
-.km-page { height: 100%; overflow: auto; padding: 0 24px 40px; }
+.km-page { height: 100%; overflow: auto; padding: 0 var(--km-space-2xl) var(--km-space-40); }
 .km-qgroup { margin-bottom: 22px; }
-.km-qgroup-title { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 0 0 8px; }
+.km-qgroup-title { display: flex; align-items: center; gap: var(--km-space-sm); font-size: var(--km-font-sm); margin: 0 0 var(--km-space-sm); }
 .km-qgroup-name { font-weight: 600; }
-.km-qlist { list-style: none; margin: 0; padding: 0; border: 1px solid var(--km-border); border-radius: 8px; overflow: hidden; }
+.km-qlist { list-style: none; margin: 0; padding: 0; border: 1px solid var(--km-border); border-radius: var(--km-radius-lg); overflow: hidden; }
 .km-qitem {
   display: flex;
-  gap: 12px;
+  gap: var(--km-space-md);
   align-items: flex-start;
-  padding: 10px 14px;
+  padding: var(--km-space-10) var(--km-space-14);
   border-bottom: 1px solid var(--km-border);
 }
 .km-qitem:last-child { border-bottom: none; }
-.km-qpos { font-size: 11px; opacity: 0.45; min-width: 26px; padding-top: 2px; }
+.km-qpos { font-size: var(--km-font-xs); opacity: 0.45; min-width: 26px; padding-top: var(--km-space-2xs); }
 .km-qbody { flex: 1; min-width: 0; }
-.km-qmsg { margin: 0; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
-.km-qmeta { font-size: 11px; opacity: 0.45; }
-.km-qactions { display: flex; gap: 6px; flex: 0 0 auto; }
+.km-qmsg { margin: 0; font-size: var(--km-font-sm); line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.km-qmeta { font-size: var(--km-font-xs); opacity: 0.45; }
+.km-qactions { display: flex; gap: var(--km-space-6); flex: 0 0 auto; }
 </style>
