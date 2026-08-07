@@ -100,13 +100,13 @@ async function remove(name: string) {
 </template>
 
 <style scoped>
-.mcp-list { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
-.mcp-item { border: 1px solid var(--km-border); border-radius: 8px; padding: 10px 12px; background: var(--km-panel); }
-.mcp-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.mcp-name { font-weight: 600; font-size: 14px; }
-.mcp-meta { font-size: 12px; opacity: 0.7; margin: 6px 0; word-break: break-all; }
+.mcp-list { display: flex; flex-direction: column; gap: var(--km-space-10); margin: var(--km-space-md) 0; }
+.mcp-item { border: 1px solid var(--km-border); border-radius: var(--km-radius-lg); padding: var(--km-space-10) var(--km-space-md); background: var(--km-panel); }
+.mcp-head { display: flex; align-items: center; justify-content: space-between; gap: var(--km-space-sm); }
+.mcp-name { font-weight: 600; font-size: var(--km-font-base); }
+.mcp-meta { font-size: var(--km-font-sm); opacity: 0.7; margin: var(--km-space-6) 0; word-break: break-all; }
 .mcp-foot { display: flex; align-items: center; justify-content: space-between; }
-.mcp-tools { font-size: 11px; opacity: 0.6; }
-.mcp-form { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--km-border); padding-top: 12px; }
-.mcp-form-title { font-size: 13px; font-weight: 600; }
+.mcp-tools { font-size: var(--km-font-xs); opacity: 0.6; }
+.mcp-form { display: flex; flex-direction: column; gap: var(--km-space-sm); border-top: 1px solid var(--km-border); padding-top: var(--km-space-md); }
+.mcp-form-title { font-size: var(--km-font-sm); font-weight: 600; }
 </style>
