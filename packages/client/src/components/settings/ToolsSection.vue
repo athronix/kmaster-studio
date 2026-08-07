@@ -63,19 +63,19 @@ function toggleTool(id: string, enabled: boolean) {
 
 <style scoped>
 .km-tools { padding: 0; }
-.km-section-actions { margin-bottom: 16px; }
-.km-tools-list { display: flex; flex-direction: column; gap: 6px; }
+.km-section-actions { margin-bottom: var(--km-space-lg); }
+.km-tools-list { display: flex; flex-direction: column; gap: var(--km-space-6); }
 .km-tool-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
+  gap: var(--km-space-md);
+  padding: var(--km-space-sm) var(--km-space-md);
   background: var(--km-bg);
   border: 1px solid var(--km-border);
-  border-radius: 8px;
+  border-radius: var(--km-radius-lg);
 }
 .km-tool-info { flex: 1; min-width: 0; }
-.km-tool-name { font-weight: 600; font-size: 13px; }
-.km-tool-desc { font-size: 11px; opacity: 0.55; margin-top: 1px; }
+.km-tool-name { font-weight: 600; font-size: var(--km-font-sm); }
+.km-tool-desc { font-size: var(--km-font-xs); opacity: 0.55; margin-top: 1px; }
 .km-tool-meta { flex-shrink: 0; }
 </style>
