@@ -491,22 +491,22 @@ function onUpdateShow(v: boolean): void {
 .amd-body {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--km-space-14);
   max-height: 64vh;
   overflow-y: auto;
-  padding-right: 4px;
+  padding-right: var(--km-space-xs);
 }
 
 .amd-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 14px;
+  gap: var(--km-space-10) var(--km-space-14);
 }
 
 .amd-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--km-space-xs);
   min-width: 0;
 }
 
@@ -515,7 +515,7 @@ function onUpdateShow(v: boolean): void {
 }
 
 .amd-label {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   font-weight: 500;
   opacity: 0.8;
 }
@@ -525,12 +525,12 @@ function onUpdateShow(v: boolean): void {
 }
 
 .amd-error {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   color: var(--km-danger, #e88);
 }
 
 .amd-hint {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.55;
   line-height: 1.7;
 }
@@ -538,8 +538,8 @@ function onUpdateShow(v: boolean): void {
 .amd-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 10px;
+  gap: var(--km-space-sm);
+  padding-top: var(--km-space-10);
   border-top: 1px solid var(--km-border);
 }
 
@@ -550,27 +550,27 @@ function onUpdateShow(v: boolean): void {
 }
 
 .amd-block-title {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
 }
 
 .amd-models {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--km-space-xs);
   max-height: 180px;
   overflow-y: auto;
   border: 1px solid var(--km-border);
-  border-radius: 6px;
-  padding: 6px;
+  border-radius: var(--km-radius-md);
+ padding: var(--km-space-6);
   background: var(--km-bg);
 }
 
 .amd-model-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: var(--km-space-sm);
+  font-size: var(--km-font-sm);
 }
 
 .amd-model-name {
@@ -596,16 +596,16 @@ function onUpdateShow(v: boolean): void {
 }
 
 .amd-models-empty {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   opacity: 0.55;
-  padding: 10px;
+ padding: var(--km-space-10);
   border: 1px dashed var(--km-border);
-  border-radius: 6px;
+  border-radius: var(--km-radius-md);
 }
 
 .amd-add-model {
   display: flex;
-  gap: 8px;
+  gap: var(--km-space-sm);
   align-items: center;
 }
 
@@ -620,13 +620,13 @@ function onUpdateShow(v: boolean): void {
 .amd-caps {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
+  gap: var(--km-space-xs) var(--km-space-md);
 }
 
 .amd-tests {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
   flex-wrap: wrap;
 }
 
@@ -635,7 +635,7 @@ function onUpdateShow(v: boolean): void {
 }
 
 .amd-conn-msg {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   color: var(--km-danger, #e88);
 }
 
