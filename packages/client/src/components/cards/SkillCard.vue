@@ -145,7 +145,7 @@ function onUninstall(e: MouseEvent): void {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 16px 0 6px;
+  padding: var(--km-space-lg) 0 var(--km-space-6);
 }
 
 .km-skill-icon-text {
@@ -156,13 +156,13 @@ function onUninstall(e: MouseEvent): void {
 .km-skill-head {
   display: flex;
   align-items: baseline;
-  gap: 4px;
-  padding: 0 8px;
+  gap: var(--km-space-xs);
+  padding: 0 var(--km-space-sm);
   max-width: 100%;
 }
 
 .km-skill-name {
-  font-size: 14px;
+  font-size: var(--km-font-base);
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -170,15 +170,15 @@ function onUninstall(e: MouseEvent): void {
 }
 
 .km-skill-version {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   flex-shrink: 0;
 }
 
 .km-skill-desc {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   line-height: 1.5;
   text-align: center;
-  padding: 4px 8px 0;
+  padding: var(--km-space-xs) var(--km-space-sm) 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -188,6 +188,6 @@ function onUninstall(e: MouseEvent): void {
 }
 
 .km-skill-actions {
-  padding: 8px 0 4px;
+  padding: var(--km-space-sm) 0 var(--km-space-xs);
 }
 </style>
