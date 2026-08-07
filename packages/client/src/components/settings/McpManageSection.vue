@@ -12,6 +12,7 @@
  */
 import { computed, onMounted, ref } from 'vue';
 import { NButton, NSpin, NTag, NTabs, NTabPane, NEmpty, NPopconfirm, useMessage } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { getMcpList, postMcp, deleteMcp, type McpAsset } from '../../api/client';
 import type { McpServer } from '../../types/chat';
 
@@ -43,9 +44,9 @@ async function load(): Promise<void> {
 
 /** 已部署 MCP 的状态标签 */
 function statusTag(s: McpServer): { label: string; type: 'success' | 'error' | 'default' } {
-  if (s.status === 'connected') return { label: '● 已连接', type: 'success' };
-  if (s.status === 'error') return { label: '✕ 错误', type: 'error' };
-  return { label: '○ 未知', type: 'default' };
+  if (s.status === 'connected') return { label: '已连接', type: 'success' };
+  if (s.status === 'error') return { label: '错误', type: 'error' };
+  return { label: '未知', type: 'default' };
 }
 
 /** 候选 MCP 的传输类型标签 */
@@ -110,7 +111,7 @@ async function onRemove(server: McpServer): Promise<void> {
           <div v-else class="mcm-grid">
             <div v-for="s in deployed" :key="s.name" class="mcm-card">
               <div class="mcm-card-head">
-                <span class="mcm-card-icon">🔌</span>
+                <span class="mcm-card-icon"><KIcon name="PlugConnected" :size="16" /></span>
                 <span class="mcm-card-name">{{ s.name }}</span>
                 <n-tag size="tiny" :type="statusTag(s).type" :bordered="false">
                   {{ statusTag(s).label }}
@@ -151,7 +152,7 @@ async function onRemove(server: McpServer): Promise<void> {
           <div v-else class="mcm-grid">
             <div v-for="a in candidates" :key="a.id" class="mcm-card">
               <div class="mcm-card-head">
-                <span class="mcm-card-icon">{{ a.icon || '📦' }}</span>
+                <span class="mcm-card-icon"><KIcon :name="a.icon || 'Package'" :size="16" /></span>
                 <span class="mcm-card-name">{{ a.name }}</span>
                 <n-tag size="tiny" :bordered="false">{{ transportLabel(a) }}</n-tag>
                 <n-tag v-if="a.source" size="tiny" :bordered="false" type="info">{{ a.source }}</n-tag>

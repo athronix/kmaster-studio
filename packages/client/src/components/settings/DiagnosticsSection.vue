@@ -5,6 +5,7 @@
 // ⚠️ HealthInfo 除 ok/service/ts 外全部可选，所有消费点一律 `?? ` 容错，缺字段显示「—」。
 import { computed, onMounted, ref } from 'vue';
 import { NButton, NSpin, NTag, useMessage } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { getHealth } from '../../api/client';
 import type { HealthInfo } from '../../types/chat';
 
@@ -153,7 +154,7 @@ async function copyDiagnostics(): Promise<void> {
       </table>
 
       <div class="diag-hint">
-        🔒 复制时会把绝对路径中的用户名替换为 <code>&lt;user&gt;</code>；诊断信息中从不包含任何 API Key。
+        <KIcon name="Lock" :size="14" /> 复制时会把绝对路径中的用户名替换为 <code>&lt;user&gt;</code>；诊断信息中从不包含任何 API Key。
       </div>
     </div>
   </n-spin>

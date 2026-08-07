@@ -14,6 +14,7 @@
  * 不留脏数据。
  */
 import { computed, ref, watch } from 'vue';
+import KIcon from '../common/KIcon.vue';
 import {
   NButton,
   NCheckbox,
@@ -383,7 +384,7 @@ function onUpdateShow(v: boolean): void {
       </div>
 
       <div class="amd-hint">
-        🔒 出于安全约定，API Key 不会写入 localStorage；刷新页面后本地只保留「已配置」标记，
+        <KIcon name="Lock" :size="14" /> 出于安全约定，API Key 不会写入 localStorage；刷新页面后本地只保留「已配置」标记，
         需要重新测试时请再次填写。
       </div>
 
