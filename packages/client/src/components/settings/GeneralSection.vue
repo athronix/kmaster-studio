@@ -253,11 +253,11 @@ function onLogDetail(entry: LogEntry): void {
 </template>
 
 <style scoped>
-.sec-body { display: flex; flex-direction: column; gap: 20px; }
-.sec-row { display: flex; flex-direction: column; gap: 6px; }
-.sec-row-block { gap: 10px; padding-top: 8px; border-top: 1px solid var(--km-border); }
-.sec-label { font-size: 13px; font-weight: 600; }
+.sec-body { display: flex; flex-direction: column; gap: var(--km-space-xl); }
+.sec-row { display: flex; flex-direction: column; gap: var(--km-space-6); }
+.sec-row-block { gap: var(--km-space-10); padding-top: var(--km-space-sm); border-top: 1px solid var(--km-border); }
+.sec-label { font-size: var(--km-font-sm); font-weight: 600; }
 .sec-control { max-width: 520px; }
-.sec-inline { display: flex; gap: 8px; align-items: center; max-width: 640px; }
-.sec-hint { font-size: 11px; opacity: 0.55; line-height: 1.7; }
+.sec-inline { display: flex; gap: var(--km-space-sm); align-items: center; max-width: 640px; }
+.sec-hint { font-size: var(--km-font-xs); opacity: 0.55; line-height: 1.7; }
 </style>
