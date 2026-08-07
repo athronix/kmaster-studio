@@ -209,8 +209,8 @@ function onDragEnd(): void {
 .km-session-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
+  gap: var(--km-space-6);
+  padding: var(--km-space-sm) var(--km-space-md);
   cursor: pointer;
   border-left: 3px solid transparent;
   transition: background 0.15s ease;
@@ -256,20 +256,20 @@ function onDragEnd(): void {
   min-width: 0;
 }
 .km-session-title {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .km-session-sub {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.5;
-  margin-top: 2px;
+  margin-top: var(--km-space-2xs);
 }
 
 .km-session-actions {
   display: none;
-  gap: 2px;
+  gap: var(--km-space-2xs);
   flex-shrink: 0;
 }
 .km-session-item:hover .km-session-actions {
@@ -278,10 +278,10 @@ function onDragEnd(): void {
 .km-icon-btn {
   background: transparent;
   border: 1px solid var(--km-border);
-  border-radius: 4px;
+  border-radius: var(--km-radius-sm);
   padding: 1px 4px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   color: var(--km-text);
   line-height: 1.4;
 }
@@ -298,10 +298,10 @@ function onDragEnd(): void {
   background: var(--km-panel);
   color: var(--km-text);
   border: 1px solid var(--km-accent);
-  border-radius: 6px;
-  padding: 4px 8px;
+  border-radius: var(--km-radius-md);
+  padding: var(--km-space-xs) var(--km-space-sm);
   outline: none;
-  font-size: 13px;
+  font-size: var(--km-font-sm);
 }
 
 @keyframes km-pulse {
