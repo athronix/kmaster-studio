@@ -261,64 +261,64 @@ function summaryOf(role: AgentRole): string {
 .ars {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--km-space-14);
 }
 
 .ars-loading {
   display: flex;
   justify-content: center;
-  padding: 48px 0;
+  padding: var(--km-space-3xl) 0;
 }
 
 .ars-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--km-space-md);
 }
 
 .ars-title {
   display: flex;
   align-items: baseline;
-  gap: 10px;
-  font-size: 14px;
+  gap: var(--km-space-10);
+  font-size: var(--km-font-base);
   font-weight: 600;
 }
 
 .ars-count {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   font-weight: 400;
   opacity: 0.5;
 }
 
 .ars-caret {
-  margin-left: 2px;
-  font-size: 10px;
+  margin-left: var(--km-space-2xs);
+  font-size: var(--km-font-xs);
 }
 
 .ars-error {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   color: var(--km-danger);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--km-space-md);
 }
 
 .ars-empty {
-  margin: 48px 0;
+  margin: var(--km-space-3xl) 0;
 }
 
 .ars-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 12px;
+  gap: var(--km-space-md);
 }
 
 .ars-card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px;
+  gap: var(--km-space-6);
+ padding: var(--km-space-md);
   border: 1px solid var(--km-border);
   border-radius: 10px;
   background: var(--km-panel);
@@ -351,11 +351,11 @@ function summaryOf(role: AgentRole): string {
 .ars-card-head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .ars-card-avatar {
-  font-size: 20px;
+  font-size: var(--km-font-2xl);
   line-height: 1;
   flex-shrink: 0;
 }
@@ -363,7 +363,7 @@ function summaryOf(role: AgentRole): string {
 .ars-card-name {
   flex: 1;
   min-width: 0;
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -372,17 +372,17 @@ function summaryOf(role: AgentRole): string {
 
 .ars-card-ops {
   display: flex;
-  gap: 4px;
+  gap: var(--km-space-xs);
   flex-shrink: 0;
 }
 
 .ars-op {
   background: transparent;
   border: 1px solid var(--km-border);
-  border-radius: 4px;
+  border-radius: var(--km-radius-sm);
   color: var(--km-text);
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   line-height: 1;
   padding: 3px 5px;
   transition: border-color 0.15s ease, color 0.15s ease;
@@ -399,7 +399,7 @@ function summaryOf(role: AgentRole): string {
 }
 
 .ars-card-desc {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   line-height: 1.6;
   opacity: 0.75;
   display: -webkit-box;
@@ -410,7 +410,7 @@ function summaryOf(role: AgentRole): string {
 }
 
 .ars-card-summary {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   line-height: 1.6;
   opacity: 0.5;
   display: -webkit-box;
@@ -423,7 +423,7 @@ function summaryOf(role: AgentRole): string {
 .ars-card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 2px;
+  gap: var(--km-space-xs);
+  margin-top: var(--km-space-2xs);
 }
 </style>
