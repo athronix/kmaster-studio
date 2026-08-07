@@ -125,7 +125,7 @@ function onDelete(e: MouseEvent): void {
             class="km-mcp-status-dot"
             :style="{ background: statusInfo.dot }"
           ></span>
-          <n-text depth="3" style="font-size: 11px">{{ statusInfo.label }}</n-text>
+          <n-text depth="3" style="font-size: var(--km-font-xs)">{{ statusInfo.label }}</n-text>
         </div>
         <div class="km-mcp-ops">
           <n-button size="tiny" type="warning" ghost @click="onStop">
@@ -172,7 +172,7 @@ function onDelete(e: MouseEvent): void {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 16px 0 6px;
+  padding: var(--km-space-lg) 0 var(--km-space-6);
 }
 
 .km-mcp-icon-text {
@@ -182,25 +182,25 @@ function onDelete(e: MouseEvent): void {
 
 .km-mcp-name {
   text-align: center;
-  font-size: 14px;
+  font-size: var(--km-font-base);
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0 8px;
+  padding: 0 var(--km-space-sm);
   max-width: 100%;
 }
 
 .km-mcp-auth {
-  font-size: 11px;
-  margin-top: 2px;
+  font-size: var(--km-font-xs);
+  margin-top: var(--km-space-2xs);
 }
 
 .km-mcp-desc {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   line-height: 1.5;
   text-align: center;
-  padding: 4px 8px 0;
+  padding: var(--km-space-xs) var(--km-space-sm) 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -210,17 +210,17 @@ function onDelete(e: MouseEvent): void {
 }
 
 .km-mcp-actions {
-  padding: 8px 0 4px;
+  padding: var(--km-space-sm) 0 var(--km-space-xs);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 
 .km-mcp-status {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 
 .km-mcp-status-dot {
@@ -232,6 +232,6 @@ function onDelete(e: MouseEvent): void {
 
 .km-mcp-ops {
   display: flex;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 </style>
