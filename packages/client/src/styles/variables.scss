@@ -58,21 +58,55 @@
   /* ──────────── Phase A：字号 Token ──────────── */
   --km-font-xs: 10px;
   --km-font-sm: 12px;
+  --km-font-13: 13px;
   --km-font-md: 14px;
   --km-font-base: 15px;
+  --km-font-16: 16px;
   --km-font-lg: 17px;
+  --km-font-18: 18px;
   --km-font-xl: 20px;
+  --km-font-22: 22px;
   --km-font-2xl: 26px;
+  --km-font-3xl: 32px;
 
   /* ──────────── Phase A：间距 Token ──────────── */
   --km-space-2xs: 2px;
   --km-space-xs: 4px;
+  --km-space-6: 6px;
   --km-space-sm: 8px;
+  --km-space-10: 10px;
   --km-space-md: 12px;
+  --km-space-14: 14px;
   --km-space-lg: 16px;
+  --km-space-18: 18px;
+  --km-space-20: 20px;
   --km-space-xl: 24px;
+  --km-space-28: 28px;
   --km-space-2xl: 32px;
+  --km-space-36: 36px;
+  --km-space-40: 40px;
   --km-space-3xl: 48px;
+  --km-space-56: 56px;
+  --km-space-60: 60px;
+  --km-space-64: 64px;
+  --km-space-80: 80px;
+  --km-space-96: 96px;
+  --km-space-100: 100px;
+  --km-space-120: 120px;
+  --km-space-140: 140px;
+  --km-space-160: 160px;
+  --km-space-200: 200px;
+  --km-space-240: 240px;
+  --km-space-260: 260px;
+  --km-space-280: 280px;
+  --km-space-300: 300px;
+  --km-space-320: 320px;
+  --km-space-360: 360px;
+  --km-space-400: 400px;
+  --km-space-440: 440px;
+  --km-space-480: 480px;
+  --km-space-600: 600px;
+  --km-space-700: 700px;
 }
 
 :root[data-theme='light'] {

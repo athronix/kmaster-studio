@@ -125,7 +125,7 @@ function onClose(): void {
       <div v-if="mode === 'share'" class="km-chat-right-scroll">
         <div class="km-share-section">
           <div class="km-share-actions">
-            <n-button size="tiny" @click="copyConfig">📋 复制 JSON</n-button>
+            <n-button size="tiny" @click="copyConfig"><template #icon><KIcon name="Clipboard" :size="14" /></template>复制 JSON</n-button>
           </div>
           <pre class="km-share-json">{{ sessionConfigJson }}</pre>
         </div>

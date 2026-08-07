@@ -674,18 +674,18 @@ watch(
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--km-space-sm);
   padding: 10px 12px;
   border-bottom: 1px solid var(--km-border);
 }
 .km-sidebar-version {
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   opacity: 0.45;
   margin-right: auto;
 }
 .km-sidebar-top-actions {
   display: flex;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 
 /* 过滤生效时图标呈激活态 */
@@ -704,8 +704,8 @@ watch(
 .km-sidebar-menu {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px;
+  gap: var(--km-space-xs);
+  padding: var(--km-space-sm);
 }
 
 /* ── 列表区 ── */
@@ -722,7 +722,7 @@ watch(
   padding: 0;
 }
 .km-list-group-title {
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   opacity: 0.5;
   padding: 8px 12px 4px;
@@ -730,7 +730,7 @@ watch(
   letter-spacing: 0.5px;
 }
 .km-list-group-badge {
-  font-size: 10px;
+  font-size: var(--km-font-xs);
   opacity: 0.4;
   margin-left: 8px;
   background: var(--km-border);
@@ -742,7 +742,7 @@ watch(
 .km-session-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--km-space-6);
   padding: 8px 12px;
   cursor: pointer;
   border-bottom: 1px solid transparent;
@@ -770,27 +770,27 @@ watch(
   min-width: 0;
 }
 .km-session-title {
-  font-size: 13px;
+  font-size: var(--km-font-13);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 .km-session-sub {
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   opacity: 0.5;
   margin-top: 2px;
 }
 .km-agent-dot {
-  font-size: 10px;
+  font-size: var(--km-font-xs);
   flex-shrink: 0;
   line-height: 1;
 }
 .km-session-actions {
   display: none;
-  gap: 2px;
+  gap: var(--km-space-2xs);
 }
 .km-session-item:hover .km-session-actions {
   display: flex;
@@ -801,7 +801,7 @@ watch(
   border-radius: 4px;
   padding: 1px 4px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   color: var(--km-text);
 }
 .km-session-actions button.danger:hover {
@@ -817,7 +817,7 @@ watch(
   border-radius: 6px;
   padding: 4px 8px;
   outline: none;
-  font-size: 13px;
+  font-size: var(--km-font-13);
 }
 
 .km-automation-item {
@@ -831,41 +831,41 @@ watch(
   justify-content: space-between;
   padding: 8px 12px;
   border-top: 1px solid var(--km-border);
-  font-size: 13px;
+  font-size: var(--km-font-13);
   flex-shrink: 0;
 }
 
 /* ── 过滤面板 ── */
 .km-filter-panel {
-  padding: 4px;
+  padding: var(--km-space-xs);
   min-width: 230px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--km-space-10);
 }
 .km-filter-title {
-  font-size: 13px;
+  font-size: var(--km-font-13);
   font-weight: 600;
 }
 .km-filter-row {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 .km-filter-label {
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   opacity: 0.6;
 }
 .km-filter-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--km-space-sm);
   border-top: 1px solid var(--km-border);
   padding-top: 8px;
 }
 .km-filter-count {
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   opacity: 0.55;
 }
 
@@ -876,7 +876,7 @@ watch(
   background: var(--km-panel);
   border: 1px solid var(--km-border);
   border-radius: 8px;
-  padding: 4px;
+  padding: var(--km-space-xs);
   min-width: 170px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
@@ -887,7 +887,7 @@ watch(
   background: transparent;
   border: none;
   color: var(--km-text);
-  font-size: 13px;
+  font-size: var(--km-font-13);
   padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
@@ -911,11 +911,11 @@ watch(
   width: 260px;
   max-height: 360px;
   overflow-y: auto;
-  padding: 4px;
+  padding: var(--km-space-xs);
 }
 
 .km-sd-title {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   opacity: 0.6;
   padding: 6px 8px;
@@ -924,7 +924,7 @@ watch(
 }
 
 .km-sd-empty {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   opacity: 0.45;
   text-align: center;
   padding: 16px 0;
@@ -949,7 +949,7 @@ watch(
 }
 
 .km-sd-name {
-  font-size: 13px;
+  font-size: var(--km-font-13);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -959,7 +959,7 @@ watch(
 }
 
 .km-sd-time {
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   opacity: 0.45;
   white-space: nowrap;
   flex-shrink: 0;
