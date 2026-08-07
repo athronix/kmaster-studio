@@ -55,7 +55,7 @@ function goMcp(): void {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 64px 16px;
+  padding: var(--km-space-64) var(--km-space-lg);
 }
 
 .km-placeholder-icon {
@@ -67,13 +67,13 @@ function goMcp(): void {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: var(--km-space-md);
   max-width: 420px;
 }
 
 .km-placeholder-hint {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   line-height: 1.7;
   opacity: 0.6;
   text-align: center;
@@ -81,6 +81,6 @@ function goMcp(): void {
 
 .km-placeholder-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 </style>
