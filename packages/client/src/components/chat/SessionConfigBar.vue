@@ -8,6 +8,7 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { NButton, NDropdown, NTooltip } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import type { HermesMode } from '../../types/chat';
 import { CHAT_MODES } from '../../types/chat';
 import ContextRing from './ContextRing.vue';
@@ -60,17 +61,16 @@ const currentModeLabel = computed<string>(() => {
 
 /** 发送模式选项 */
 const sendModeOptions = [
-  { label: '⏸ Interrupt — 中断并引导', key: 'interrupt' as const },
-  { label: '🎯 Steer — 引导', key: 'steer' as const },
-  { label: '📋 Queue — 排队', key: 'queue' as const },
+  { label: 'Interrupt — 中断并引导', key: 'interrupt' as const },
+  { label: 'Steer — 引导', key: 'steer' as const },
+  { label: 'Queue — 排队', key: 'queue' as const },
 ];
 
 const sendModeIcon = computed<string>(() => {
   const opt = sendModeOptions.find((o) => o.key === props.sendMode);
-  if (!opt) return '📋';
-  // 从 label 中提取第一个 emoji 字符
-  const match = opt.label.match(/^[\u{1F300}-\u{1FAFF}]/u);
-  return match ? match[0] : '📋';
+  if (!opt) return 'Clipboard';
+  const icons: Record<string, string> = { interrupt: 'PlayerPause', steer: 'Target', queue: 'Clipboard' };
+  return icons[opt.key] ?? 'Clipboard';
 });
 
 const sendModeLabel = computed<string>(() => {
@@ -137,7 +137,7 @@ function onModelSelect(key: string): void {
         :title="workspace || '选择工作区'"
         @click="emit('change-workspace')"
       >
-        <span class="km-config-icon">📁</span>
+        <span class="km-config-icon"><KIcon name="Folder" :size="14" /></span>
         <span v-if="workspaceShort" class="km-config-label">{{ workspaceShort }}</span>
         <span v-else class="km-config-label km-config-placeholder">工作区</span>
       </n-button>
@@ -150,7 +150,7 @@ function onModelSelect(key: string): void {
         :title="'Agent: ' + agent"
         @click="emit('change-agent')"
       >
-        <span class="km-config-icon">🤖</span>
+        <span class="km-config-icon"><KIcon name="Robot" :size="14" /></span>
         <span class="km-config-label">{{ agent }}</span>
       </n-button>
 
@@ -162,7 +162,7 @@ function onModelSelect(key: string): void {
         @select="onModeSelect"
       >
         <n-button size="tiny" text class="km-config-btn" title="切换权限模式">
-          <span class="km-config-icon">🛡</span>
+          <span class="km-config-icon"><KIcon name="Shield" :size="14" /></span>
           <span class="km-config-label">{{ currentModeLabel }}</span>
         </n-button>
       </n-dropdown>
@@ -192,7 +192,7 @@ function onModelSelect(key: string): void {
         @select="onModelSelect"
       >
         <n-button size="tiny" text class="km-config-btn" title="切换模型">
-          <span class="km-config-icon">🧠</span>
+          <span class="km-config-icon"><KIcon name="Brain" :size="14" /></span>
           <span class="km-config-label">{{ modelShort }}</span>
         </n-button>
       </n-dropdown>

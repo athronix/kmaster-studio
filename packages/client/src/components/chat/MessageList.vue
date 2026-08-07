@@ -6,6 +6,7 @@
  * 新增：对话内搜索定位（prop: search，来自 ChatView PageHeader 搜索框）
  */
 import { ref, computed, watch, nextTick } from 'vue';
+import KIcon from '../common/KIcon.vue';
 import { useChatStore } from '../../stores/chat';
 import { isDesktop } from '../../utils/desktop-bridge';
 import MessageItem from './MessageItem.vue';
@@ -141,14 +142,14 @@ const showStreaming = computed(() => running.value && lastIsAssistant.value);
           （第 {{ compression.compression_count }} 次压缩）
         </template>
       </span>
-      <button class="km-compression-dismiss" @click="dismissCompression" title="关闭" aria-label="关闭压缩提示">×</button>
+      <button class="km-compression-dismiss" @click="dismissCompression" title="关闭" aria-label="关闭压缩提示"><KIcon name="X" :size="14" /></button>
     </div>
 
     <!-- 多端镜像 -->
     <div v-if="mirrored" class="km-mirror-banner" role="status">
       <span class="km-mirror-dot"></span>
       <span class="km-mirror-text">镜像中：{{ peerLabel }}正在该会话运行，以下内容为实时同步</span>
-      <button class="km-mirror-dismiss" @click="dismissMirror" title="收起" aria-label="收起镜像提示">×</button>
+      <button class="km-mirror-dismiss" @click="dismissMirror" title="收起" aria-label="收起镜像提示"><KIcon name="X" :size="14" /></button>
     </div>
 
     <!-- 消息列表（带过渡动画） -->
@@ -178,7 +179,7 @@ const showStreaming = computed(() => running.value && lastIsAssistant.value);
 
     <!-- 滚动到底部按钮 -->
     <button v-if="showScrollBtn" class="km-scroll-btn" @click="scrollToBottom" title="滚动到底部" aria-label="滚动到消息底部">
-      ↓ 滚动到底部
+      <KIcon name="ArrowDown" :size="14" /> 滚动到底部
     </button>
   </div>
 </template>

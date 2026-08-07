@@ -245,14 +245,14 @@ const emit = defineEmits<{
 }>();
 
 const sendModeOptions = [
-  { label: '📋 Queue', key: 'queue' as const },
-  { label: '⏸ Interrupt', key: 'interrupt' as const },
-  { label: '🎯 Steer', key: 'steer' as const },
+  { label: 'Queue', key: 'queue' as const },
+  { label: 'Interrupt', key: 'interrupt' as const },
+  { label: 'Steer', key: 'steer' as const },
 ];
 
 const sendModeLabel = computed(() => {
   const opt = sendModeOptions.find((o) => o.key === props.sendMode);
-  return opt?.label ?? '📋 Queue';
+  return opt?.label ?? 'Queue';
 });
 
 function onSelectSendMode(key: string): void {
@@ -307,7 +307,7 @@ function onSelectSendMode(key: string): void {
           :key="u.path"
           class="km-chip"
           :title="u.path"
-        >📄 {{ u.filename }}<button class="km-chip-x" @click="removeUpload(i)">×</button></span>
+        ><KIcon name="File" :size="14" /> {{ u.filename }}<button class="km-chip-x" @click="removeUpload(i)"><KIcon name="X" :size="14" /></button></span>
       </div>
 
       <div class="km-input-row">
@@ -336,7 +336,7 @@ function onSelectSendMode(key: string): void {
               <div
                 class="km-plus-item"
                 @click="onFileInputClick(); plusOpen = false"
-              >📄 选择文件</div>
+              ><KIcon name="File" :size="14" /> 选择文件</div>
             </div>
 
             <!-- Skills -->
@@ -351,7 +351,7 @@ function onSelectSendMode(key: string): void {
                   size="small"
                   :checked="selectedSkills.has(skill.name)"
                   @update:checked="toggleSkill(skill.name)"
-                >🧩 {{ skill.name }}</n-checkbox>
+                ><KIcon name="Puzzle" :size="14" /> {{ skill.name }}</n-checkbox>
               </div>
               <div v-if="!store.skills.length" class="km-plus-empty">暂无技能</div>
             </div>
@@ -368,7 +368,7 @@ function onSelectSendMode(key: string): void {
                   size="small"
                   :checked="selectedMcp.has(mcp.name)"
                   @update:checked="toggleMcp(mcp.name)"
-                >🔌 {{ mcp.name }}</n-checkbox>
+                ><KIcon name="PlugConnected" :size="14" /> {{ mcp.name }}</n-checkbox>
               </div>
               <div v-if="!store.mcpServers.length" class="km-plus-empty">暂无 MCP 服务器</div>
             </div>

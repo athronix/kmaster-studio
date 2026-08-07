@@ -15,6 +15,7 @@
  */
 import { computed, ref, watch } from 'vue';
 import { NButton, NInput, NScrollbar } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import { useChatStore } from '../../stores/chat';
 import AgentMarkdown from './AgentMarkdown.vue';
 import PlanCard from './PlanCard.vue';
@@ -151,7 +152,7 @@ defineExpose({ openTab });
           @click="activeTabId = tab.id"
         >
           <span class="km-output-tab-label">{{ tab.name }}</span>
-          <span v-if="tab.closable" class="km-output-tab-close" @click.stop="closeTab(tab.id)">×</span>
+          <span v-if="tab.closable" class="km-output-tab-close" @click.stop="closeTab(tab.id)"><KIcon name="X" :size="12" /></span>
         </button>
       </div>
     </div>
@@ -200,16 +201,16 @@ defineExpose({ openTab });
           />
           <div class="km-output-toolbar-actions">
             <n-button quaternary circle size="tiny" title="复制" @click="copyUrl">
-              <template #icon>📋</template>
+              <template #icon><KIcon name="Clipboard" :size="16" /></template>
             </n-button>
             <n-button quaternary circle size="tiny" title="下载" @click="download">
-              <template #icon>📥</template>
+              <template #icon><KIcon name="Download" :size="16" /></template>
             </n-button>
             <n-button quaternary circle size="tiny" title="刷新" @click="refresh">
-              <template #icon>🔄</template>
+              <template #icon><KIcon name="Repeat" :size="16" /></template>
             </n-button>
             <n-button quaternary circle size="tiny" title="外部浏览器打开" @click="openExternal">
-              <template #icon>🌐</template>
+              <template #icon><KIcon name="World" :size="16" /></template>
             </n-button>
           </div>
         </div>

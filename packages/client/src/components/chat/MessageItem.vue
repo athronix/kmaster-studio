@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useMessage } from 'naive-ui';
+import KIcon from '../common/KIcon.vue';
 import type { Message } from '../../types/chat';
 import { useChatStore } from '../../stores/chat';
-import { useMessage } from 'naive-ui';
 import AgentMarkdown from './AgentMarkdown.vue';
 import ThoughtBlock from './ThoughtBlock.vue';
 import ToolCallCard from './ToolCallCard.vue';
@@ -234,7 +235,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
           <template v-if="segments">
             <template v-for="(seg, i) in segments" :key="i">
               <span v-if="seg.type === 'text'" class="km-seg-text">{{ seg.value }}</span>
-              <button v-else class="km-file-chip" :title="seg.value" @click="copyPath(seg.value)">📄 {{ seg.value }}</button>
+              <button v-else class="km-file-chip" :title="seg.value" @click="copyPath(seg.value)"><KIcon name="File" :size="14" /> {{ seg.value }}</button>
             </template>
           </template>
           <div v-else>{{ message.content }}</div>
@@ -274,7 +275,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
           class="km-msg-copy"
           title="复制"
           @click="copyMessage"
-        >📋</button>
+        ><KIcon name="Clipboard" :size="14" /></button>
 
         <!-- P1 #12：用户消息编辑按钮（hover 显示） -->
         <button
@@ -282,7 +283,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
           class="km-msg-edit"
           title="编辑消息"
           @click="startEdit"
-        >✎</button>
+        ><KIcon name="Pencil" :size="14" /></button>
 
         <!-- P1 #16：错误态重试按钮 -->
         <button
@@ -290,12 +291,12 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
           class="km-msg-retry"
           title="重试"
           @click="retryMessage"
-        >↻ 重试</button>
+        ><KIcon name="Refresh" :size="14" /> 重试</button>
       </div>
 
       <!-- P1 #16：错误态提示 -->
       <div v-if="isError" class="km-msg-error-tip">
-        <span>⚠ 发送失败，点击重试</span>
+        <span><KIcon name="AlertTriangle" :size="14" /> 发送失败，点击重试</span>
       </div>
 
       <!-- P0 #1：子代理卡片（仅助手消息下方渲染） -->
@@ -314,21 +315,21 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
       @click.stop
     >
       <button class="km-cm-item" @click="onMsgMenuAction('copy')">
-        📋 复制文本
+        <KIcon name="Clipboard" :size="14" /> 复制文本
       </button>
       <button
         v-if="hasCodeBlocks"
         class="km-cm-item"
         @click="onMsgMenuAction('copyCode')"
       >
-        📝 复制代码
+        <KIcon name="FileText" :size="14" /> 复制代码
       </button>
       <button
         v-if="message.role === 'assistant' && isLastAssistant"
         class="km-cm-item"
         @click="onMsgMenuAction('regenerate')"
       >
-        🔄 重新生成
+        <KIcon name="Repeat" :size="14" /> 重新生成
       </button>
     </div>
   </Teleport>
