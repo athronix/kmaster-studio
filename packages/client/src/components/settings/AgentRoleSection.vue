@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/**
+import KIcon from '../common/KIcon.vue';/**
  * T08：AgentRoleSection — Agent 角色管理页。
  *
  * 数据源变更：从 localStorage → GET /api/agents?source=installed。
@@ -51,8 +51,8 @@ onMounted(() => {
 
 /** 【＋】下拉的两个入口（R-14①）。 */
 const ADD_OPTIONS = [
-  { key: 'manual', label: '✍️ 手动添加' },
-  { key: 'market', label: '🛒 从市场添加' },
+  { key: 'manual', label: '手动添加' },
+  { key: 'market', label: '从市场添加' },
 ];
 
 /** 搜索过滤后的角色列表（名称 / 简介 / 专长 / 技能 / 标签全字段匹配）。 */
@@ -163,15 +163,15 @@ function summaryOf(role: AgentRole): string {
         @select="onAddSelect"
       >
         <n-button size="small" type="primary">
-          ＋
-          <span class="ars-caret">▾</span>
+          <KIcon name="Plus" :size="16" />
+          <span class="ars-caret"><KIcon name="ChevronDown" :size="12" /></span>
         </n-button>
       </n-dropdown>
     </div>
 
     <!-- 错误态 -->
     <div v-if="rolesStore.error" class="ars-error">
-      ⚠️ 加载失败：{{ rolesStore.error }}
+      <KIcon name="AlertTriangle" :size="14" /> 加载失败：{{ rolesStore.error }}
       <n-button size="small" tertiary @click="rolesStore.loadRoles()">重试</n-button>
     </div>
 
@@ -228,17 +228,17 @@ function summaryOf(role: AgentRole): string {
               >
                 <template #trigger>
                   <button class="ars-op" :class="{ 'ars-op-danger': !role.disabled }" :title="role.disabled ? '启用' : '禁用'">
-                    {{ role.disabled ? '○' : '⊗' }}
+                    <KIcon :name="role.disabled ? 'Circle' : 'CircleX'" :size="14" />
                   </button>
                 </template>
                 {{ role.disabled ? `确认启用内置角色「${role.name}」？` : `确认禁用内置角色「${role.name}」？禁用后该角色不会出现在角色选择列表中。` }}
               </n-popconfirm>
             </template>
             <template v-else>
-              <button class="ars-op" title="编辑角色配置" @click="onEdit(role)">✎</button>
+              <button class="ars-op" title="编辑角色配置" @click="onEdit(role)"><KIcon name="Pencil" :size="14" /></button>
               <n-popconfirm @positive-click="onDelete(role)">
                 <template #trigger>
-                  <button class="ars-op ars-op-danger" title="从系统中删除">🗑</button>
+                  <button class="ars-op ars-op-danger" title="从系统中删除"><KIcon name="Trash" :size="14" /></button>
                 </template>
                 确认从系统中删除角色「{{ role.name || '未命名角色' }}」？该操作不可撤销。
               </n-popconfirm>
