@@ -91,18 +91,18 @@ function formatPercent(v: number): string {
 
 <style scoped>
 .km-monitor { padding: 0; }
-.km-section-actions { margin-bottom: 16px; }
+.km-section-actions { margin-bottom: var(--km-space-lg); }
 .km-monitor-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: var(--km-space-md);
+  margin-bottom: var(--km-space-xl);
 }
 .km-monitor-section-title {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
   opacity: 0.55;
-  margin-bottom: 12px;
+  margin-bottom: var(--km-space-md);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
