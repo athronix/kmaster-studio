@@ -221,27 +221,27 @@ function selectFile(node: TreeNodeWithArtifact): void {
   min-height: 0;
 }
 .km-file-tree-empty {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   opacity: 0.55;
   line-height: 1.7;
-  padding: 8px 0;
+  padding: var(--km-space-sm) 0;
 }
 .km-file-tree-list {
   list-style: none;
   margin: 0;
-  padding: 4px 0;
+  padding: var(--km-space-xs) 0;
 }
 .km-ft-node {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 8px;
+  gap: var(--km-space-xs);
+  padding: var(--km-space-6) var(--km-space-sm);
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   user-select: none;
   white-space: nowrap;
-  border-radius: 4px;
-  margin: 0 4px;
+  border-radius: var(--km-radius-sm);
+  margin: 0 var(--km-space-xs);
 }
 .km-ft-node:hover {
   background: rgba(255, 255, 255, 0.04);
@@ -249,13 +249,13 @@ function selectFile(node: TreeNodeWithArtifact): void {
 .km-ft-arrow {
   width: 14px;
   min-width: 14px;
-  font-size: 10px;
+  font-size: var(--km-font-xs);
   flex-shrink: 0;
   opacity: 0.4;
   text-align: center;
 }
 .km-ft-icon {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   flex-shrink: 0;
   opacity: 0.6;
 }
