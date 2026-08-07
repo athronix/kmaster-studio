@@ -186,15 +186,15 @@ function subtitleOf(entity: EntityDef): string {
 
 .epp-head {
   flex-shrink: 0;
-  padding: 12px 14px 8px;
+  padding: var(--km-space-md) var(--km-space-14) var(--km-space-sm);
   border-bottom: 1px solid var(--km-border);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 
 .epp-count {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.55;
 }
 
@@ -202,22 +202,22 @@ function subtitleOf(entity: EntityDef): string {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 10px 14px 16px;
+  padding: var(--km-space-10) var(--km-space-14) var(--km-space-lg);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .epp-empty {
-  margin: 40px auto;
+  margin: var(--km-space-40) auto;
 }
 
 .epp-item {
   display: flex;
-  gap: 10px;
-  padding: 10px;
+  gap: var(--km-space-10);
+ padding: var(--km-space-10);
   border: 1px solid var(--km-border);
-  border-radius: 8px;
+  border-radius: var(--km-radius-lg);
   background: var(--km-panel);
   cursor: pointer;
   transition: border-color 0.15s ease, transform 0.12s ease;
@@ -233,7 +233,7 @@ function subtitleOf(entity: EntityDef): string {
 }
 
 .epp-icon {
-  font-size: 24px;
+  font-size: var(--km-font-2xl);
   line-height: 1.2;
   flex-shrink: 0;
 }
@@ -246,22 +246,22 @@ function subtitleOf(entity: EntityDef): string {
 .epp-name {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: var(--km-space-6);
+  font-size: var(--km-font-sm);
   font-weight: 600;
 }
 
 .epp-sub {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.5;
   margin-top: 1px;
 }
 
 .epp-desc {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   opacity: 0.7;
   line-height: 1.5;
-  margin-top: 4px;
+  margin-top: var(--km-space-xs);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -272,8 +272,8 @@ function subtitleOf(entity: EntityDef): string {
 .epp-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 6px;
+  gap: var(--km-space-xs);
+  margin-top: var(--km-space-6);
 }
 
 .epp-ops {
