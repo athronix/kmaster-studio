@@ -206,9 +206,9 @@ function onModelSelect(key: string): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 32px;
-  padding: 0 12px;
-  gap: 8px;
+  height: var(--km-space-3xl);
+  padding: 0 var(--km-space-md);
+  gap: var(--km-space-sm);
   flex-shrink: 0;
   border-top: 1px solid var(--km-border);
   background: var(--km-panel);
@@ -218,16 +218,16 @@ function onModelSelect(key: string): void {
 .km-config-right {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 
 .km-config-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 4px;
+  gap: var(--km-space-xs);
+  font-size: var(--km-font-xs);
+  padding: var(--km-space-2xs) var(--km-space-6);
+  border-radius: var(--km-radius-sm);
   color: var(--km-muted);
   transition: color 0.12s ease, background 0.12s ease;
 }
@@ -238,7 +238,7 @@ function onModelSelect(key: string): void {
 }
 
 .km-config-icon {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   flex-shrink: 0;
 }
 
