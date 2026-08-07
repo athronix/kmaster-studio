@@ -47,7 +47,7 @@ function handleCodeCopy(e: Event) {
   const code = block.querySelector('code')?.textContent ?? '';
   if (navigator.clipboard?.writeText) {
     navigator.clipboard.writeText(code).then(() => {
-      btn.textContent = '✓';
+      btn.textContent = 'OK';
       btn.classList.add('km-code-copied');
       setTimeout(() => {
         btn.textContent = 'Copy';
