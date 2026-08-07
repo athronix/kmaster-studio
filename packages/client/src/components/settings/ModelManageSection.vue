@@ -388,13 +388,13 @@ const usageTable = computed<UsageRow[]>(() =>
 .mms {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--km-space-14);
 }
 
 .mms-tabs {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 
 .mms-tabs-spacer {
@@ -404,10 +404,10 @@ const usageTable = computed<UsageRow[]>(() =>
 .mms-tab {
   padding: 5px 14px;
   border: 1px solid var(--km-border);
-  border-radius: 6px;
+  border-radius: var(--km-radius-md);
   background: transparent;
   color: var(--km-text);
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   cursor: pointer;
   opacity: 0.7;
   transition: opacity 0.15s ease, background 0.15s ease;
@@ -427,17 +427,17 @@ const usageTable = computed<UsageRow[]>(() =>
 .mms-panel {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--km-space-10);
 }
 
 /* 供应商卡片 */
 .mms-provider {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: var(--km-space-md);
+  padding: var(--km-space-10) var(--km-space-md);
   border: 1px solid var(--km-border);
-  border-radius: 8px;
+  border-radius: var(--km-radius-lg);
   background: var(--km-panel);
 }
 
@@ -450,16 +450,16 @@ const usageTable = computed<UsageRow[]>(() =>
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
-  font-size: 13px;
+  gap: var(--km-space-6);
+  font-size: var(--km-font-sm);
   font-weight: 600;
 }
 
 .mms-provider-sub {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: var(--km-space-6);
+  font-size: var(--km-font-xs);
   opacity: 0.55;
   margin-top: 3px;
 }
@@ -474,51 +474,51 @@ const usageTable = computed<UsageRow[]>(() =>
 
 .mms-provider-ops {
   display: flex;
-  gap: 4px;
+  gap: var(--km-space-xs);
   flex-shrink: 0;
 }
 
 /* 默认槽位 */
 .mms-block-title {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
 }
 
 .mms-block-title-gap {
-  margin-top: 8px;
-  padding-top: 12px;
+  margin-top: var(--km-space-sm);
+  padding-top: var(--km-space-md);
   border-top: 1px solid var(--km-border);
 }
 
 .mms-slots {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 10px;
+  gap: var(--km-space-10);
 }
 
 .mms-slot {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 
 .mms-slot-label {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   font-weight: 500;
 }
 
 .mms-slot-desc {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   font-weight: 400;
   opacity: 0.5;
-  margin-left: 6px;
+  margin-left: var(--km-space-6);
 }
 
 /* 表格 */
 .mms-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: var(--km-font-sm);
 }
 
 .mms-table th,
@@ -530,7 +530,7 @@ const usageTable = computed<UsageRow[]>(() =>
 }
 
 .mms-table th {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.6;
   font-weight: 600;
 }
@@ -549,7 +549,7 @@ const usageTable = computed<UsageRow[]>(() =>
 }
 
 .mms-model-id {
-  font-size: 10px;
+  font-size: var(--km-font-xs);
   opacity: 0.45;
   font-family: var(--km-mono, ui-monospace, monospace);
   margin-top: 1px;
@@ -563,12 +563,12 @@ const usageTable = computed<UsageRow[]>(() =>
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: var(--km-space-md);
+  margin-bottom: var(--km-space-sm);
 }
 
 .mms-usage-hint {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.55;
   line-height: 1.7;
 }
