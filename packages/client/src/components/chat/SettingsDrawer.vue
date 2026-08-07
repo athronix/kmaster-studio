@@ -83,8 +83,8 @@ function openFullSettings() {
 </template>
 
 <style scoped>
-.set-row { margin-bottom: 18px; }
-.set-label { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-.set-hint { font-size: 11px; opacity: 0.55; margin-top: 6px; }
-.set-more { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--km-border); }
+.set-row { margin-bottom: var(--km-space-18); }
+.set-label { font-size: var(--km-font-sm); font-weight: 600; margin-bottom: var(--km-space-6); }
+.set-hint { font-size: var(--km-font-xs); opacity: 0.55; margin-top: var(--km-space-6); }
+.set-more { margin-top: var(--km-space-18); padding-top: var(--km-space-14); border-top: 1px solid var(--km-border); }
 </style>
