@@ -178,19 +178,19 @@ function onClose(): void {
 .km-md {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--km-space-14);
   min-height: 80px;
 }
 
 .km-md-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--km-space-10);
   flex-wrap: wrap;
 }
 
 .km-md-icon {
-  font-size: 32px;
+  font-size: var(--km-font-3xl);
   line-height: 1;
   flex-shrink: 0;
 }
@@ -198,13 +198,13 @@ function onClose(): void {
 .km-md-name {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 15px;
+  gap: var(--km-space-6);
+  font-size: var(--km-font-base);
   font-weight: 700;
 }
 
 .km-md-en {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   width: 100%;
   flex-basis: 100%;
 }
@@ -216,7 +216,7 @@ function onClose(): void {
 }
 
 .km-md-label {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   font-weight: 600;
   opacity: 0.55;
   text-transform: uppercase;
@@ -224,14 +224,14 @@ function onClose(): void {
 }
 
 .km-md-text {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   line-height: 1.6;
 }
 
 .km-md-list {
   margin: 0;
-  padding-left: 18px;
-  font-size: 13px;
+  padding-left: var(--km-space-18);
+  font-size: var(--km-font-sm);
   line-height: 1.7;
   opacity: 0.85;
 }
@@ -239,21 +239,21 @@ function onClose(): void {
 .km-md-members {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .km-md-member {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: var(--km-space-sm);
+  padding: var(--km-space-6) var(--km-space-sm);
   border: 1px solid var(--km-border);
-  border-radius: 8px;
+  border-radius: var(--km-radius-lg);
   background: var(--km-panel);
 }
 
 .km-md-member-icon {
-  font-size: 20px;
+  font-size: var(--km-font-2xl);
   line-height: 1;
   flex-shrink: 0;
 }
@@ -263,12 +263,12 @@ function onClose(): void {
 }
 
 .km-md-member-name {
-  font-size: 13px;
+  font-size: var(--km-font-sm);
   font-weight: 600;
 }
 
 .km-md-member-exp {
-  font-size: 11px;
+  font-size: var(--km-font-xs);
   opacity: 0.6;
   line-height: 1.5;
   display: -webkit-box;
@@ -279,25 +279,25 @@ function onClose(): void {
 }
 
 .km-md-prompt {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   line-height: 1.6;
-  padding: 6px 10px;
+  padding: var(--km-space-6) var(--km-space-10);
   border-left: 3px solid var(--km-border);
   background: var(--km-bg);
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 var(--km-radius-md) var(--km-radius-md) 0;
   opacity: 0.85;
 }
 
 .km-md-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 
 .km-md-foot {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 </style>
