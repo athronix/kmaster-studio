@@ -1,10 +1,10 @@
 {
-  "savedAt": "2026-08-07T10:11:12.069Z",
+  "savedAt": "2026-08-07T10:19:42.296Z",
   "counts": {
-    "ghostTokensNoFallback": 3,
+    "ghostTokensNoFallback": 0,
     "ghostTokensWithFallback": 5,
-    "hardcodedHex": 30,
-    "hardcodedRgba": 26,
+    "hardcodedHex": 25,
+    "hardcodedRgba": 25,
     "functionalEmoji": 97,
     "outlineNone": 5,
     "kiconAdoption": {
