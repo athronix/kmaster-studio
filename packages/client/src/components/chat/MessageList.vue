@@ -188,17 +188,17 @@ const showStreaming = computed(() => running.value && lastIsAssistant.value);
 .km-msglist {
   flex: 1;
   overflow: auto;
-  padding: 16px;
+ padding: var(--km-space-lg);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--km-space-14);
   position: relative;
 }
 
 .km-msglist-inner {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--km-space-14);
 }
 
 /* ── 消息过渡动画 ── */
@@ -224,12 +224,12 @@ const showStreaming = computed(() => running.value && lastIsAssistant.value);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--km-space-sm);
   background: rgba(59, 130, 246, 0.12);
   border: 1px solid var(--km-accent);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 12px;
+  border-radius: var(--km-radius-lg);
+  padding: var(--km-space-sm) var(--km-space-md);
+  font-size: var(--km-font-sm);
   color: var(--km-text);
 }
 
@@ -238,9 +238,9 @@ const showStreaming = computed(() => running.value && lastIsAssistant.value);
   border: none;
   color: var(--km-muted);
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--km-font-lg);
   line-height: 1;
-  padding: 0 2px;
+  padding: 0 var(--km-space-2xs);
 }
 
 .km-compression-dismiss:hover { color: var(--km-text); }
@@ -249,14 +249,15 @@ const showStreaming = computed(() => running.value && lastIsAssistant.value);
 .km-mirror-banner {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
   background: var(--km-panel);
   border: 1px dashed var(--km-border);
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 12px;
+  border-radius: var(--km-radius-lg);
+  padding: var(--km-space-6) var(--km-space-md);
+  font-size: var(--km-font-sm);
   color: var(--km-muted);
 }
+
 
 .km-mirror-text { flex: 1; min-width: 0; }
 .km-mirror-dot {
@@ -273,9 +274,9 @@ const showStreaming = computed(() => running.value && lastIsAssistant.value);
   border: none;
   color: var(--km-muted);
   cursor: pointer;
-  font-size: 15px;
+  font-size: var(--km-font-base);
   line-height: 1;
-  padding: 0 2px;
+  padding: 0 var(--km-space-2xs);
   flex: none;
 }
 
@@ -285,10 +286,10 @@ const showStreaming = computed(() => running.value && lastIsAssistant.value);
 .km-streaming {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: var(--km-space-sm);
+  font-size: var(--km-font-sm);
   color: var(--km-muted);
-  padding: 6px 0;
+  padding: var(--km-space-6) 0;
 }
 
 .km-streaming-dot {
@@ -309,8 +310,8 @@ const showStreaming = computed(() => running.value && lastIsAssistant.value);
   color: #fff;
   border: none;
   border-radius: 20px;
-  padding: 6px 16px;
-  font-size: 12px;
+  padding: var(--km-space-6) var(--km-space-lg);
+  font-size: var(--km-font-sm);
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   opacity: 0.9;
