@@ -12,7 +12,9 @@ vi.mock('../api/client', () => {
   const servers = [{ name: 'mc', command: 'npx', status: 'unknown' as const }];
   return {
     http: vi.fn().mockResolvedValue({ ok: true }),
-    getModels: vi.fn().mockResolvedValue(models),
+    // getModels 返回 ModelsResponse（{ providers, usage }），store 取 res.providers；
+    // 旧 mock 直接回裸数组导致 res.providers === undefined
+    getModels: vi.fn().mockResolvedValue({ providers: models, usage: {} }),
     getSkills: vi.fn().mockResolvedValue(skills),
     getMcp: vi.fn().mockResolvedValue(servers),
     postMcp: vi.fn().mockImplementation((server: any) => Promise.resolve([...servers, { name: server.name, command: server.command, status: 'unknown' as const }])),

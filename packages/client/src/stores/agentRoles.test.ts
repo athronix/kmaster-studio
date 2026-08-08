@@ -93,7 +93,8 @@ describe('stores/agentRoles', () => {
     const s = useAgentRolesStore();
     const r = await s.add({ name: '测试角色' });
     expect(r.id).not.toBe('');
-    expect(r.avatar).toBe('🤖');
+    // UI/UX v2 去 emoji：默认头像由 '🤖' 改为 KIcon 名 'Robot'（agentRoles.ts DEFAULT_AVATAR）
+    expect(r.avatar).toBe('Robot');
     expect(r.source).toBe('manual');
     expect(r.disabled).toBe(false);
     expect(r.createdAt).toBeGreaterThan(0);

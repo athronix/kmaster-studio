@@ -303,7 +303,9 @@ describe('stores/modelConfig', () => {
     expect(s.usageOf(m.id).known).toBe(false);
     expect(s.usageOf('ghost').known).toBe(false);
 
-    state.modelUsage = { 'gpt-4o': { calls: 3, tokens: 30 } };
+    // usageOf 读的是 store 内部 modelUsage ref（仅由 fetchModels 从 res.usage 灌入），
+    // 改 mock 背后的 state 不会回灌已建好的 store，故直接置 store 暴露的 modelUsage
+    s.modelUsage = { 'gpt-4o': { calls: 3, tokens: 30 } };
     const u = s.usageOf(m.id);
     expect(u.known).toBe(true);
     expect(u.calls).toBe(3);
