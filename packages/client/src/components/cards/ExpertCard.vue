@@ -152,7 +152,7 @@ function onDelete(e: MouseEvent): void {
 
 .km-expert-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--km-shadow-card-hover);
 }
 
 .km-expert-source {
@@ -168,7 +168,7 @@ function onDelete(e: MouseEvent): void {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px 0 8px;
+  padding: var(--km-space-20) 0 var(--km-space-sm);
 }
 
 .km-expert-icon-text {
@@ -195,7 +195,7 @@ function onDelete(e: MouseEvent): void {
   font-size: var(--km-font-sm);
   line-height: 1.5;
   text-align: center;
-  padding: 6px 8px;
+  padding: var(--km-space-6) var(--km-space-sm);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -205,6 +205,6 @@ function onDelete(e: MouseEvent): void {
 }
 
 .km-expert-actions {
-  padding: 8px 0 4px;
+  padding: var(--km-space-sm) 0 var(--km-space-xs);
 }
 </style>

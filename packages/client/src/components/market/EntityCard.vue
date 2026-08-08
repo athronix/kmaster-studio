@@ -125,7 +125,7 @@ function onAction(e: MouseEvent): void {
 
 .km-entity-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--km-shadow-card-hover);
 }
 
 .km-entity-card-action {
@@ -139,7 +139,7 @@ function onAction(e: MouseEvent): void {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 16px 0 8px;
+  padding: var(--km-space-lg) 0 var(--km-space-sm);
 }
 
 .km-entity-card-icon-text {
@@ -149,19 +149,19 @@ function onAction(e: MouseEvent): void {
 
 .km-entity-card-name {
   text-align: center;
-  font-size: 14px;
+  font-size: var(--km-font-md);
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0 8px;
+  padding: 0 var(--km-space-sm);
 }
 
 .km-entity-card-desc {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   line-height: 1.5;
   text-align: center;
-  padding: 6px 8px;
+  padding: var(--km-space-6) var(--km-space-sm);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -175,6 +175,6 @@ function onAction(e: MouseEvent): void {
   flex-wrap: wrap;
   justify-content: center;
   gap: 4px;
-  padding: 4px 8px 0;
+  padding: var(--km-space-xs) var(--km-space-sm) 0;
 }
 </style>

@@ -675,7 +675,7 @@ watch(
   align-items: center;
   justify-content: flex-end;
   gap: var(--km-space-sm);
-  padding: 10px 12px;
+  padding: var(--km-space-10) var(--km-space-md);
   border-bottom: 1px solid var(--km-border);
 }
 .km-sidebar-version {
@@ -696,7 +696,7 @@ watch(
 
 /* ── 搜索 ── */
 .km-sidebar-search {
-  padding: 8px 12px;
+  padding: var(--km-space-sm) var(--km-space-md);
   border-bottom: 1px solid var(--km-border);
 }
 
@@ -715,7 +715,7 @@ watch(
 }
 
 .km-sidebar-empty {
-  margin: 32px 0;
+  margin: var(--km-space-2xl) 0;
 }
 
 .km-list-group {
@@ -725,16 +725,16 @@ watch(
   font-size: var(--km-font-sm);
   font-weight: 600;
   opacity: 0.5;
-  padding: 8px 12px 4px;
+  padding: var(--km-space-sm) var(--km-space-md) var(--km-space-xs);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 .km-list-group-badge {
   font-size: var(--km-font-xs);
   opacity: 0.4;
-  margin-left: 8px;
+  margin-left: var(--km-space-sm);
   background: var(--km-border);
-  padding: 1px 6px;
+  padding: 1px var(--km-space-6);
   border-radius: 999px;
 }
 
@@ -743,7 +743,7 @@ watch(
   display: flex;
   align-items: center;
   gap: var(--km-space-6);
-  padding: 8px 12px;
+  padding: var(--km-space-sm) var(--km-space-md);
   cursor: pointer;
   border-bottom: 1px solid transparent;
   border-left: 3px solid transparent;
@@ -781,7 +781,7 @@ watch(
 .km-session-sub {
   font-size: var(--km-font-sm);
   opacity: 0.5;
-  margin-top: 2px;
+  margin-top: var(--km-space-2xs);
 }
 .km-agent-dot {
   font-size: var(--km-font-xs);
@@ -798,8 +798,8 @@ watch(
 .km-session-actions button {
   background: transparent;
   border: 1px solid var(--km-border);
-  border-radius: 4px;
-  padding: 1px 4px;
+  border-radius: var(--km-radius-sm);
+  padding: 1px var(--km-space-xs);
   cursor: pointer;
   font-size: var(--km-font-sm);
   color: var(--km-text);
@@ -814,9 +814,9 @@ watch(
   background: var(--km-panel);
   color: var(--km-text);
   border: 1px solid var(--km-accent);
-  border-radius: 6px;
-  padding: 4px 8px;
-  outline: none;
+  border-radius: var(--km-radius-md);
+  padding: var(--km-space-xs) var(--km-space-sm);
+  outline: 2px solid transparent;
   font-size: var(--km-font-13);
 }
 
@@ -829,7 +829,7 @@ watch(
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: var(--km-space-sm) var(--km-space-md);
   border-top: 1px solid var(--km-border);
   font-size: var(--km-font-13);
   flex-shrink: 0;
@@ -862,7 +862,7 @@ watch(
   justify-content: space-between;
   gap: var(--km-space-sm);
   border-top: 1px solid var(--km-border);
-  padding-top: 8px;
+  padding-top: var(--km-space-sm);
 }
 .km-filter-count {
   font-size: var(--km-font-sm);
@@ -875,10 +875,10 @@ watch(
   z-index: 9999;
   background: var(--km-panel);
   border: 1px solid var(--km-border);
-  border-radius: 8px;
+  border-radius: var(--km-radius-lg);
   padding: var(--km-space-xs);
   min-width: 170px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--km-shadow-card);
 }
 .km-cm-item {
   display: block;
@@ -888,8 +888,8 @@ watch(
   border: none;
   color: var(--km-text);
   font-size: var(--km-font-13);
-  padding: 8px 12px;
-  border-radius: 6px;
+  padding: var(--km-space-sm) var(--km-space-md);
+  border-radius: var(--km-radius-md);
   cursor: pointer;
   transition: background 0.12s ease;
 }
@@ -918,24 +918,24 @@ watch(
   font-size: var(--km-font-sm);
   font-weight: 600;
   opacity: 0.6;
-  padding: 6px 8px;
+  padding: var(--km-space-6) var(--km-space-sm);
   border-bottom: 1px solid var(--km-border);
-  margin-bottom: 4px;
+  margin-bottom: var(--km-space-xs);
 }
 
 .km-sd-empty {
   font-size: var(--km-font-sm);
   opacity: 0.45;
   text-align: center;
-  padding: 16px 0;
+  padding: var(--km-space-lg) 0;
 }
 
 .km-sd-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 8px;
-  border-radius: 6px;
+  padding: var(--km-space-6) var(--km-space-sm);
+  border-radius: var(--km-radius-md);
   cursor: pointer;
   transition: background 0.12s ease;
 }
@@ -955,7 +955,7 @@ watch(
   white-space: nowrap;
   flex: 1;
   min-width: 0;
-  margin-right: 8px;
+  margin-right: var(--km-space-sm);
 }
 
 .km-sd-time {

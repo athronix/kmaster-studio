@@ -110,14 +110,14 @@ function onUninstall(): void {
 .rc-card {
   position: relative;
   border-radius: 8px;
-  padding: 12px;
+  padding: var(--km-space-md);
   width: 100%;
   cursor: pointer;
   border: 1px solid var(--km-card-border);
   transition: box-shadow 0.18s ease, transform 0.18s ease;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 
 .rc-card:hover {
@@ -130,13 +130,13 @@ function onUninstall(): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .rc-header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
   flex: 1;
   min-width: 0;
 }
@@ -144,7 +144,7 @@ function onUninstall(): void {
 .rc-header-right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--km-space-6);
   flex-shrink: 0;
 }
 
@@ -168,13 +168,13 @@ function onUninstall(): void {
 }
 
 .rc-icon-fallback {
-  font-size: 18px;
+  font-size: var(--km-font-18);
   line-height: 1;
 }
 
 /* 名称 flex-1 左对齐 */
 .rc-name {
-  font-size: 13px;
+  font-size: var(--km-font-13);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -185,7 +185,7 @@ function onUninstall(): void {
 /* 简介：两行截断 */
 .rc-desc {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   line-height: 1.45;
   color: var(--km-text-secondary, #888);
   display: -webkit-box;
@@ -199,7 +199,7 @@ function onUninstall(): void {
 .rc-footer {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--km-space-xs);
   margin-top: auto;
 }
 </style>

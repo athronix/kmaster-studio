@@ -267,15 +267,15 @@ async function onSummonConfirm(config: NewTaskConfig): Promise<void> {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--km-space-sm);
   height: 40px;
-  padding: 0 8px 0 12px;
+  padding: 0 var(--km-space-sm) 0 var(--km-space-md);
   border-bottom: 1px solid var(--km-border);
   flex-shrink: 0;
 }
 
 .km-right-title {
-  font-size: 13px;
+  font-size: var(--km-font-13);
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -285,7 +285,7 @@ async function onSummonConfirm(config: NewTaskConfig): Promise<void> {
 .km-right-head-actions {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--km-space-2xs);
   flex-shrink: 0;
 }
 
@@ -303,32 +303,32 @@ async function onSummonConfirm(config: NewTaskConfig): Promise<void> {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 12px;
+  padding: var(--km-space-md);
 }
 
 /* ── 定时任务产物 ── */
 .km-job-meta {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--km-space-xs);
   align-items: flex-start;
-  padding-bottom: 10px;
-  margin-bottom: 10px;
+  padding-bottom: var(--km-space-10);
+  margin-bottom: var(--km-space-10);
   border-bottom: 1px solid var(--km-border);
 }
 
 .km-job-name {
-  font-size: 14px;
+  font-size: var(--km-font-md);
   font-weight: 600;
 }
 
 .km-job-sub {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   opacity: 0.6;
 }
 
 .km-job-file {
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   opacity: 0.45;
   max-width: 100%;
   overflow: hidden;
@@ -337,22 +337,22 @@ async function onSummonConfirm(config: NewTaskConfig): Promise<void> {
 }
 
 .km-job-error {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   color: var(--km-danger);
-  margin-bottom: 8px;
+  margin-bottom: var(--km-space-sm);
 }
 
 .km-job-truncated {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   color: var(--km-muted);
   border: 1px dashed var(--km-border-light);
-  border-radius: 6px;
-  padding: 6px 8px;
-  margin-bottom: 8px;
+  border-radius: var(--km-radius-md);
+  padding: var(--km-space-6) var(--km-space-sm);
+  margin-bottom: var(--km-space-sm);
 }
 
 .km-job-text {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   line-height: 1.7;
   white-space: pre-wrap;
   word-break: break-word;

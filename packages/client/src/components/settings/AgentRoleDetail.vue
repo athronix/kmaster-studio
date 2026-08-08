@@ -326,13 +326,13 @@ function generateAgentMd(): void {
   display: flex;
   align-items: center;
   gap: var(--km-space-sm);
-  padding: 12px 14px;
+  padding: var(--km-space-md) var(--km-space-14);
   border-bottom: 1px solid var(--km-border);
   flex-shrink: 0;
 }
 
 .ard-avatar {
-  font-size: 22px;
+  font-size: var(--km-font-22);
   line-height: 1;
 }
 
@@ -397,7 +397,7 @@ function generateAgentMd(): void {
 
 .ard-foot {
   flex-shrink: 0;
-  padding: 10px 14px;
+  padding: var(--km-space-10) var(--km-space-14);
   border-top: 1px solid var(--km-border);
   background: var(--km-panel);
 }

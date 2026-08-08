@@ -18,7 +18,7 @@
 
 <style scoped>
 .km-skel-list {
-  padding: 16px;
+  padding: var(--km-space-lg);
 }
 
 .km-skel-row {

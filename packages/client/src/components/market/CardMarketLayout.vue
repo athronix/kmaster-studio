@@ -359,12 +359,12 @@ function resetInstalledFilters(): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px 12px;
+  padding: var(--km-space-lg) var(--km-space-20) var(--km-space-md);
   flex-shrink: 0;
 }
 
 .km-market-title {
-  font-size: 20px;
+  font-size: var(--km-font-xl);
   font-weight: 700;
   margin: 0;
   white-space: nowrap;
@@ -377,25 +377,25 @@ function resetInstalledFilters(): void {
 
 /* ── 精选推荐 ── */
 .km-market-featured {
-  padding: 0 20px 12px;
+  padding: 0 var(--km-space-20) var(--km-space-md);
   flex-shrink: 0;
 }
 
 .km-market-featured-title {
-  font-size: 13px;
+  font-size: var(--km-font-13);
   font-weight: 600;
   opacity: 0.6;
-  margin: 0 0 8px;
+  margin: 0 0 var(--km-space-sm);
 }
 
 .km-market-featured-scroll {
   display: flex;
-  gap: 12px;
+  gap: var(--km-space-md);
 }
 
 /* ── 已安装模块 ── */
 .km-market-installed {
-  padding: 12px 20px;
+  padding: var(--km-space-md) var(--km-space-20);
   flex-shrink: 0;
   border-bottom: 1px solid var(--km-border);
 }
@@ -404,15 +404,14 @@ function resetInstalledFilters(): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: var(--km-space-md);
+  margin-bottom: var(--km-space-sm);
 }
 
 .km-market-installed-count {
   display: inline-block;
   margin-left: 6px;
-  padding: 0 6px;
-  border-radius: 8px;
+  padding: 0 var(--km-space-6);
   background: var(--km-bg);
   font-size: 11px;
   font-weight: 600;
@@ -427,18 +426,18 @@ function resetInstalledFilters(): void {
 .km-market-installed-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: var(--km-space-6);
+  margin-bottom: var(--km-space-10);
 }
 
 .km-market-installed-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
+  gap: var(--km-space-md);
 }
 
 .km-market-installed-empty {
-  padding: 24px 0;
+  padding: var(--km-space-xl) 0;
 }
 
 .km-market-installed-pager {
@@ -449,14 +448,14 @@ function resetInstalledFilters(): void {
 
 /* ── 工具栏 ── */
 .km-market-toolbar {
-  padding: 12px 20px 8px;
+  padding: var(--km-space-md) var(--km-space-20) var(--km-space-sm);
   flex-shrink: 0;
 }
 
 .km-market-main-tags {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .km-market-toolbar-spacer {
@@ -466,8 +465,8 @@ function resetInstalledFilters(): void {
 .km-market-sub-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 8px 0;
+  gap: var(--km-space-6);
+  padding: var(--km-space-sm) 0;
 }
 
 .km-domain-tag {
@@ -483,26 +482,26 @@ function resetInstalledFilters(): void {
 .km-market-grid {
   flex: 1;
   overflow-y: auto;
-  padding: 0 20px 20px;
+  padding: 0 var(--km-space-20) var(--km-space-20);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  gap: var(--km-space-lg);
   align-content: start;
 }
 
 .km-market-empty {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 40px;
+  padding: var(--km-space-40);
   opacity: 0.5;
-  font-size: 14px;
+  font-size: var(--km-font-md);
 }
 
 /* ── 分页 ── */
 .km-market-pagination {
   display: flex;
   justify-content: center;
-  padding: 12px 20px 16px;
+  padding: var(--km-space-md) var(--km-space-20) var(--km-space-lg);
   flex-shrink: 0;
 }
 </style>

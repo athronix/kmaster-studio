@@ -59,20 +59,20 @@ export const AGENT_STATUS_ICONS: Record<AgentState, string> = {
 
 /** 状态 → CSS 颜色类名 */
 export const AGENT_STATUS_COLORS: Record<AgentState, string> = {
-  'init': '#9ca3af',
-  'closing': '#9ca3af',
-  'sending-msg': '#60a5fa',
-  'thinking': '#a78bfa',
-  'busy': '#fbbf24',
-  'idle': '#34d399',
-  'waiting-approval': '#fb923c',
-  'error': '#f87171',
-  'writing': '#60a5fa',
-  'coding': '#22d3ee',
-  'reading': '#2dd4bf',
-  'searching': '#818cf8',
-  'researching': '#a78bfa',
-  'designing': '#f472b6',
+  'init': 'var(--km-muted)',
+  'closing': 'var(--km-muted)',
+  'sending-msg': 'var(--km-agent-blue)',
+  'thinking': 'var(--km-agent-purple)',
+  'busy': 'var(--km-agent-yellow)',
+  'idle': 'var(--km-success)',
+  'waiting-approval': 'var(--km-agent-orange)',
+  'error': 'var(--km-agent-red)',
+  'writing': 'var(--km-agent-blue)',
+  'coding': 'var(--km-agent-cyan)',
+  'reading': 'var(--km-agent-teal)',
+  'searching': 'var(--km-agent-indigo)',
+  'researching': 'var(--km-agent-purple)',
+  'designing': 'var(--km-agent-pink)',
 };
 
 /** Agent 角色数据（U-12：MOCK_AGENTS 已删除，现从 /api/agents 读取真实数据） */

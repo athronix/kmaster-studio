@@ -160,8 +160,8 @@ defineExpose({ focusSearch });
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px;
-  gap: 8px;
+  padding: 0 var(--km-space-md);
+  gap: var(--km-space-sm);
   flex-shrink: 0;
   border-bottom: 1px solid var(--km-border);
   background: var(--km-panel);
@@ -171,14 +171,14 @@ defineExpose({ focusSearch });
 .km-ph-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
   flex: 1;
   min-width: 0;
 }
 
 .km-ph-title {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--km-font-md);
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -189,7 +189,7 @@ defineExpose({ focusSearch });
 .km-ph-right {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--km-space-xs);
   flex-shrink: 0;
 }
 

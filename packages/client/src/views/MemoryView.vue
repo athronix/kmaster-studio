@@ -7,7 +7,7 @@
 import { onMounted, ref, watch } from 'vue';
 import KIcon from '../components/common/KIcon.vue';
 import {
-  NInput, NSelect, NButton, NModal, NCard, NSpin, NTag, NPopconfirm, useMessage,
+  NInput, NSelect, NButton, NModal, NCard, NSpin, NTag, NPopconfirm, NAlert, useMessage,
 } from 'naive-ui';
 import { useMemoryStore, MEMORY_GROUP_LABELS } from '../stores/memory';
 import PageHeader from '../components/layout/PageHeader.vue';
@@ -36,13 +36,18 @@ const groupOptions = [
 
 const editing = ref(false);
 const saving = ref(false);
+const loadError = ref<string | null>(null);
 /** null = 新增，非空 = 编辑既有条目 */
 const editingEntry = ref<MemoryEntry | null>(null);
 const formGroup = ref<MemoryGroup>('memory');
 const formContent = ref('');
 
 onMounted(() => {
-  store.load().catch((e) => message.error(`记忆加载失败：${String(e.message ?? e)}`));
+  loadError.value = null;
+  store.load().catch((e) => {
+    loadError.value = `记忆加载失败：${String(e.message ?? e)}`;
+    message.error(loadError.value!);
+  });
 });
 
 /** 来自 PageHeader 搜索框（已防抖）：即时过滤记忆内容。 */
@@ -126,6 +131,14 @@ function fmtTime(ts: number): string {
     </PageHeader>
 
     <section class="km-memory-body">
+      <n-alert
+        v-if="loadError"
+        type="error"
+        :title="loadError"
+        closable
+        @close="loadError = null"
+      />
+      <template v-else>
       <header class="km-memory-intro">
         <p class="km-page-sub">
           直接读写 hermes 的 <code>memories/MEMORY.md</code> 与 <code>USER.md</code>（<code>§</code> 分隔条目）。
@@ -209,6 +222,7 @@ function fmtTime(ts: number): string {
           </div>
         </template>
       </n-modal>
+      </template>
     </section>
   </div>
 </template>
@@ -225,11 +239,11 @@ function fmtTime(ts: number): string {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 20px 24px 40px;
+  padding: var(--km-space-20) var(--km-space-xl) var(--km-space-40);
 }
 .km-memory-intro { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--km-space-lg); }
 .km-page-sub { margin: 0 0 14px; font-size: var(--km-font-sm); opacity: 0.6; line-height: 1.7; max-width: 720px; }
-.km-page-sub code { background: rgba(127, 127, 127, 0.16); padding: 1px 4px; border-radius: var(--km-radius-sm); }
+.km-page-sub code { background: rgba(127, 127, 127, 0.16); padding: 1px var(--km-space-xs); border-radius: var(--km-radius-sm); }
 .km-toolbar { display: flex; gap: var(--km-space-sm); align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
 .km-group-filter { width: 200px; }
 .km-count { font-size: var(--km-font-sm); opacity: 0.55; }
@@ -246,7 +260,7 @@ function fmtTime(ts: number): string {
 .km-entry-content { margin: 0 0 8px; white-space: pre-wrap; line-height: 1.7; font-size: var(--km-font-sm); }
 .km-entry-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .km-entry-meta { font-size: var(--km-font-xs); opacity: 0.45; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.km-entry-actions { display: flex; gap: 6px; flex: 0 0 auto; }
+.km-entry-actions { display: flex; gap: var(--km-space-6); flex: 0 0 auto; }
 .km-modal { width: 640px; max-width: 92vw; }
 .km-form { display: flex; flex-direction: column; gap: 10px; }
 .km-form-hint { margin: 0; font-size: var(--km-font-xs); opacity: 0.5; }

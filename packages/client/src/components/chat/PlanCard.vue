@@ -28,21 +28,21 @@ const choices: { key: string; label: string }[] = [
 .km-plan {
   border: 1px solid var(--km-plan-border);
   background: var(--km-plan-bg);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin: 8px 0;
+  border-radius: var(--km-radius-lg);
+  padding: var(--km-space-10) var(--km-space-md);
+  margin: var(--km-space-sm) 0;
 }
-.km-plan-title { font-weight: 600; margin-bottom: 6px; }
-.km-plan-steps { margin: 0 0 8px; padding-left: 20px; font-size: 13px; line-height: 1.7; }
-.km-plan-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.km-plan-title { font-weight: 600; margin-bottom: var(--km-space-6); }
+.km-plan-steps { margin: 0 0 var(--km-space-sm); padding-left: var(--km-space-20); font-size: var(--km-font-13); line-height: 1.7; }
+.km-plan-btns { display: flex; gap: var(--km-space-sm); flex-wrap: wrap; }
 .km-plan-btns button {
   background: var(--km-accent);
-  color: #fff;
+  color: var(--km-text-on-accent);
   border: none;
-  border-radius: 6px;
-  padding: 5px 12px;
+  border-radius: var(--km-radius-md);
+  padding: 5px var(--km-space-md);
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--km-font-13);
 }
 .km-plan-btns button.reject { background: var(--km-muted); }
 </style>

@@ -28,11 +28,34 @@
   /* ──────────── Phase A：语义色 Token ──────────── */
   --km-code-bg: #161616;
   --km-code-head-bg: #1a1a1a;
-  --km-bubble-ai: #252526;
-  --km-bubble-tool: #1e1e2e;
-  --km-input-bg: #2d2d30;
   --km-hover-bg: rgba(255,255,255,0.06);
-  --km-overlay: rgba(0,0,0,0.5);
+
+  /* ──────────── B5：ghostToken 正式定义 ──────────── */
+  --km-highlight-bg: rgba(255, 215, 0, 0.3);
+  --km-icon-bg: rgba(255, 255, 255, 0.06);
+  --km-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --km-sidebar-bg: #252526;
+  --km-text-secondary: #9ca3af;
+
+  /* ──────────── B5：Agent 状态色 Token ──────────── */
+  --km-agent-blue: #60a5fa;
+  --km-agent-purple: #a78bfa;
+  --km-agent-yellow: #fbbf24;
+  --km-agent-orange: #fb923c;
+  --km-agent-red: #f87171;
+  --km-agent-cyan: #22d3ee;
+  --km-agent-teal: #2dd4bf;
+  --km-agent-indigo: #818cf8;
+  --km-agent-pink: #f472b6;
+  --km-text-on-accent: #fff;
+
+  /* ──────────── B5：accent/阴影/overlay 补充 Token ──────────── */
+  --km-accent-bg-light: rgba(59, 130, 246, 0.08);
+  --km-accent-bg-strong: rgba(59, 130, 246, 0.16);
+  --km-accent-border: rgba(59, 130, 246, 0.3);
+  --km-shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --km-agent-purple-bg: rgba(167, 139, 250, 0.16);
+  --km-agent-purple-border: rgba(167, 139, 250, 0.3);
 
   /* ──────────── Phase B：组件专用 Token（暗色） ──────────── */
   --km-tool-card-bg: rgba(255,255,255,0.02);
@@ -52,8 +75,6 @@
 
   /* ──────────── Phase A：阴影 Token ──────────── */
   --km-shadow-card: 0 4px 16px rgba(0,0,0,0.3);
-  --km-shadow-modal: 0 8px 32px rgba(0,0,0,0.5);
-  --km-shadow-dropdown: 0 4px 12px rgba(0,0,0,0.4);
 
   /* ──────────── Phase A：字号 Token ──────────── */
   --km-font-xs: 10px;
@@ -83,30 +104,9 @@
   --km-space-xl: 24px;
   --km-space-28: 28px;
   --km-space-2xl: 32px;
-  --km-space-36: 36px;
   --km-space-40: 40px;
   --km-space-3xl: 48px;
-  --km-space-56: 56px;
-  --km-space-60: 60px;
   --km-space-64: 64px;
-  --km-space-80: 80px;
-  --km-space-96: 96px;
-  --km-space-100: 100px;
-  --km-space-120: 120px;
-  --km-space-140: 140px;
-  --km-space-160: 160px;
-  --km-space-200: 200px;
-  --km-space-240: 240px;
-  --km-space-260: 260px;
-  --km-space-280: 280px;
-  --km-space-300: 300px;
-  --km-space-320: 320px;
-  --km-space-360: 360px;
-  --km-space-400: 400px;
-  --km-space-440: 440px;
-  --km-space-480: 480px;
-  --km-space-600: 600px;
-  --km-space-700: 700px;
 }
 
 :root[data-theme='light'] {
@@ -139,11 +139,34 @@
   /* ──────────── Phase A：语义色 Token（亮色） ──────────── */
   --km-code-bg: #f8f8f8;
   --km-code-head-bg: #ebebeb;
-  --km-bubble-ai: #f0f0f0;
-  --km-bubble-tool: #f5f5ff;
-  --km-input-bg: #ffffff;
   --km-hover-bg: rgba(0,0,0,0.04);
-  --km-overlay: rgba(0,0,0,0.3);
+
+  /* ──────────── B5：ghostToken 正式定义（亮色） ──────────── */
+  --km-highlight-bg: rgba(255, 215, 0, 0.15);
+  --km-icon-bg: #f5f5f5;
+  --km-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --km-sidebar-bg: #f3f3f3;
+  --km-text-secondary: #888;
+
+  /* ──────────── B5：Agent 状态色 Token（亮色） ──────────── */
+  --km-agent-blue: #3b82f6;
+  --km-agent-purple: #8b5cf6;
+  --km-agent-yellow: #f59e0b;
+  --km-agent-orange: #f97316;
+  --km-agent-red: #ef4444;
+  --km-agent-cyan: #06b6d4;
+  --km-agent-teal: #14b8a6;
+  --km-agent-indigo: #6366f1;
+  --km-agent-pink: #ec4899;
+  --km-text-on-accent: #fff;
+
+  /* ──────────── B5：accent/阴影/overlay 补充 Token（亮色） ──────────── */
+  --km-accent-bg-light: rgba(37, 99, 235, 0.05);
+  --km-accent-bg-strong: rgba(37, 99, 235, 0.10);
+  --km-accent-border: rgba(37, 99, 235, 0.2);
+  --km-shadow-card-hover: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --km-agent-purple-bg: rgba(139, 92, 246, 0.10);
+  --km-agent-purple-border: rgba(139, 92, 246, 0.2);
 
   /* ──────────── Phase B：组件专用 Token（亮色） ──────────── */
   --km-tool-card-bg: #f9fafb;
@@ -157,8 +180,6 @@
 
   /* ──────────── Phase A：阴影 Token（亮色） ──────────── */
   --km-shadow-card: 0 2px 8px rgba(0,0,0,0.08);
-  --km-shadow-modal: 0 4px 16px rgba(0,0,0,0.12);
-  --km-shadow-dropdown: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 * { box-sizing: border-box; }

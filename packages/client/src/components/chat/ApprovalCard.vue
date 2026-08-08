@@ -28,29 +28,29 @@ const labels: Record<string, string> = {
 .km-approval {
   border: 1px solid var(--km-approval-border);
   background: var(--km-approval-bg);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin: 8px 0;
+  border-radius: var(--km-radius-lg);
+  padding: var(--km-space-10) var(--km-space-md);
+  margin: var(--km-space-sm) 0;
 }
-.km-approval-title { font-weight: 600; margin-bottom: 6px; }
+.km-approval-title { font-weight: 600; margin-bottom: var(--km-space-6); }
 .km-approval-args {
   background: var(--km-code-bg);
-  padding: 8px;
-  border-radius: 6px;
+  padding: var(--km-space-sm);
+  border-radius: var(--km-radius-md);
   overflow: auto;
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   white-space: pre-wrap;
-  margin: 0 0 8px;
+  margin: 0 0 var(--km-space-sm);
 }
-.km-approval-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.km-approval-btns { display: flex; gap: var(--km-space-sm); flex-wrap: wrap; }
 .km-approval-btns button {
   background: var(--km-accent);
-  color: #fff;
+  color: var(--km-text-on-accent);
   border: none;
-  border-radius: 6px;
-  padding: 5px 12px;
+  border-radius: var(--km-radius-md);
+  padding: 5px var(--km-space-md);
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--km-font-13);
 }
 .km-approval-btns button.deny { background: var(--km-muted); }
 </style>

@@ -32,37 +32,37 @@ function submit() {
 .km-clarify {
   border: 1px solid var(--km-clarify-border);
   background: var(--km-clarify-bg);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin: 8px 0;
+  border-radius: var(--km-radius-lg);
+  padding: var(--km-space-10) var(--km-space-md);
+  margin: var(--km-space-sm) 0;
 }
-.km-clarify-q { font-weight: 600; margin-bottom: 6px; }
-.km-clarify-opts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.km-clarify-q { font-weight: 600; margin-bottom: var(--km-space-6); }
+.km-clarify-opts { display: flex; gap: var(--km-space-sm); flex-wrap: wrap; margin-bottom: var(--km-space-6); }
 .km-clarify-opts button {
   background: var(--km-accent);
-  color: #fff;
+  color: var(--km-text-on-accent);
   border: none;
-  border-radius: 6px;
-  padding: 5px 12px;
+  border-radius: var(--km-radius-md);
+  padding: 5px var(--km-space-md);
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--km-font-13);
 }
-.km-clarify-free { display: flex; gap: 6px; }
+.km-clarify-free { display: flex; gap: var(--km-space-6); }
 .km-clarify-free input {
   flex: 1;
   background: var(--km-panel);
   color: var(--km-text);
   border: 1px solid var(--km-border);
-  border-radius: 6px;
-  padding: 6px 10px;
-  outline: none;
+  border-radius: var(--km-radius-md);
+  padding: var(--km-space-6) var(--km-space-10);
+  outline: 2px solid transparent;
 }
 .km-clarify-free button {
   background: var(--km-accent);
-  color: #fff;
+  color: var(--km-text-on-accent);
   border: none;
-  border-radius: 6px;
-  padding: 0 14px;
+  border-radius: var(--km-radius-md);
+  padding: 0 var(--km-space-14);
   cursor: pointer;
 }
 </style>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 // F22 用量统计整页：三张汇总卡 + 按天 CSS 柱状趋势（零图表库，R-M4-6）+ 按天/模型/会话 Tab 明细。
 import { computed, onMounted, ref } from 'vue';
-import { NCard, NTabs, NTabPane, NSpin, NEmpty, NButton, NDatePicker, useMessage } from 'naive-ui';
+import { NCard, NTabs, NTabPane, NSpin, NEmpty, NButton, NDatePicker, NAlert, useMessage } from 'naive-ui';
 import { useUsageStore } from '../stores/usage';
 import PageHeader from '../components/layout/PageHeader.vue';
+import EmptyState from '../components/common/EmptyState.vue';
 import type { UsageGroupBy, UsageStatRow } from '../types/chat';
 
 const store = useUsageStore();
@@ -12,6 +13,7 @@ const message = useMessage();
 /** 按天柱状始终展示 day 维度数据（store.daySeries），与 Tab 选择解耦 */
 const dayRows = computed<UsageStatRow[]>(() => store.daySeries);
 const range = ref<[number, number] | null>(null);
+const loadError = ref<string | null>(null);
 
 function fmtNum(n: number): string {
   if (!Number.isFinite(n)) return '0';
@@ -27,12 +29,14 @@ function keyLabel(row: UsageStatRow): string {
 }
 
 async function reload(group: UsageGroupBy = store.groupBy) {
+  loadError.value = null;
   try {
     // 明细随 Tab 维度；趋势图恒为按天序列（独立 state，互不覆盖）
     await store.load(group);
     await store.loadDaySeries();
   } catch (e: any) {
-    message.error(`用量加载失败：${String(e?.message ?? e)}`);
+    loadError.value = `用量加载失败：${String(e?.message ?? e)}`;
+    message.error(loadError.value);
   }
 }
 
@@ -66,6 +70,14 @@ onMounted(() => reload('day'));
       </template>
     </PageHeader>
 
+    <n-alert
+      v-if="loadError"
+      type="error"
+      :title="loadError"
+      closable
+      @close="loadError = null"
+    />
+    <template v-else>
     <div class="km-cards">
       <n-card size="small" class="km-card">
         <div class="km-card-label">总 Token</div>
@@ -136,6 +148,7 @@ onMounted(() => reload('day'));
         <n-empty v-if="store.isEmpty" size="small" description="该维度暂无数据" class="km-empty-block" />
       </div>
     </n-spin>
+    </template>
   </section>
 </template>
 
@@ -143,7 +156,7 @@ onMounted(() => reload('day'));
 .km-page { height: 100%; overflow: auto; padding: 0 var(--km-space-2xl) var(--km-space-40); }
 .km-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--km-space-md); margin-top: var(--km-space-lg); }
 .km-card-label { font-size: var(--km-font-sm); opacity: 0.6; }
-.km-card-value { font-size: 26px; font-weight: 700; margin: var(--km-space-xs) 0 var(--km-space-2xs); }
+.km-card-value { font-size: var(--km-font-2xl); font-weight: 700; margin: var(--km-space-xs) 0 var(--km-space-2xs); }
 .km-card-sub { font-size: var(--km-font-xs); opacity: 0.5; }
 .km-section-title { font-size: var(--km-font-base); margin: var(--km-space-2xl) 0 var(--km-space-10); }
 .km-chart {

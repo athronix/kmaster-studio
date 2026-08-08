@@ -19,7 +19,7 @@ const open = ref(true);
 <style scoped>
 .km-thought {
   border-left: 2px solid var(--km-thought-border);
-  padding: 4px 10px;
+  padding: var(--km-space-xs) var(--km-space-10);
   margin: 6px 0;
   opacity: 0.85;
   font-size: var(--km-font-sm);

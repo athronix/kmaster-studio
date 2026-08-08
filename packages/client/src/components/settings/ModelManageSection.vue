@@ -402,7 +402,7 @@ const usageTable = computed<UsageRow[]>(() =>
 }
 
 .mms-tab {
-  padding: 5px 14px;
+  padding: 5px var(--km-space-14);
   border: 1px solid var(--km-border);
   border-radius: var(--km-radius-md);
   background: transparent;
@@ -524,7 +524,7 @@ const usageTable = computed<UsageRow[]>(() =>
 .mms-table th,
 .mms-table td {
   text-align: left;
-  padding: 7px 10px;
+  padding: 7px var(--km-space-10);
   border-bottom: 1px solid var(--km-border);
   vertical-align: middle;
 }

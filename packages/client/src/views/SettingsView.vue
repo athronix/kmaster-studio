@@ -491,7 +491,7 @@ watch(activeCategory, () => {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 16px 20px 32px;
+  padding: var(--km-space-lg) var(--km-space-20) var(--km-space-2xl);
 }
 
 /* 内嵌整页视图（记忆 / 定时任务 / 市场设置）自带布局，去掉外层内边距与滚动 */
@@ -549,7 +549,7 @@ watch(activeCategory, () => {
   display: flex;
   align-items: center;
   gap: var(--km-space-sm);
-  padding: 40px 0;
+  padding: var(--km-space-40) 0;
   justify-content: center;
   font-size: var(--km-font-sm);
   opacity: 0.6;

@@ -244,7 +244,7 @@ function selectFile(node: TreeNodeWithArtifact): void {
   margin: 0 var(--km-space-xs);
 }
 .km-ft-node:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--km-hover-bg);
 }
 .km-ft-arrow {
   width: 14px;
@@ -265,7 +265,7 @@ function selectFile(node: TreeNodeWithArtifact): void {
   white-space: nowrap;
 }
 .km-ft-selected {
-  background: rgba(59, 130, 246, 0.14) !important;
+  background: var(--km-accent-bg-strong) !important;
   color: var(--km-accent);
 }
 </style>

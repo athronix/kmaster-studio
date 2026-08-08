@@ -431,7 +431,7 @@ function onSelectSendMode(key: string): void {
 <style scoped>
 .km-input {
   border-top: 1px solid var(--km-border);
-  padding: 8px 12px 10px;
+  padding: var(--km-space-sm) var(--km-space-md) var(--km-space-10);
   background: var(--km-bg);
   flex-shrink: 0;
 }
@@ -451,11 +451,11 @@ function onSelectSendMode(key: string): void {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: var(--km-file-chip-bg);
+  border: 1px solid var(--km-accent-border);
   border-radius: var(--km-radius-md);
-  padding: 4px 10px;
-  margin-bottom: 6px;
+  padding: var(--km-space-xs) var(--km-space-10);
+  margin-bottom: var(--km-space-6);
 }
 
 .km-editing-label {
@@ -469,7 +469,7 @@ function onSelectSendMode(key: string): void {
   border: 1px solid var(--km-border);
   color: var(--km-muted);
   border-radius: var(--km-radius-sm);
-  padding: 1px 8px;
+  padding: 1px var(--km-space-sm);
   font-size: var(--km-font-sm);
   cursor: pointer;
 }
@@ -487,7 +487,7 @@ function onSelectSendMode(key: string): void {
   display: flex;
   gap: var(--km-space-xs);
   flex-wrap: wrap;
-  margin-bottom: 6px;
+  margin-bottom: var(--km-space-6);
   align-items: center;
 }
 
@@ -505,7 +505,7 @@ function onSelectSendMode(key: string): void {
   background: var(--km-panel);
   border: 1px solid var(--km-border);
   border-radius: 999px;
-  padding: 1px 8px;
+  padding: 1px var(--km-space-sm);
   font-size: var(--km-font-xs);
   max-width: 200px;
   overflow: hidden;
@@ -536,14 +536,14 @@ function onSelectSendMode(key: string): void {
 
 .km-input-row {
   display: flex;
-  gap: 6px;
+  gap: var(--km-space-6);
   align-items: flex-end;
 }
 
 .km-plus-btn {
   flex-shrink: 0;
   align-self: flex-end;
-  margin-bottom: 4px;
+  margin-bottom: var(--km-space-xs);
 }
 
 .km-textarea {
@@ -555,10 +555,10 @@ function onSelectSendMode(key: string): void {
   color: var(--km-text);
   border: 1px solid var(--km-border);
   border-radius: var(--km-radius-lg);
-  padding: 8px 10px;
+  padding: var(--km-space-sm) var(--km-space-10);
   font-family: inherit;
   font-size: var(--km-font-base);
-  outline: none;
+  outline: 2px solid transparent;
 }
 
 .km-textarea:focus {
@@ -617,12 +617,12 @@ function onSelectSendMode(key: string): void {
   font-size: var(--km-font-xs);
   font-weight: 600;
   opacity: 0.5;
-  padding: 4px 6px;
+  padding: var(--km-space-xs) var(--km-space-6);
   text-transform: uppercase;
 }
 
 .km-plus-item {
-  padding: 6px 10px;
+  padding: var(--km-space-6) var(--km-space-10);
   border-radius: var(--km-radius-md);
   cursor: pointer;
   font-size: var(--km-font-sm);
@@ -634,20 +634,20 @@ function onSelectSendMode(key: string): void {
 }
 
 .km-plus-check {
-  padding: 2px 10px;
+  padding: var(--km-space-2xs) var(--km-space-10);
 }
 
 .km-plus-empty {
   font-size: var(--km-font-sm);
   opacity: 0.4;
-  padding: 4px 10px;
+  padding: var(--km-space-xs) var(--km-space-10);
 }
 
 /* ── 附件 chips ── */
 .km-attach-chips {
   display: flex;
-  gap: 6px;
+  gap: var(--km-space-6);
   flex-wrap: wrap;
-  margin-bottom: 6px;
+  margin-bottom: var(--km-space-6);
 }
 </style>

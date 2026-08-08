@@ -17,9 +17,9 @@ const usage = computed(() => (sid.value ? store.usageBySession[sid.value] : unde
 
 <style scoped>
 .km-usage {
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   opacity: 0.55;
-  padding: 0 2px 4px;
+  padding: 0 var(--km-space-2xs) var(--km-space-xs);
 }
 .dim { opacity: 0.7; }
 </style>

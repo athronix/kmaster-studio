@@ -360,23 +360,23 @@ watch(
 .km-header-badge {
   display: inline-flex;
   align-items: center;
-  font-size: 10px;
-  padding: 1px 6px;
+  font-size: var(--km-font-xs);
+  padding: 1px var(--km-space-6);
   border-radius: 999px;
   white-space: nowrap;
   font-weight: 500;
 }
 
 .km-header-agent {
-  background: rgba(139, 92, 246, 0.16);
-  color: #a78bfa;
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: var(--km-agent-purple-bg);
+  color: var(--km-agent-purple);
+  border: 1px solid var(--km-agent-purple-border);
 }
 
 .km-header-mode {
-  background: rgba(59, 130, 246, 0.16);
+  background: var(--km-accent-bg-strong);
   color: var(--km-accent);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  border: 1px solid var(--km-accent-border);
 }
 
 .km-header-model {
@@ -391,10 +391,10 @@ watch(
 /* stop */
 .km-stop-btn {
   background: var(--km-danger);
-  color: #fff;
+  color: var(--km-text-on-accent);
   border: none;
   border-radius: var(--km-radius-md);
-  padding: 4px 10px;
+  padding: var(--km-space-xs) var(--km-space-10);
   cursor: pointer;
   font-size: var(--km-font-sm);
   font-weight: 500;
@@ -418,13 +418,13 @@ watch(
   font-size: var(--km-font-sm);
   opacity: 0.5;
   text-align: center;
-  padding: 12px 0;
+  padding: var(--km-space-md) 0;
 }
 
 .km-history-item {
   display: flex;
   gap: var(--km-space-sm);
-  padding: 6px 4px;
+  padding: var(--km-space-6) var(--km-space-xs);
   cursor: pointer;
   border-radius: var(--km-radius-sm);
   font-size: var(--km-font-sm);
@@ -432,7 +432,7 @@ watch(
 }
 
 .km-history-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--km-hover-bg);
 }
 
 .km-history-time {

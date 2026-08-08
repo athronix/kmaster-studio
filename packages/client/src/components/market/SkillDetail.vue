@@ -145,7 +145,7 @@ const sourceType: Record<string, 'info' | 'success' | 'warning'> = {
 }
 
 .km-detail-icon {
-  font-size: 36px;
+  font-size: var(--km-font-3xl);
   flex-shrink: 0;
 }
 

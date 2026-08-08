@@ -102,7 +102,7 @@ const duration = computed(() =>
   border: 1px solid var(--km-border);
   border-left: 3px solid var(--km-accent);
   border-radius: var(--km-radius-lg);
-  padding: 10px 12px;
+  padding: var(--km-space-10) var(--km-space-md);
   background: var(--km-panel);
   min-width: 240px;
   flex: 1 1 260px;

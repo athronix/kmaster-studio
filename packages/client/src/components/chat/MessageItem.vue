@@ -499,7 +499,7 @@ onUnmounted(() => document.removeEventListener('click', onGlobalClickMsg, true))
   border-radius: var(--km-radius-lg);
   padding: var(--km-space-xs);
   min-width: 160px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--km-shadow-card);
 }
 .km-cm-item {
   display: block;

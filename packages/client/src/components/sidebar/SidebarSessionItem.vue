@@ -279,7 +279,7 @@ function onDragEnd(): void {
   background: transparent;
   border: 1px solid var(--km-border);
   border-radius: var(--km-radius-sm);
-  padding: 1px 4px;
+  padding: 1px var(--km-space-xs);
   cursor: pointer;
   font-size: var(--km-font-xs);
   color: var(--km-text);
@@ -300,7 +300,7 @@ function onDragEnd(): void {
   border: 1px solid var(--km-accent);
   border-radius: var(--km-radius-md);
   padding: var(--km-space-xs) var(--km-space-sm);
-  outline: none;
+  outline: 2px solid transparent;
   font-size: var(--km-font-sm);
 }
 

@@ -43,7 +43,7 @@ defineEmits<{
 </template>
 <style scoped>
 .sdp-panel {
-  padding: 16px;
+  padding: var(--km-space-lg);
 }
 .sdp-icon {
   width: 48px;
@@ -51,26 +51,26 @@ defineEmits<{
   border-radius: 8px;
 }
 .sdp-name {
-  font-size: 18px;
+  font-size: var(--km-font-18);
   margin-top: 8px;
 }
 .sdp-desc {
-  margin: 12px 0;
+  margin: var(--km-space-md) 0;
   color: var(--n-text-color-2);
 }
 .sdp-actions {
-  margin: 8px 0;
+  margin: var(--km-space-sm) 0;
   display: flex;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 .sdp-tags {
   margin-top: 12px;
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--km-space-xs);
 }
 .sdp-empty {
-  padding: 24px;
+  padding: var(--km-space-xl);
   text-align: center;
 }
 </style>

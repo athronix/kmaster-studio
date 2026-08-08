@@ -84,15 +84,15 @@ function isActive(path: string): boolean {
 .km-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--km-space-xs);
   height: 44px;
-  padding: 0 14px;
+  padding: 0 var(--km-space-14);
   border-bottom: 1px solid var(--km-border);
   background: var(--km-panel);
   flex: 0 0 auto;
 }
 .km-nav-brand {
-  font-size: 14px;
+  font-size: var(--km-font-md);
   letter-spacing: 0.3px;
   margin-right: 14px;
   opacity: 0.85;
@@ -103,30 +103,30 @@ function isActive(path: string): boolean {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 12px;
+  padding: 5px var(--km-space-md);
   border-radius: 7px;
-  font-size: 13px;
+  font-size: var(--km-font-13);
   color: var(--km-text);
   text-decoration: none;
   opacity: 0.7;
   transition: background 0.15s ease, opacity 0.15s ease;
 }
-.km-nav-item:hover { opacity: 1; background: rgba(127, 127, 127, 0.12); }
+.km-nav-item:hover { opacity: 1; background: var(--km-hover-bg); }
 .km-nav-active {
   opacity: 1;
-  background: rgba(59, 130, 246, 0.16);
+  background: var(--km-accent-bg-strong);
   color: var(--km-accent);
   font-weight: 600;
 }
-.km-nav-icon { font-size: 13px; }
+.km-nav-icon { font-size: var(--km-font-13); }
 .km-nav-badge {
   min-width: 16px;
   height: 16px;
-  padding: 0 4px;
+  padding: 0 var(--km-space-xs);
   border-radius: 999px;
-  background: #dc2626;
-  color: #fff;
-  font-size: 10px;
+  background: var(--km-danger);
+  color: var(--km-text-on-accent);
+  font-size: var(--km-font-xs);
   line-height: 16px;
   text-align: center;
 }
@@ -136,7 +136,7 @@ function isActive(path: string): boolean {
   border: 1px solid var(--km-border);
   color: var(--km-text);
   border-radius: 6px;
-  padding: 3px 8px;
+  padding: 3px var(--km-space-sm);
   cursor: pointer;
 }
 </style>

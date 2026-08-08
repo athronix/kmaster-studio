@@ -176,7 +176,7 @@ function onDelete(e: MouseEvent): void {
 }
 
 .km-mcp-icon-text {
-  font-size: 36px;
+  font-size: var(--km-font-3xl);
   line-height: 1;
 }
 

@@ -20,7 +20,7 @@
   background: var(--km-card-bg);
   border: 1px solid var(--km-card-border);
   border-radius: var(--km-radius-md);
-  padding: 12px;
+  padding: var(--km-space-md);
 }
 
 .km-skel-line {

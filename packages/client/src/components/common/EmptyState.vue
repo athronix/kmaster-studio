@@ -37,7 +37,7 @@ defineEmits<{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 24px;
+  padding: var(--km-space-3xl) var(--km-space-xl);
   text-align: center;
 }
 

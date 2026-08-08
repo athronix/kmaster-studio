@@ -129,7 +129,7 @@ watch(html, () => {
   opacity: 1;
 }
 .km-md :deep(.km-code-copy:hover) {
-  background: rgba(59, 130, 246, 0.18);
+  background: var(--km-accent-bg-strong);
   color: var(--km-accent);
   border-color: var(--km-accent);
 }

@@ -284,7 +284,7 @@ onMounted(() => {
 
 .km-dirpicker h3 {
   margin: 0 0 12px;
-  font-size: 16px;
+  font-size: var(--km-font-16);
   font-weight: 600;
 }
 
@@ -318,10 +318,10 @@ onMounted(() => {
 /* ── 行 ── */
 .km-dirpicker-row {
   cursor: pointer;
-  padding: 6px 10px;
+  padding: var(--km-space-6) var(--km-space-10);
   display: flex;
   align-items: center;
-  outline: none;
+  outline: 2px solid transparent;
 }
 
 .km-dirpicker-row:focus-visible {
@@ -339,7 +339,7 @@ onMounted(() => {
 }
 
 .km-dirpicker-icon {
-  font-size: 16px;
+  font-size: var(--km-font-16);
 }
 
 .km-dirpicker-entry-text {
@@ -348,7 +348,7 @@ onMounted(() => {
 
 /* ── 空态 ── */
 .km-dirpicker-empty {
-  padding: 40px 10px;
+  padding: var(--km-space-40) var(--km-space-10);
   text-align: center;
 }
 

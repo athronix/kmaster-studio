@@ -165,7 +165,7 @@ async function copyDiagnostics(): Promise<void> {
 .diag-toolbar { display: flex; gap: var(--km-space-sm); }
 .diag-table { width: 100%; border-collapse: collapse; font-size: var(--km-font-sm); }
 .diag-table td {
-  padding: 7px 10px;
+  padding: 7px var(--km-space-10);
   border-bottom: 1px solid var(--km-border);
   vertical-align: middle;
 }

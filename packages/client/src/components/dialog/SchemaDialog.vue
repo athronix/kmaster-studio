@@ -101,7 +101,7 @@ function onClose(): void {
   overflow: auto;
   border: 1px solid var(--km-border);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: var(--km-space-10) var(--km-space-md);
   background: var(--km-panel);
 }
 

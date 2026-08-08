@@ -122,27 +122,27 @@ function onToggleTheme(): void {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 8px 12px;
+  padding: var(--km-space-sm) var(--km-space-md);
   border-top: 1px solid var(--km-border);
   background: var(--km-panel);
   flex-shrink: 0;
 }
 
 .km-status-compact {
-  gap: 2px;
-  padding: 6px 10px;
+  gap: var(--km-space-2xs);
+  padding: var(--km-space-6) var(--km-space-10);
 }
 
 .km-status-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--km-space-6);
   min-width: 0;
 }
 
 .km-status-row-end {
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .km-status-dot {
@@ -153,7 +153,7 @@ function onToggleTheme(): void {
 }
 
 .km-status-text {
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   opacity: 0.7;
   white-space: nowrap;
   overflow: hidden;
@@ -166,6 +166,6 @@ function onToggleTheme(): void {
 }
 
 .km-status-compact .km-status-text {
-  font-size: 10px;
+  font-size: var(--km-font-xs);
 }
 </style>

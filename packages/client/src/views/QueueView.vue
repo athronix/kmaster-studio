@@ -2,7 +2,7 @@
 // F17 队列整页：与聊天页 QueueTray 共用 chat store 的 queueBySession 数据源。
 // 语义（R-M4-5）：server 重启不自动续发；冲刷入口 = 本页/托盘「立即发送」或该会话下次 run 结束后的自然出队。
 import { computed, onMounted, ref } from 'vue';
-import { NButton, NSpin, NTag, NPopconfirm, useMessage } from 'naive-ui';
+import { NButton, NSpin, NTag, NPopconfirm, NAlert, useMessage } from 'naive-ui';
 import { useRouter } from 'vue-router';
 import { useChatStore } from '../stores/chat';
 import PageHeader from '../components/layout/PageHeader.vue';
@@ -13,6 +13,7 @@ const store = useChatStore();
 const router = useRouter();
 const message = useMessage();
 const loading = ref(false);
+const loadError = ref<string | null>(null);
 
 interface SessionGroup {
   session_id: string;
@@ -33,8 +34,11 @@ const total = computed(() => store.queuedTotal);
 
 async function reload() {
   loading.value = true;
+  loadError.value = null;
   try {
     await Promise.allSettled([store.loadQueue(), store.loadSessions()]);
+  } catch (e: any) {
+    loadError.value = String(e?.message ?? e);
   } finally {
     loading.value = false;
   }
@@ -81,6 +85,13 @@ onMounted(reload);
     </PageHeader>
 
     <n-spin :show="loading">
+      <n-alert
+        v-if="loadError"
+        type="error"
+        :title="loadError"
+        closable
+        @close="loadError = null"
+      />
       <EmptyState
         v-if="!groups.length"
         icon="Clock"

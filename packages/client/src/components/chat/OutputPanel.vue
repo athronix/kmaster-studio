@@ -276,7 +276,7 @@ defineExpose({ openTab });
   align-items: center;
   gap: var(--km-space-xs);
   height: 40px;
-  padding: 0 8px;
+  padding: 0 var(--km-space-sm);
   border-bottom: 1px solid var(--km-border);
   flex-shrink: 0;
 }
@@ -293,7 +293,7 @@ defineExpose({ openTab });
   display: flex;
   align-items: center;
   gap: var(--km-space-xs);
-  padding: 6px 10px;
+  padding: var(--km-space-6) var(--km-space-10);
   border: none;
   background: transparent;
   color: var(--km-text);
@@ -329,7 +329,7 @@ defineExpose({ openTab });
 
 .km-output-tab-close:hover {
   opacity: 1;
-  color: #dc2626;
+  color: var(--km-danger);
 }
 
 /* ── 主体 ── */
@@ -343,7 +343,7 @@ defineExpose({ openTab });
   padding: var(--km-space-14);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--km-space-14);
 }
 
 .km-overview-section {
@@ -363,14 +363,14 @@ defineExpose({ openTab });
 .km-overview-empty {
   font-size: var(--km-font-sm);
   opacity: 0.45;
-  padding: 8px 0;
+  padding: var(--km-space-sm) 0;
 }
 
 .km-artifact-list-item {
   display: flex;
   align-items: center;
   gap: var(--km-space-sm);
-  padding: 6px 10px;
+  padding: var(--km-space-6) var(--km-space-10);
   background: var(--km-bg);
   border: 1px solid var(--km-border);
   border-radius: var(--km-radius-md);
@@ -379,12 +379,12 @@ defineExpose({ openTab });
 }
 
 .km-artifact-list-item:hover {
-  background: rgba(59, 130, 246, 0.08);
+  background: var(--km-accent-bg-light);
   border-color: var(--km-accent);
 }
 
 .km-artifact-kind-badge {
-  font-size: 10px;
+  font-size: var(--km-font-xs);
   text-transform: uppercase;
   opacity: 0.6;
   border: 1px solid var(--km-border);
@@ -406,13 +406,13 @@ defineExpose({ openTab });
   flex-direction: column;
   height: 100%;
   padding: var(--km-space-10);
-  gap: 10px;
+  gap: var(--km-space-10);
 }
 
 .km-output-toolbar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--km-space-6);
   flex-shrink: 0;
 }
 
@@ -436,7 +436,7 @@ defineExpose({ openTab });
   min-height: 300px;
   border: none;
   border-radius: var(--km-radius-sm);
-  background: #fff;
+  background: var(--km-bg);
 }
 
 .km-output-text {

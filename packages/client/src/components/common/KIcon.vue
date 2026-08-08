@@ -24,10 +24,10 @@ const icon = computed(() => {
 
 <style scoped>
 .kicon-fallback {
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   color: var(--km-muted);
   background: var(--km-hover-bg);
   border-radius: var(--km-radius-sm);
-  padding: 2px 6px;
+  padding: var(--km-space-2xs) var(--km-space-6);
 }
 </style>

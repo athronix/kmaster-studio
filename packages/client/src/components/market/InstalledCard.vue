@@ -77,17 +77,17 @@ function onAction(): void {
 
 .km-installed-card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--km-shadow-card-hover);
 }
 
 .km-installed-body {
   display: flex;
-  gap: 8px;
+  gap: var(--km-space-sm);
   align-items: flex-start;
 }
 
 .km-installed-icon {
-  font-size: 22px;
+  font-size: var(--km-font-22);
   line-height: 1.2;
   flex-shrink: 0;
 }
@@ -98,7 +98,7 @@ function onAction(): void {
 }
 
 .km-installed-name {
-  font-size: 13px;
+  font-size: var(--km-font-13);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -106,7 +106,7 @@ function onAction(): void {
 }
 
 .km-installed-desc {
-  font-size: 11px;
+  font-size: var(--km-font-sm);
   line-height: 1.5;
   margin-top: 2px;
   display: -webkit-box;

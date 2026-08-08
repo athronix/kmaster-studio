@@ -95,8 +95,8 @@ function invoke(name: string) {
   cursor: pointer;
   border: 1px solid transparent;
 }
-.sk-cat:hover { background: rgba(255, 255, 255, 0.05); }
-.sk-cat.active { background: rgba(59, 130, 246, 0.16); border-color: var(--km-accent); }
+.sk-cat:hover { background: var(--km-hover-bg); }
+.sk-cat.active { background: var(--km-accent-bg-strong); border-color: var(--km-accent); }
 .sk-cards { flex: 1; display: flex; flex-direction: column; gap: var(--km-space-10); overflow: auto; min-width: 0; }
 .sk-card { border: 1px solid var(--km-border); border-radius: var(--km-radius-lg); padding: var(--km-space-10) var(--km-space-md); background: var(--km-panel); }
 .sk-card-head { display: flex; align-items: center; justify-content: space-between; gap: var(--km-space-sm); }

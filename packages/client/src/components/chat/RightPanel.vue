@@ -176,13 +176,13 @@ function onClose(): void {
   align-items: center;
   justify-content: space-between;
   height: 40px;
-  padding: 0 8px 0 12px;
+  padding: 0 var(--km-space-sm) 0 var(--km-space-md);
   border-bottom: 1px solid var(--km-border);
   flex-shrink: 0;
 }
 
 .km-chat-right-title {
-  font-size: 13px;
+  font-size: var(--km-font-13);
   font-weight: 600;
 }
 
@@ -198,7 +198,7 @@ function onClose(): void {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 12px;
+  padding: var(--km-space-md);
 }
 
 .km-chat-right-output {
@@ -213,20 +213,20 @@ function onClose(): void {
 .km-share-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--km-space-sm);
 }
 
 .km-share-actions {
   display: flex;
-  gap: 6px;
+  gap: var(--km-space-6);
 }
 
 .km-share-json {
   background: var(--km-bg);
   border: 1px solid var(--km-border);
-  border-radius: 6px;
-  padding: 10px;
-  font-size: 12px;
+  border-radius: var(--km-radius-md);
+  padding: var(--km-space-10);
+  font-size: var(--km-font-sm);
   font-family: 'SFMono-Regular', Consolas, 'Cascadia Mono', Menlo, monospace;
   line-height: 1.5;
   white-space: pre-wrap;
@@ -238,28 +238,28 @@ function onClose(): void {
 
 /* ── 大纲页 ── */
 .km-outline-empty {
-  padding: 24px 0;
+  padding: var(--km-space-xl) 0;
 }
 
 .km-outline-item {
   display: flex;
-  gap: 8px;
-  padding: 6px 4px;
+  gap: var(--km-space-sm);
+  padding: var(--km-space-6) var(--km-space-xs);
   cursor: pointer;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   transition: background 0.12s ease;
 }
 
 .km-outline-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--km-hover-bg);
 }
 
 .km-outline-time {
   opacity: 0.45;
   white-space: nowrap;
   flex-shrink: 0;
-  font-size: 11px;
+  font-size: var(--km-font-sm);
 }
 
 .km-outline-text {

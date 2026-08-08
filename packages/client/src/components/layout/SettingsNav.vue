@@ -83,13 +83,13 @@ function onBack(): void {
   display: flex;
   align-items: center;
   height: 48px;
-  padding: 0 12px;
+  padding: 0 var(--km-space-md);
   border-bottom: 1px solid var(--km-border);
   flex-shrink: 0;
 }
 
 .km-setnav-title {
-  font-size: 13px;
+  font-size: var(--km-font-13);
   font-weight: 600;
 }
 
@@ -101,14 +101,14 @@ function onBack(): void {
 .km-setnav-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
   width: 100%;
-  padding: 9px 12px;
+  padding: 9px var(--km-space-md);
   background: transparent;
   border: none;
   border-left: 3px solid transparent;
   color: var(--km-text);
-  font-size: 13px;
+  font-size: var(--km-font-13);
   text-align: left;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -127,7 +127,7 @@ function onBack(): void {
 }
 
 .km-setnav-icon {
-  font-size: 14px;
+  font-size: var(--km-font-md);
   line-height: 1;
   flex-shrink: 0;
 }
@@ -141,7 +141,7 @@ function onBack(): void {
 
 .km-setnav-foot {
   flex-shrink: 0;
-  padding: 8px 12px;
+  padding: var(--km-space-sm) var(--km-space-md);
   border-top: 1px solid var(--km-border);
 }
 </style>

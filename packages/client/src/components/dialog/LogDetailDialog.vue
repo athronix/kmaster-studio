@@ -128,12 +128,12 @@ async function onOpenExternal(): Promise<void> {
 .lgd-head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--km-space-sm);
   min-width: 0;
 }
 
 .lgd-title {
-  font-size: 14px;
+  font-size: var(--km-font-md);
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -143,19 +143,19 @@ async function onOpenExternal(): Promise<void> {
 .lgd-body {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--km-space-md);
 }
 
 .lgd-meta {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px 16px;
-  font-size: 12px;
+  gap: var(--km-space-6) var(--km-space-lg);
+  font-size: var(--km-font-sm);
 }
 
 .lgd-meta-row {
   display: flex;
-  gap: 8px;
+  gap: var(--km-space-sm);
   min-width: 0;
 }
 
@@ -175,14 +175,14 @@ async function onOpenExternal(): Promise<void> {
 
 .lgd-content {
   margin: 0;
-  padding: 12px;
+  padding: var(--km-space-md);
   max-height: 420px;
   overflow: auto;
   border: 1px solid var(--km-border);
   border-radius: 6px;
   background: var(--km-bg);
   font-family: var(--km-mono, ui-monospace, monospace);
-  font-size: 12px;
+  font-size: var(--km-font-sm);
   line-height: 1.8;
   white-space: pre-wrap;
   word-break: break-word;

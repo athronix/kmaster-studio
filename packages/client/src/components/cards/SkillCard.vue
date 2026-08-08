@@ -131,7 +131,7 @@ function onUninstall(e: MouseEvent): void {
 
 .km-skill-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--km-shadow-card-hover);
 }
 
 .km-skill-source {
@@ -149,7 +149,7 @@ function onUninstall(e: MouseEvent): void {
 }
 
 .km-skill-icon-text {
-  font-size: 36px;
+  font-size: var(--km-font-3xl);
   line-height: 1;
 }
 
