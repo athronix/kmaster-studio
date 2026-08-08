@@ -1,9 +1,0 @@
-129:  height: 210px;
-133:  transform: translateY(-2px);
-134:  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-139:  top: 10px;
-140:  left: 10px;
-148:  padding: 16px 0 6px;
-152:  font-size: 36px;
-181:  padding: 4px 8px 0;
-191:  padding: 8px 0 4px;

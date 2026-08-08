@@ -1,3 +1,0 @@
-58:  padding: 64px 16px;
-62:  font-size: 40px;
-71:  max-width: 420px;

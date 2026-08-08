@@ -1,6 +1,0 @@
-{
-  "count": 1,
-  "items": [
-    "packages/client/src/components/chat/AgentMarkdown.vue:50  ✓"
-  ]
-}

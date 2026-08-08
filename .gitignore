@@ -45,6 +45,14 @@ dist-v2/
 # ===== Vite transient config cache =====
 vite.config.*.timestamp-*.mjs
 
+# ===== UI/UX v2 整改临时草稿（严禁入库） =====
+/_*.txt
+scripts/tmp-*.mjs
+/test_output.txt
+/verify_out.txt
+# 整改草稿隔离区（mv 出根目录后暂存，可被彻底删除）
+.trash-tmp/
+
 # ===== Python cache / scratch (hermes bridge venv artifacts) =====
 **/__pycache__/
 *.pyc

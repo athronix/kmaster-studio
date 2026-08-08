@@ -1,2 +1,0 @@
-97:  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-107:  letter-spacing: 0.5px;

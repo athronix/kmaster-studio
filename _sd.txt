@@ -1,5 +1,0 @@
-107:    style="width: 480px"
-184:  gap: 10px;
-198:  min-width: 48px;
-208:  padding: 4px 0;
-212:  border-top: 1px solid var(--km-border);
