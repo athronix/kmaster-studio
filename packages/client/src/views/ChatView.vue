@@ -10,7 +10,7 @@
  */
 import { computed, onMounted, onUnmounted, ref, watch, shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
-import { NButton, NPopover } from 'naive-ui';
+import { NAlert, NButton, NPopover } from 'naive-ui';
 import { useChatStore } from '../stores/chat';
 import { useLayoutStore } from '../stores/layout';
 import { CHAT_MODES, type HermesMode } from '../types/chat';
@@ -25,6 +25,8 @@ import type { ChatRightPanelMode } from '../components/chat/RightPanel.vue';
 import ShareDialog from '../components/chat/ShareDialog.vue';
 import { keyboardActions } from '../composables/useKeyboard';
 import KIcon from '../components/common/KIcon.vue';
+import EmptyState from '../components/common/EmptyState.vue';
+import SkeletonList from '../components/common/SkeletonList.vue';
 
 const store = useChatStore();
 const layout = useLayoutStore();
@@ -32,6 +34,59 @@ const router = useRouter();
 
 const sid = computed(() => store.activeSessionId);
 const running = computed(() => !!sid.value && store.runState[sid.value] === 'running');
+
+// ── 会话/消息 三态（载态 / 空态 / 错误态）──
+// store 里没有会话列表级别的 loading/error 标志（`openingSession` 只覆盖
+// 「切换会话时拉取历史消息」这一段），因此这里用组件内最小 ref 补齐首屏
+// `loadSessions()` 的加载与失败态，两者合流后驱动主体区分支。
+
+/** 首屏 `/api/sessions` 拉取中。 */
+const sessionsLoading = ref(false);
+
+/** 会话列表 / 历史消息加载失败原因；空串表示无错误。 */
+const loadError = ref('');
+
+/** 载态：拉取会话列表，或切换会话时读取历史消息。 */
+const historyLoading = computed<boolean>(() => sessionsLoading.value || store.openingSession);
+
+/** 空态：加载完成且无错误，但还没有任何活动会话。 */
+const conversationEmpty = computed<boolean>(
+  () => !historyLoading.value && !loadError.value && !sid.value,
+);
+
+/** 空态副标题：区分「一个会话都没有」与「有历史会话但未选中」。 */
+const emptyDescription = computed<string>(() =>
+  store.sessions.length
+    ? '从左侧会话列表选择一个已有会话，或直接新建一段对话。'
+    : '还没有任何会话，点击下方按钮开始你的第一段对话。',
+);
+
+/** 加载会话列表，失败写入 `loadError` 供错误态渲染。 */
+async function loadSessionList(): Promise<void> {
+  sessionsLoading.value = true;
+  loadError.value = '';
+  try {
+    await store.loadSessions();
+  } catch (e: unknown) {
+    loadError.value = e instanceof Error ? e.message : '会话列表加载失败，请检查服务端连接';
+  } finally {
+    sessionsLoading.value = false;
+  }
+}
+
+/** 错误态「重试」。 */
+function retryLoad(): void {
+  void loadSessionList();
+}
+
+/** 空态「新建会话」CTA。 */
+async function handleCreateSession(): Promise<void> {
+  try {
+    await store.createSession();
+  } catch (e: unknown) {
+    loadError.value = e instanceof Error ? e.message : '新建会话失败';
+  }
+}
 
 // ── 标题 ──
 const title = computed(() => {
@@ -191,7 +246,7 @@ function scrollToMessage(msgId: string): void {
 // ── 生命周期 ──
 onMounted(async () => {
   store.registerSocket();
-  await store.loadSessions();
+  await loadSessionList();
   loadAgents();
 
   keyboardActions.createSession.value = () => store.createSession();
@@ -310,7 +365,40 @@ watch(
 
     <!-- 主体区域：ChatPanel + 右侧栏 -->
     <div class="km-chat-body">
-      <ChatPanel :search="searchQuery" :send-mode="sendMode" />
+      <div class="km-chat-main">
+        <!-- 错误态：会话列表 / 历史消息加载失败，横幅提示 + 重试 -->
+        <n-alert
+          v-if="loadError"
+          class="km-chat-alert"
+          type="error"
+          title="会话加载失败"
+          closable
+          @close="loadError = ''"
+        >
+          <div class="km-chat-alert-body">
+            <span class="km-chat-alert-text">{{ loadError }}</span>
+            <n-button size="tiny" tertiary @click="retryLoad">重试</n-button>
+          </div>
+        </n-alert>
+
+        <!-- 载态：拉取会话列表 / 切换会话读取历史消息 -->
+        <SkeletonList v-if="historyLoading" class="km-chat-state" />
+
+        <!-- 空态：尚未选中任何会话 -->
+        <EmptyState
+          v-else-if="conversationEmpty"
+          class="km-chat-state"
+          icon="MessageCircle"
+          title="开始一段新对话"
+          :description="emptyDescription"
+          action-label="新建会话"
+          @action="handleCreateSession"
+        />
+
+        <!-- 正常态：消息区 + 输入框 -->
+        <ChatPanel v-else :search="searchQuery" :send-mode="sendMode" />
+      </div>
+
       <ChatRightPanel
         :mode="chatRightPanelMode"
         @close="chatRightPanelMode = 'hidden'"
@@ -354,6 +442,40 @@ watch(
   flex: 1;
   min-height: 0;
   display: flex;
+}
+
+/* 主体左列：错误横幅 + 三态区（载态 / 空态 / ChatPanel） */
+.km-chat-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 错误态横幅 */
+.km-chat-alert {
+  flex: 0 0 auto;
+  margin: var(--km-space-sm) var(--km-space-lg) 0;
+}
+
+.km-chat-alert-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--km-space-sm);
+}
+
+.km-chat-alert-text {
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* 载态 / 空态占位区：撑满 ChatPanel 原有空间 */
+.km-chat-state {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* badge */

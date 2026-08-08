@@ -15,12 +15,20 @@
  * 内嵌复用约定（A4）：`MemoryView` / `JobsView` 同时服务独立路由与设置类别，
  * 内嵌时通过 `embedded` prop 关闭其自带 PageHeader 的左右栏按钮，避免双 title 栏。
  */
-import { computed, defineAsyncComponent, ref, watch, type Component } from 'vue';
-import { NSpin, NTabs, NTabPane, useMessage } from 'naive-ui';
+import {
+  computed,
+  defineAsyncComponent,
+  onErrorCaptured,
+  ref,
+  watch,
+  type Component,
+} from 'vue';
+import { NAlert, NButton, NSpin, NTabs, NTabPane, useMessage } from 'naive-ui';
 import { useRouter } from 'vue-router';
 import PageHeader from '../components/layout/PageHeader.vue';
 import MarketLayout from '../components/common/MarketLayout.vue';
 import SettingsDetailPanel from '../components/common/SettingsDetailPanel.vue';
+import EmptyState from '../components/common/EmptyState.vue';
 import { useMarketList } from '../composables/useMarketList';
 import { useInstall } from '../composables/useInstall';
 import {
@@ -398,15 +406,45 @@ const sectionProps = computed<Record<string, unknown>>(() => {
   return searchable.value ? { search: searchQuery.value } : {};
 });
 
+// ═══════════════════ 设置分区错误态（异步 chunk / section 内部异常） ═══════════════════
+
+/**
+ * 分区加载失败原因；空串表示无错误。
+ *
+ * 半数 section 走 `defineAsyncComponent` 懒加载，chunk 拉取失败时 `<Suspense>`
+ * 只会停在 fallback（永久转圈）而不给任何反馈。这里用 `onErrorCaptured` 兜住
+ * 后代异常，转成可重试的错误态。
+ */
+const sectionError = ref<string>('');
+
+/** 重试计数：并入 section 的 `key`，用于强制重新挂载重新拉取 chunk。 */
+const sectionReloadKey = ref<number>(0);
+
+/** section 的渲染 key：类别 + 重试计数。 */
+const sectionKey = computed<string>(() => `${activeCategory.value}-${sectionReloadKey.value}`);
+
+onErrorCaptured((err: unknown): boolean => {
+  sectionError.value = err instanceof Error ? err.message : '设置分区加载失败';
+  // 已在本层消化，不再向上冒泡整页崩溃
+  return false;
+});
+
+/** 错误态「重试」：清错误并强制重建当前 section。 */
+function retrySection(): void {
+  sectionError.value = '';
+  sectionReloadKey.value += 1;
+}
+
 /** PageHeader 搜索回调。 */
 function onSearch(q: string): void {
   searchQuery.value = q;
 }
 
-// 切换类别时清空搜索与选中项，避免上一页的关键字/选中污染下一页
+// 切换类别时清空搜索、选中项与错误态，避免上一页的关键字/选中/报错污染下一页
 watch(activeCategory, () => {
   searchQuery.value = '';
   selectedItem.value = null;
+  sectionError.value = '';
 });
 </script>
 
@@ -424,6 +462,21 @@ watch(activeCategory, () => {
     </PageHeader>
 
     <div class="km-settings-body" :class="{ 'km-settings-body-flush': isEmbeddedView || isMarketSettings }">
+      <!-- 错误态：分区加载失败（异步 chunk 拉取失败 / section 内部抛错） -->
+      <n-alert
+        v-if="sectionError"
+        class="km-settings-alert"
+        type="error"
+        :title="`「${meta.label}」加载失败`"
+        closable
+        @close="sectionError = ''"
+      >
+        <div class="km-settings-alert-body">
+          <span class="km-settings-alert-text">{{ sectionError }}</span>
+          <n-button size="tiny" tertiary @click="retrySection">重试</n-button>
+        </div>
+      </n-alert>
+
       <!-- T02/T03：市场类设置 → NTabs + MarketLayout（左） + SettingsDetailPanel（右） -->
       <template v-if="isMarketSettings">
         <div class="km-market-settings-row">
@@ -444,7 +497,16 @@ watch(activeCategory, () => {
               <MarketLayout :config="mcpSettingsConfig" :key="'settings-mcp'" @card-click="onCardClick" />
             </NTabPane>
           </NTabs>
+          <!-- 空态：右栏尚未选中任何条目（进入市场设置的默认状态） -->
+          <EmptyState
+            v-if="!selectedItem"
+            class="km-settings-detail km-settings-detail-empty"
+            icon="HandClick"
+            title="未选择条目"
+            description="点击左侧卡片，在此查看详情与安装 / 卸载操作。"
+          />
           <SettingsDetailPanel
+            v-else
             :item="selectedItem"
             :entity-type="detailEntityType"
             class="km-settings-detail"
@@ -455,10 +517,10 @@ watch(activeCategory, () => {
         </div>
       </template>
 
-      <!-- 原有 section 映射 -->
-      <template v-else>
+      <!-- 原有 section 映射（错误态下不再挂载，避免 Suspense 永久转圈） -->
+      <template v-else-if="!sectionError">
         <Suspense>
-          <component :is="activeSection" v-bind="sectionProps" :key="activeCategory" />
+          <component :is="activeSection" v-bind="sectionProps" :key="sectionKey" />
           <template #fallback>
             <div class="km-settings-loading">
               <n-spin size="small" />
@@ -545,6 +607,13 @@ watch(activeCategory, () => {
   background: var(--km-card-bg);
 }
 
+/* T02：右栏空态（复用详情栏尺寸，保证左右分栏宽度不跳动） */
+.km-settings-detail-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .km-settings-loading {
   display: flex;
   align-items: center;
@@ -553,5 +622,23 @@ watch(activeCategory, () => {
   justify-content: center;
   font-size: var(--km-font-sm);
   opacity: 0.6;
+}
+
+/* 错误态横幅：flush 布局下不参与 flex 伸展（须置于 body-flush 规则之后） */
+.km-settings-alert {
+  flex: 0 0 auto;
+  margin: var(--km-space-sm) var(--km-space-lg);
+}
+
+.km-settings-alert-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--km-space-sm);
+}
+
+.km-settings-alert-text {
+  min-width: 0;
+  word-break: break-word;
 }
 </style>
