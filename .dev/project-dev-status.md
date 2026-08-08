@@ -32,6 +32,7 @@
 - 2026-08-03：**kmaster-bridge 完整实现 + M1/M2/M3 并发加固**（2 个提交，Python 侧 8 模块约 9000 行）。RealBridge 改为按 sessionId 路由连接表，顺带修掉 errata 4.1.0 隐患①。详见 changed-log.md C-2026-08-03-BRIDGE。
 - 2026-08-04：**UI 重设计 V1 / V2 / V3 交付**（6 个提交），全屏沉浸式 Agent 工作站 → 卡片市场 → 三栏框架 + 设置分导航路由化 + 弹窗体系。详见 changed-log.md C-2026-08-04-UI-V1V3。
 - 2026-08-05：**DDD 索引欠账回填（Scenario F）**：补齐 M4 之后 22 个提交 / 13 份设计文档的索引；UI V3 四份文档由 `packages/client/docs/` 迁入 `docs/design/` 并对齐命名约定（修正 3 处引用）。复验 `TSC_EXIT=0` + `vitest 139/139`。详见 changed-log.md C-2026-08-05-BACKFILL。
+- 2026-08-07：**UI/UX v2 整改收口**（续前序会话）：固化 v2 全量代码（`e451be1`）+ 清理 82 个临时草稿并加固 .gitignore（`ff8070f`）+ 补全 ChatView/SettingsView 缺状态 missingStates 2→0（`61fd7d6`）。主理人独立复核 `uiux-audit.mjs --fail-on-regression` EXIT 0、无回归；独立 QA 全量验收（#18）**5 闸门全 PASS、路由 NoOne**（审计回归 / 覆盖率 / vue-tsc+vite build / 三态复检 / dev 冒烟 localhost）。详见 changed-log.md C-2026-08-07-UIUX-V2。
 
 ## ⚠️ 编号体系澄清（避免误读 git log）
 项目历史中存在**两套互不相关的 "V1/V2/V3" 编号**，按日期区分：
@@ -56,6 +57,7 @@
 | 10 | 文档滞后 | `CONCURRENCY-DESKTOP-WEB.md` 的 **F15**（RealBridge 单例 `this.sock` 并发串台）**已被 `2c208de` 修复**（改 `Map<sessionId, Socket>`），文档仍列为在世缺陷 |
 | 11 | 行号漂移 | 同上文档代码引用已失效：`bridge.ts:402-405` → 实际 **463**；`bridge.ts:296 private sock?` → 实际 **307 `private socks = new Map`** |
 | 12 | ⚠️ 架构风险 | 同上文档 **F11**：hermes-agent 真实接入面是 **ACP stdio**（每客户端 spawn 独立进程，天然一对一），**不是 TCP daemon**；而 `RealBridge` 是 TCP 客户端。hermes-native 升级须先厘清 Python bridge 如何完成 TCP→ACP 转译，否则仅反转 mock 默认值不足以获得真实对话 |
+| 13 | 测试债 | **12 个 vitest 失败先行存在**（238 passed / 12 failed，logs×9 / agentRoles×1 / chat×1 / modelConfig×1）：根因 `logs.ts` 已迁 HTTP `/api/logs`，但 `logs.test.ts` 仍 `vi.mock('../utils/desktop-bridge')` 空转 → 打到真实 HTTP 客户端失败（`Failed to parse URL from /api/logs`）。与 UI/UX v2 整改无关（A/B 实证：还原 `cc9b55e` 源码重跑逐位相同），属**测试代码滞后于源码**，非产品缺陷；修复面仅 4 个测试文件、零产品风险（已于 2026-08-07 由 QA 修复，251/251） |
 
 ## 关键环境校正（累计）
 **依赖与运行时**

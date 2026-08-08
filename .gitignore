@@ -39,6 +39,7 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+*.bak
 
 # ===== V2 build output (kept out of history) =====
 dist-v2/

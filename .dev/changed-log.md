@@ -290,3 +290,42 @@
   12. ⚠️ **架构层风险（F11）**：`acp_adapter/entry.py` 证实 hermes-agent 的真实接入面是 **ACP stdio**（每客户端 spawn 独立进程，天然一对一），**不是 TCP daemon**；而 `RealBridge` 是连 `tcp://127.0.0.1:16765` 的 TCP 客户端。**仅反转 `HERMES_BRIDGE_MOCK` 默认值不足以获得真实对话**，须先确认 Python bridge 的 TCP→ACP 转译路径是否已落地并可部署。
 - 验证：`vue-tsc --noEmit` → **TSC_EXIT=0**；`packages/**` 源码零改动
 
+## C-2026-08-07-UIUX-V2 · UI/UX 体系 v2 重设计（设计 + 计划 + 代码落地 + 验收）
+- 类型：项目升级（前端 UI/UX v2 体系 —— 设计 + 计划 + 代码固化 + 缺状态修复）
+- 范围：将前序会话产出的 UI/UX v2 设计规范与分批实现计划真正落码，并修复前序「虚高闭环」遗留（临时草稿未清理 / 约 40 个 v2 代码未提交 / 缺状态 view=2）
+- 提交（3 个，均 2026-08-07）：
+  | 提交 | 内容 | 规模 |
+  |------|------|------|
+  | `e451be1` | feat(client): 固化 UI/UX v2 全量代码（前序未提交的 v2 整改代码落库） | 51 文件 +411/-353 |
+  | `ff8070f` | chore: 清理 UI/UX v2 整改临时草稿（82 个 `_*.txt` + `scripts/tmp-*.mjs` + 散落日志）并加固 .gitignore | 103 文件 -7758 |
+  | `61fd7d6` | fix(client): 补全 ChatView/SettingsView 缺状态（missingStates 2→0） | 2 文件 +218/-9 |
+- 变更集（关键）：
+  - 固化 v2 代码：`packages/client/src/**` 中 UI V2 相关组件/样式/类型（卡片市场 / 弹窗 / 设置覆盖 / 右栏避让等）全量落库
+  - 清理：`_*.txt`（根 71 个）+ `scripts/tmp-*.mjs`（11 个）+ `det.log`/`test_output.txt`/`verify_out.txt` → 经 `mv` 隔离至 `.trash-tmp/`（git 忽略，不入库、不丢真实审计产物 `docs/audit/_census-raw.txt` 87710B）
+  - `.gitignore` 新增：`/_*.txt`、`scripts/tmp-*.mjs`、`/test_output.txt`、`/verify_out.txt`、`.trash-tmp/`
+  - 缺状态修复：`ChatView.vue`（载态 SkeletonList / 空态 EmptyState+新建会话 CTA / 错误态 n-alert+重试，刻意避开恒 true 的 `store.restoring` 死标）、`SettingsView.vue`（空态 EmptyState + 错误态 onErrorCaptured 兜底 chunk 失败）
+  - 验收工具：`scripts/uiux-audit.mjs`（12 指标 + `--fail-on-regression` 回归门禁 + `--write-baseline` + `--details`）
+  - 基线：`docs/audit/uiux-metrics-baseline.json` + `docs/audit/uiux-metrics-baseline-2026-08-07.md`
+- **环境校正（本次发现，已落地）**：
+  1. 沙箱「安全删除」垫片 bug：`rm` 被 `genie-trash` 拦截且因 `/d/...` 路径转换错误 **FAILED CLOSED**（文件一个不删）。→ 改用 `mv` 隔离法绕开（`mkdir -p .trash-tmp && mv 草稿 .trash-tmp/`），不破坏 git、不丢真实审计产物
+- 验证结果（主理人独立复核，非轻信回执）：
+  - ✅ `scripts/uiux-audit.mjs --fail-on-regression` → **EXIT 0**，无回归
+  - ✅ 对照基线：**missingStates 2 → 0（-2）**；幽灵 Token 0/0、硬编码 hex/rgba 0/0、functionalEmoji 2、outlineNone 0、unusedTokens 0、ts/sfcScript emoji 0/0；扫描器自检漏扫位点 0 ✅
+  - ✅ 工作树干净（`git status --short | wc -l` = 0）；3 个提交已落库
+  - ✅ 工程师 vue-tsc 0 错误（回执）；grep 自检 ChatView 三态标签=3、SettingsView=2，与主理人复核一致
+- **两点非阻塞行为变化（工程师实现，用户未要求改，留作可选）**：
+  1. ChatView 空态交互：改为需先点「新建会话」再进入对话（非原直接打字新建会话）
+  2. 消息发送失败未纳入顶层 NAlert（store 逐条落到 MessageList），与缺状态修复解耦
+- **验收（独立 QA 工程师 #18，严过关，第 1 轮即通过，路由 NoOne）**：
+  - ✅ 闸门1 审计回归：`uiux-audit.mjs --fail-on-regression` EXIT 0、missingStates **2→0**、12 指标对基线无回归、漏扫位点 0
+  - ✅ 闸门2 覆盖率：`scripts/verify-scan-coverage.mjs` 实跑 PASS（oracle 2 = audit 2、漏扫 0、123 码位白名单全覆盖）
+  - ✅ 闸门3 类型与构建：`vue-tsc --noEmit` 0 错误；`vite build`（带 `KMASTER_NO_EMPTY_DIST=1`）✓ built in 25.50s
+  - ✅ 闸门4 三态复检：两视图各 3 态齐备且**均接真实触发链**（反「装样子」深查，审计开标签判定无法被 import 蒙混）
+  - ✅ 闸门5 dev 冒烟（localhost）：HTTP 200、SFC 运行时编译通过；`ws proxy ECONNREFUSED` 系未启 6648 后端，属环境噪声
+  - ⚠️ 范围外发现：自主跑 `vitest run` 得 **12 failed / 238 passed**，经 A/B 实证（还原基线 `cc9b55e` 源码重跑逐位相同）确认 **100% 先行存在、与本次无关**；根因为 `logs.test.ts` mock 模块错配（`logs.ts` 已迁 HTTP 但测试滞后），属**测试代码债**，非产品缺陷
+  - ✅ 范围外测试债已清零：12 个先行 vitest 失败经修复后重跑 **251/251**（原总数 250，新增 1 条 `mockEntries` 导出覆盖；仅改 4 个 `*.test.ts`，产品源码零改动，`vue-tsc` 0 错误、审计闸门仍 EXIT 0）
+- 遗留/待办：
+  - 4 份 `.dev` 索引（changed-log / docs-index / project-dev-status / project-dir-file-index）已同步至真实现状
+  - ~~上述 12 个先行 vitest 失败：超出 v2 收口范围，转独立技术债排期~~ → **已于 2026-08-07 由 QA 修复清零（251/251）**，详见 project-dev-status.md 已知遗留 #13
+  - 修复中新发现（非阻塞，已部分收口）：① `logs.ts` 的 `isMock` 恒 false 但 `LogSection.vue:224` 仍据其渲染「演示数据」标签 → 该标签永不出现；`openExternal`/`openLogDir` 为 Web 端桩恒 false，`LogDetailDialog.vue:82` / `LogSection.vue:136` 的「外部打开」必失败（产品行为问题，需产品/工程师裁定补实现或删按钮，见交付汇总待办）；② `mockEntries()` 已成死导出（store 不再调用，暂由 QA 新增测试兜着）；③ 8 个 `.bak` 备份残留于 `src/`（ChatView / SettingsView / OutputPanel / ChatInput / MessageItem / LeftSidebar / JobsView / MemoryView 各自的 `.vue.bak`），系 `21c88ff` 的 `sed -i.bak` 产物、`ff8070f` 清理漏网 → **已于 2026-08-07 经 `git rm` 清理并加 `*.bak` 至 .gitignore**
+

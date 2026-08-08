@@ -1,8 +1,8 @@
 # 项目目录索引
 
 ## 版本信息
-- 当前版本: v0.6.0 (UI 重设计 V3 已交付并复验通过；HEAD `27b7783`)
-- 最后更新: 2026-08-05（DDD Scenario F 索引回填，按实扫结果重建）
+- 当前版本: v0.7.0 (UI/UX v2 整改收口 + UI 重设计 V3 已交付；HEAD `61fd7d6`)
+- 最后更新: 2026-08-07（UI/UX v2 整改收口：固化 v2 代码 + 清理临时草稿 + 缺状态修复；HEAD `61fd7d6`）
 
 ## 目录结构
 | 目录 | 说明 | 关键文件 |
@@ -10,11 +10,12 @@
 | .dev/ | DDD 索引与状态 | README / project-dev-status / docs-index / changing-log / changed-log / project-dir-file-index / QA-M3-REPORT / QA-M4-REPORT / QA-M4-INDEPENDENT-REPORT / QA-M5-REPORT |
 | docs/reference/ | 用户已有分析草稿（只读参考） | 00-03 四篇 |
 | docs/research/ | 本项目调研文档 | PROJECT-OVERVIEW / CONTEXT-ANALYSIS / TASK-UNDERSTANDING / CHANGE-OBJECTIVE |
-| docs/design/ | 设计文档（Phase 2 产出，37 份） | M1-M5 系列 · kmaster-bridge 系列 · WorkBuddy 对标 3 篇 · UI V1/V2/V3 系列 |
+| docs/design/ | 设计文档（Phase 2 产出，37 份） | M1-M5 系列 · kmaster-bridge 系列 · WorkBuddy 对标 3 篇 · UI V1/V2/V3 系列 · UI/UX v2 整改系列 |
+| docs/audit/ | UI/UX 合规度量产物（基线快照 + 报告 + 现状审计；`_census-raw.txt` 为原始数据） | uiux-metrics-baseline.json · uiux-metrics-baseline-2026-08-07.md · ui-ux-current-state-v2-2026-08-07.md · uiux-charset-census-2026-08-07.md |
 | packages/client/ | 前端（Vue 3 + Naive UI + Pinia + vue-router + Vite） | src/ · index.html · vite.config.ts · vitest.config.ts · tsconfig.json · env.d.ts |
 | packages/server/ | 服务端（Koa + Socket.IO + better-sqlite3） | src/ · test_bridge.mjs · tsconfig.json |
 | packages/desktop/ | **M5 新增**：Electron 桌面壳 | src/main/ · src/preload/ · electron-builder.yml · build/ · scripts/ |
-| scripts/ | 验证脚本 | smoke-chat · qa-verify-m3/m4/m5 · qa-probe-m4 · qa-probe-db |
+| scripts/ | 验证脚本 | smoke-chat · qa-verify-m3/m4/m5 · qa-probe-m4 · qa-probe-db · uiux-audit |
 | packages/client/dist/ | vite 构建产物（生产 server 托管） | index.html · assets/* |
 
 ## packages/client/src/ 明细（按实扫）
@@ -106,7 +107,7 @@
 |------|------|------|
 | package.json | 依赖管理（workspaces: client/server/**desktop**；`dev:desktop`/`build:desktop`/`dist:{win,mac,linux}`） | 已落地 |
 | tsconfig.base.json | TS 基线配置 | 已落地 |
-| .gitignore | 忽略规则 ⚠️ 未覆盖 `**/__pycache__/` 与 `tmp2/` | 已落地 |
+| .gitignore | 忽略规则（已加固：新增 `/_*.txt` · `scripts/tmp-*.mjs` · `/test_output.txt` · `/verify_out.txt` · `.trash-tmp/`；⚠️ 仍缺 `**/__pycache__/` 与 `tmp2/`） | 已落地 |
 | packages/client/vite.config.ts | dev server **6649**；`/api` 与 `/socket.io` 代理 → `localhost:6648`；`emptyOutDir` 可由 `KMASTER_NO_EMPTY_DIST=1` 关闭 | 已落地 |
 | packages/client/vitest.config.ts | 单测配置（node / cache:false） | 139/139 ✅ |
 | packages/client/tsconfig.json | 补 baseUrl 以支持 `@/*` 别名 | 已落地 |

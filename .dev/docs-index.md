@@ -67,6 +67,17 @@
 | class-diagram-ui-v3.mermaid | UI V3 类图：类型层 + Store 层（原 `class-diagram.mermaid`） | UI V3 | V3.0 |
 | component-contract-ui-v3.mermaid | UI V3 组件契约图：props / emits / slots（原 `component-contract.mermaid`） | UI V3 | V3.0 |
 
+### UI/UX v2 整改（2026-08-07，已收口）
+| 文档 | 说明 | 状态 | 版本 |
+|------|------|------|------|
+| kmaster-studio-ui-ux.v2.md | UI/UX v2 设计规范（13 章 + 附录 ABC，整改面 148 位点） | 已定稿 | v1.0 |
+| kmaster-studio-ui-ux-v2-implementation-plan.md | gap 矩阵 + B1–B5 分批实现计划 | 已定稿 | v1.0 |
+| ui-ux-current-state-v2-2026-08-07.md | v2 现状审计 | 已验收 | v1.0 |
+| uiux-metrics-baseline-2026-08-07.md | UI/UX 度量基线报告 | 已固化 | v1.0 |
+| scripts/uiux-audit.mjs | **可执行验收脚本**（12 指标 + `--fail-on-regression` 回归门禁） | 已验收 | v1.0 |
+
+> 验收铁律：`scripts/uiux-audit.mjs` 是本项目 UI/UX 验收的**唯一事实来源**；完成判定须 `node scripts/uiux-audit.mjs --fail-on-regression` 退出 0 并给出指标前后对比，不接受主观描述式验收。
+
 ### hermes-native 架构升级（进行中，DDD Scenario B）
 | 文档 | 说明 | 状态 | 版本 |
 |------|------|------|------|
@@ -114,6 +125,7 @@
 | scripts/smoke-chat.mjs | 聊天闭环烟雾测试（localhost:6648） | PASS ✅ |
 | scripts/qa-verify-m3.mjs · qa-verify-m4.mjs · qa-verify-m5.mjs | M3/M4/M5 REST 全量验收 | 20/20 · 61/61 · 44/47 |
 | scripts/qa-probe-m4.mjs · qa-probe-db.mjs | M4 独立 QA 探针 | 21/21 ✅ |
+| scripts/uiux-audit.mjs | UI/UX 合规度量（12 指标 + 回归门禁） | missingStates 2→0 ✅（对照 2026-08-07 基线无回归） |
 | packages/client/dist/ | vite 构建产物（生产 server 托管） | served ✅ |
 
 ---
@@ -123,3 +135,4 @@
 > **端口约定**：server **6648** / client dev **6649** / kmaster-bridge TCP **16765**。
 > 详见 `changed-log.md` C-2026-07-30-M1 → C-2026-08-05-BACKFILL 与 `.dev/QA-M3/M4/M5-*.md`。
 > 🔴 **开箱即假**：`bridge.ts:463` `HERMES_BRIDGE_MOCK ?? '1'` → **默认 MockBridge**，对话主链路默认不经真实模型。已由 hermes-native PRD 的 HN-P000 与 QA 健康盘点 D-04 双向立项，为 hermes-native 升级最高优先级。
+> ✅ **UI/UX v2 整改已收口（2026-08-07）**：v2 代码固化 + 临时草稿清理 + 缺状态修复（missingStates 2→0），对照基线无回归。详见 changed-log.md C-2026-08-07-UIUX-V2。
