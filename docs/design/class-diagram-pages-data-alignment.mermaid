@@ -1,0 +1,247 @@
+%% kmaster-studio 页面数据逻辑对齐 hermes-studio — 数据结构与接口类图
+%% 作者：高见远（software-architect）
+%% 关联：docs/design/TECHNICAL-SOLUTION-pages-data-alignment.md
+%% 图例：G4 后缀 = 外部源禁改区（红线）
+
+classDiagram
+    %% ===================== 后端：WS 契约与推送（CH-01 / L3） =====================
+    class ContextTokensPayload {
+        +number total_tokens
+        +number context_length
+    }
+    class UsageUpdatedPayload {
+        +string session_id
+        +number input_tokens
+        +number output_tokens
+        +ContextTokensPayload context_tokens
+    }
+    class RunCompletedPayload {
+        +string session_id
+        +string message_id
+        +ChatMessage message
+        +Usage usage
+        +ContextTokensPayload context_tokens
+    }
+    class ServerToClientEvents {
+        <<interface>>
+        +usage_updated(UsageUpdatedPayload) void
+        +run_completed(RunCompletedPayload) void
+        +note~L3 不新增事件类型~
+    }
+    UsageUpdatedPayload --> ContextTokensPayload : 可选字段(新增)
+    RunCompletedPayload --> ContextTokensPayload : 可选字段(新增)
+    ServerToClientEvents --> UsageUpdatedPayload
+    ServerToClientEvents --> RunCompletedPayload
+
+    class RunChatService {
+        -Map estimateCache
+        +executeRun(sessionId, input) Promise
+        +getContextEstimate(sessionId) ContextEstimate
+        -onEvent(evt) void
+        -injectContextTokens(payload) void
+    }
+    class Bridge {
+        +estimateContext(sessionId) ContextEstimate
+        +charsToTokens(chars) number
+    }
+    RunChatService --> Bridge : 复用(不改)
+    RunChatService ..> UsageUpdatedPayload : emit
+    RunChatService ..> RunCompletedPayload : emit
+
+    %% ===================== 后端：新增聚合（ST-07 / ST-08） =====================
+    class PluginItem {
+        +string id
+        +string name
+        +string kind
+        +string source
+        +string effectiveStatus
+        +number providesTools
+        +string description
+    }
+    class PluginsAggregate {
+        <<新增>>
+        +listPlugins() PluginItem[]
+        -readHermesPluginConfig() raw
+        -normalize(raw) PluginItem
+    }
+    class PluginsRoute {
+        <<新增>>
+        +GET_api_plugins() PluginsResponse
+    }
+    PluginsRoute --> PluginsAggregate
+    PluginsAggregate --> PluginItem
+
+    class PlatformChannelConfig {
+        +string id
+        +string type
+        +boolean enabled
+        +Record credentials
+    }
+    class ConfigRoute {
+        +GET_api_config_providers()
+        +GET_api_config_profiles()
+        +GET_api_config_platform() PlatformChannelConfig[]
+        +PUT_api_config_platform(body) void
+    }
+    ConfigRoute --> PlatformChannelConfig : 新增 platform section
+
+    %% ===================== 后端：G4 红线只读区 =====================
+    class SkillsAggregate_G4 {
+        <<外部源-禁改>>
+        +mergeSkillLists() SkillsResponse
+    }
+    class McpAggregate_G4 {
+        <<外部源-禁改>>
+        +mergeMcpLists() McpResponse
+    }
+    class SkillHubProxy_G4 {
+        <<外部源-禁改>>
+        +GET_api_skillhub_skills()
+        +GET_api_skillhub_categories()
+        +GET_api_skillhub_skills_slug()
+        +POST_api_skillhub_skills_install()
+    }
+    class CosCache_G4 {
+        <<外部源-禁改>>
+        +getManifest(kind) Manifest
+    }
+    SkillsAggregate_G4 ..> CosCache_G4
+    McpAggregate_G4 ..> CosCache_G4
+
+    class SkillsResponse {
+        +Skill[] installed
+        +Skill[] candidates
+        +string[] categories
+    }
+    class McpResponse {
+        +McpItem[] deployed
+        +McpItem[] candidates
+    }
+    SkillsAggregate_G4 --> SkillsResponse
+    McpAggregate_G4 --> McpResponse
+
+    %% ===================== 后端：会话（L1 三态，本次不改） =====================
+    class SessionsRoute {
+        <<已就绪-不改>>
+        +GET_api_sessions() SessionSummary[]
+        +PATCH_api_sessions_id(patch) void
+        +PUT_api_sessions_id(patch) void
+        +GET_api_sessions_id_context_length()
+        -mergeSession(hermes, sidecar) SessionSummary
+        -resolveTriStateFlag(sidecar, hermes) boolean
+    }
+    class SessionSummary {
+        +string id
+        +string source
+        +boolean pinned
+        +string workspace
+        +number archived
+    }
+    SessionsRoute --> SessionSummary
+
+    %% ===================== 前端：Store 层（MD-01 双 store） =====================
+    class useModelsStore {
+        <<新增-薄只读真源>>
+        +ModelProvider[] providers
+        +boolean loading
+        +load() Promise
+        +reload() Promise
+    }
+    class useModelConfigStore {
+        +ModelProvider[] providers
+        +Defaults defaults
+        +ModelUsage modelUsage
+        +loadModelsAndUsage() Promise
+        +saveProvider(p) Promise
+        +setDefault(m) Promise
+        +testConnectivity(p) Promise
+    }
+    useModelConfigStore ..> useModelsStore : 写成功后 reload() (MD-01)
+
+    class useChatStore {
+        +Record contextBySession
+        +Record modeBySession
+        +Record modelBySession
+        +Record agentStates
+        +string activeAgentId
+        +Record runState
+        +dispatch(evt) void
+        +togglePin(id) Promise
+        +archiveSession(id, flag) Promise
+        +setWorkspace(id, ws) Promise
+        +loadContextEstimate(id) Promise
+    }
+    class ContextUsageBar {
+        <<新增-CH-01>>
+        +number percent
+        +boolean visible
+    }
+    useChatStore --> ContextUsageBar : contextBySession 驱动
+
+    %% ===================== 前端：分组纯函数（SL-01） =====================
+    class SessionGrouping {
+        <<纯函数模块-新增>>
+        +computeRecent(sessions, now, days) Session[]
+        +computeByWorkspace(sessions) WorkspaceGroup[]
+        +getGroupedSessions(sessions, opts) GroupedSessions
+    }
+    class GroupedSessions {
+        +Session[] recent
+        +Session[] pinned
+        +WorkspaceGroup[] byWorkspace
+        +Session[] archived
+    }
+    class useSessionList {
+        +ComputedRef grouped
+        +Ref showArchived
+        +Set runningIds
+    }
+    SessionGrouping --> GroupedSessions
+    useSessionList ..> SessionGrouping : computed 包装 (SL-01)
+    useSessionList ..> useChatStore : runningIds 真源 = runState (SL-03)
+
+    %% ===================== 前端：API 传输层 =====================
+    class ApiClient {
+        +getSkills() SkillsResponse
+        +getMcpList() McpResponse
+        +getAgents(source) Agent[]
+        +getModels() ModelsResponse
+        +getPlugins() PluginItem[]
+        +getPlatformConfig() PlatformChannelConfig[]
+        +savePlatformConfig(cfg) void
+        +searchSkillHub(q) Skill[]
+        +patchSession(id, patch) void
+    }
+    ApiClient --> SkillsResponse : 修正解构 (ST-01)
+    ApiClient --> McpResponse
+    ApiClient --> PluginItem : 新增 (ST-07)
+    ApiClient --> PlatformChannelConfig : 新增 (ST-08)
+    ApiClient ..> SkillHubProxy_G4 : 仅修正调用路径 (ST-03)
+    ApiClient ..> SessionsRoute
+
+    %% ===================== 前端：设置页与市场 =====================
+    class SettingsView {
+        +string activeSection
+        +renderSection() VNode
+    }
+    class PluginsSection {
+        <<新增-ST-07>>
+        +PluginItem[] plugins
+        +load() Promise
+    }
+    class ChannelSection {
+        <<新增-ST-08>>
+        +PlatformChannelConfig[] channels
+        +load() Promise
+        +save() Promise
+    }
+    class MarketModuleCard {
+        <<新增-ST-09>>
+        +string title
+        +Item[] items
+    }
+    SettingsView --> PluginsSection : 替换 PlaceholderSection
+    SettingsView --> ChannelSection : 替换 PlaceholderSection
+    SettingsView --> MarketModuleCard : skills / mcp / agent-role 三处复用
+    PluginsSection ..> ApiClient
+    ChannelSection ..> ApiClient

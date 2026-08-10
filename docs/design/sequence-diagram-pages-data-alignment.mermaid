@@ -1,0 +1,155 @@
+%% kmaster-studio 页面数据逻辑对齐 hermes-studio — 调用流程时序图（共 4 张）
+%% 作者：高见远（software-architect）
+%% 关联：docs/design/TECHNICAL-SOLUTION-pages-data-alignment.md
+%% 说明：本文件包含 4 个独立 sequenceDiagram，渲染时请按分隔注释逐个取用。
+
+%% ============================================================
+%% 图 1 · CH-01 / L3：context_tokens 推送链
+%% ============================================================
+sequenceDiagram
+    participant U as 用户
+    participant V as ChatView / ContextUsageBar
+    participant CS as useChatStore
+    participant WS as Socket.IO /chat-run
+    participant RC as run-chat.ts executeRun
+    participant BR as bridge.ts estimateContext
+    participant H as hermes 进程
+
+    U->>V: 发送消息
+    V->>CS: sendMessage(sessionId, text)
+    CS->>WS: emit run.start
+    WS->>RC: executeRun(sessionId, input)
+    RC->>H: 转发到 hermes
+    H-->>RC: onEvent(usage.updated)
+    RC->>BR: getContextEstimate(sessionId)  [命中 estimateCache]
+    BR-->>RC: { context_used, context_max }
+    Note over RC: 注入 context_tokens = { total_tokens, context_length }<br/>L3：不新增事件类型
+    RC-->>WS: ns.emit('usage.updated', { ...payload, context_tokens })
+    WS-->>CS: dispatch(evt)
+    Note over CS: reducer 幂等：同 session 覆盖写<br/>contextBySession[sessionId] = context_tokens
+    CS-->>V: 响应式更新
+    V->>V: percent = Math.min(total/length*100, 100)
+    alt context_tokens 缺失 或 context_length <= 0
+        V->>V: 整条进度条隐藏（不渲染 0%）
+    else 数据完整
+        V->>U: 渲染上下文用量进度条
+    end
+
+    H-->>RC: onEvent(run.completed)
+    RC->>BR: getContextEstimate(sessionId)  [run 结束前失效重算]
+    BR-->>RC: 最终估算
+    RC-->>WS: ns.emit('run.completed', { ...payload, context_tokens })
+    WS-->>CS: dispatch → 覆盖写最终值
+    CS-->>V: 进度条定格终值
+
+
+%% ============================================================
+%% 图 2 · MD-01：模型双 store 同步链
+%% ============================================================
+sequenceDiagram
+    participant V as ModelSettingsView
+    participant MC as useModelConfigStore
+    participant MS as useModelsStore (新增)
+    participant API as api/client.ts
+    participant S as GET /api/models
+
+    Note over V: 首屏加载
+    V->>MS: load()
+    MS->>API: getModels()
+    API->>S: GET /api/models
+    S-->>API: { providers, usage }
+    API-->>MS: providers（列表真源）
+    MS-->>V: 模型选择器渲染
+
+    V->>MC: loadModelsAndUsage()
+    MC->>API: getModels()
+    API-->>MC: { providers, usage }
+    MC-->>V: 配置表单 + usage 统计（MD-03 独立 Tab）
+
+    Note over V: 用户新增 / 编辑 provider
+    V->>MC: saveProvider(p)
+    MC->>API: PUT /api/config/providers
+    API-->>MC: ok
+    MC->>MS: reload()  ← 关键同步点 (MD-01)
+    MS->>API: getModels()
+    API-->>MS: 最新 providers
+    MS-->>V: 选择器即时反映新模型（无需刷新页面）
+    MC-->>V: 配置表单同步刷新
+
+
+%% ============================================================
+%% 图 3 · ST-07 / ST-08：Plugins 与 Channels 新后端聚合链
+%% ============================================================
+sequenceDiagram
+    participant V as SettingsView
+    participant P as PluginsSection.vue (新增)
+    participant C as ChannelSection.vue (新增)
+    participant API as api/client.ts
+    participant PR as routes/plugins.ts (新增)
+    participant PA as aggregate/plugins.ts (新增)
+    participant CR as routes/config.ts (扩展)
+    participant HC as hermes 本地配置
+
+    V->>P: 路由切到 plugins（替换 PlaceholderSection）
+    P->>API: getPlugins()
+    API->>PR: GET /api/plugins
+    PR->>PA: listPlugins()
+    PA->>HC: 读本地插件配置
+    HC-->>PA: raw
+    PA->>PA: normalize → kind / source / effectiveStatus / providesTools
+    Note over PA: 不读 COS / 不读 SkillHub<br/>不触碰 G4 外部源链路
+    PA-->>PR: PluginItem[]
+    PR-->>API: { plugins }
+    API-->>P: 渲染插件列表（含空态）
+
+    V->>C: 路由切到 channel
+    C->>API: getPlatformConfig()
+    API->>CR: GET /api/config/platform
+    CR->>HC: 读 platform section
+    HC-->>CR: config
+    CR-->>API: PlatformChannelConfig[]
+    API-->>C: 渲染渠道配置表单
+
+    C->>API: savePlatformConfig(cfg)
+    API->>CR: PUT /api/config/platform
+    CR->>HC: 写回 platform section（沿用 providers/profiles 写范式）
+    HC-->>CR: ok
+    CR-->>C: 保存成功提示
+
+
+%% ============================================================
+%% 图 4 · ST-01 / ST-02 / ST-03：Skills 数据链修正前后对比
+%% ============================================================
+sequenceDiagram
+    participant SV as SettingsView / SkillManageSection
+    participant USL as useSkillList.ts
+    participant API as api/client.ts
+    participant SR as routes/skills.ts
+    participant SA as aggregate/skills.ts (G4 禁改)
+    participant SH as routes/skillhub.ts (G4 禁改)
+
+    rect rgb(255,235,235)
+    Note over SV,SH: 修正前（三处 bug）
+    USL->>API: getSkills()
+    API->>SR: GET /api/skills
+    SR->>SA: mergeSkillLists()
+    SA-->>SR: { installed, candidates, categories }
+    SR-->>API: 同上
+    API->>API: const { skills } = ... → undefined ❌ ST-01
+    USL->>SR: GET /api/skills?source=candidates → 参数被后端忽略 ❌ ST-02
+    USL->>SR: GET /api/skills/search?q= → 404 ❌ ST-03
+    end
+
+    rect rgb(235,250,240)
+    Note over SV,SH: 修正后
+    USL->>API: getSkills()
+    API->>SR: GET /api/skills
+    SR->>SA: mergeSkillLists()（原样不动 · G4）
+    SA-->>SR: { installed, candidates, categories }
+    SR-->>API: 同上
+    API-->>USL: 按真实形状返回 ✅ ST-01
+    USL->>USL: 从 candidates 字段本地取候选（不再传幽灵参数）✅ ST-02
+    USL->>SH: GET /api/skillhub/skills?q= ✅ ST-03（仅改前端调用路径，代理实现不动）
+    SH-->>USL: 在线搜索结果
+    USL-->>SV: 渲染已安装 / 候选两栏
+    end
