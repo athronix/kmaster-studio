@@ -120,6 +120,14 @@ export interface ProviderGroup {
   label: string;
   authenticated?: boolean;
   models: ModelInfo[];
+  /** base_url from config.yaml */
+  base_url?: string;
+  /** api_mode from config.yaml (openai, anthropic_messages, etc.) */
+  api_mode?: string;
+  /** Whether api_key is set (never expose actual key) */
+  api_key_set?: boolean;
+  /** Default model name from config.yaml */
+  default_model?: string;
 }
 
 // —— F11 技能枚举 ——

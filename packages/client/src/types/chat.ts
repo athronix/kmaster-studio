@@ -60,6 +60,10 @@ export interface ProviderGroup {
   label: string;
   authenticated?: boolean;
   models: ModelInfo[];
+  base_url?: string;
+  api_mode?: string;
+  api_key_set?: boolean;
+  default_model?: string;
 }
 
 // —— F11 技能枚举 ——

@@ -472,12 +472,14 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
           merged.push(existing);
         } else {
           // 🆕 新增：从 API 创建 provider 条目
+          const apiMethod: ApiMethod = group.api_mode === 'anthropic_messages' ? 'anthropic-chat'
+            : 'openai-chat';
           merged.push({
             id: group.provider,
             providerKey: group.provider,
             name: group.label || group.provider,
-            url: '',
-            apiMethod: 'openai' as ApiMethod,
+            url: group.base_url || '',
+            apiMethod,
             apiKey: '',
             keyMasked: group.authenticated === true,
             models: group.models.map((m) => ({
