@@ -160,13 +160,49 @@ function showOutlinePanel(): void {
 
 // ── Agent 标签栏数据 ──
 const realAgents = shallowRef<AgentEntry[]>([]);
-const agentTabs = computed<AgentTabItem[]>(() =>
-  realAgents.value.map((a) => ({
-    id: a.id,
-    name: a.name,
-    color: undefined,
-  })),
-);
+
+/**
+ * E-1 加强版：Tab 条 = 主 agent（1 个）+ 活跃子代理（N 个）。
+ *
+ * 数据源：
+ * - 主 agent：store.agentStates[sid]（Record<sid, string>，存 agent id）
+ * - 子代理：store.subagentsBySession[sid]（Record<sid, Record<string, SubagentState>>）
+ *
+ * 无会话时返回空数组 []，模板侧 v-if 据此隐藏整个 TabBar。
+ */
+const agentTabs = computed<AgentTabItem[]>(() => {
+  const currentSid = sid.value;
+  if (!currentSid) return [];
+
+  const tabs: AgentTabItem[] = [];
+
+  // 第 1 个 Tab：当前会话的主 agent
+  const mainAgentId = store.agentStates[currentSid];
+  if (mainAgentId) {
+    const agentEntry = realAgents.value.find((a) => a.id === mainAgentId);
+    tabs.push({
+      id: mainAgentId,
+      name: agentEntry?.name ?? mainAgentId,
+      color: undefined,
+    });
+  }
+
+  // 后续 Tab：活跃子代理（status === 'running'，排除已结束/失败/超时/出错）
+  const subagents = store.subagentsBySession[currentSid];
+  if (subagents) {
+    for (const [subId, sub] of Object.entries(subagents)) {
+      if (sub.status === 'running') {
+        tabs.push({
+          id: subId,
+          name: sub.title || subId,
+          color: undefined,
+        });
+      }
+    }
+  }
+
+  return tabs;
+});
 
 async function loadAgents(): Promise<void> {
   try {
@@ -287,12 +323,49 @@ function onAddModel(): void {
 }
 
 // ── AgentTabBar 事件 ──
+
+/**
+ * E-1：Tab 选中。
+ * - 主 agent → 无需额外操作（当前会话就是主 agent）
+ * - 子代理 → 设置 activeAgentId 用于消息路由/过滤
+ */
 function onAgentSelect(agentId: string): void {
+  const currentSid = sid.value;
+  if (!currentSid) return;
+
+  const mainAgentId = store.agentStates[currentSid];
+  // 主 agent：无需操作（会话本身就是主 agent 的上下文）
+  if (agentId === mainAgentId) return;
+
+  // 子代理：设置活跃 ID 供消息过滤/路由使用
   store.activeAgentId = agentId;
 }
 
+/**
+ * E-1：Tab 关闭。
+ * - 关主 agent → store.setSessionAgent(sid, null)（解绑，回落默认角色）
+ * - 关子代理 → 忽略（运行时子代理不可关闭）
+ * - 数据不足判断 → 静默 return
+ */
 function onAgentClose(agentId: string): void {
-  // Agent 标签关闭
+  const currentSid = sid.value;
+  if (!currentSid) return;
+
+  const mainAgentId = store.agentStates[currentSid];
+
+  // 关的是主 agent → 解绑
+  if (agentId === mainAgentId) {
+    void store.setSessionAgent(currentSid, null);
+    return;
+  }
+
+  // 关的是子代理 → 忽略（closable: false，运行时事实不可关闭）
+  const subagents = store.subagentsBySession[currentSid];
+  if (subagents && agentId in subagents) {
+    return;
+  }
+
+  // 无法判断 → 静默 return
 }
 
 // ── 提问历史 ──
@@ -424,8 +497,9 @@ watch(
       </template>
     </PageHeader>
 
-    <!-- Agent 标签平铺栏 -->
+    <!-- Agent 标签平铺栏（无会话或仅主 agent 时隐藏，避免冗余单 Tab 条） -->
     <AgentTabBar
+      v-if="sid && agentTabs.length > 1"
       :agents="agentTabs"
       :active-agent-id="store.activeAgentId || currentAgentName"
       @select="onAgentSelect"
