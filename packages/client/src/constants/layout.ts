@@ -236,6 +236,25 @@ export const INTERACTION = {
   maxFileBytes: 1_048_576,
   /** 已安装模块分页：2 行 × 5 列 */
   installedPageSize: 10,
+  /** 精选推荐默认行数（T01） */
+  defaultFeaturedRows: 1,
+  /** installed 默认行数（T01） */
+  defaultInstalledRows: 1,
+  /** 市场可选默认行数（T01） */
+  defaultMarketRows: 4,
+  /** 默认网格列数（T01） */
+  defaultGridCols: 5,
+} as const;
+
+/**
+ * 市场布局默认值（T01）。
+ * 作为 `lsGet(LS_KEYS.marketLayout, MARKET_DEFAULTS)` 的回落值。
+ */
+export const MARKET_DEFAULTS = {
+  featuredRows: 1,
+  installedRows: 1,
+  marketRows: 4,
+  gridCols: 5,
 } as const;
 
 // ═══════════════════════ 6. localStorage 规范 ═══════════════════════
@@ -259,6 +278,8 @@ export const LS_KEYS = {
   sidebarRecent: 'km.sidebar.recent',
   /** 归档会话可见性开关：boolean，默认 false（SL-04）。 */
   showArchived: 'km.sidebar.showArchived',
+  /** 市场卡片行数配置：JSON { featuredRows, installedRows, marketRows }（T01）。 */
+  marketLayout: 'km.v3.marketLayout',
 } as const;
 
 export type LsKey = (typeof LS_KEYS)[keyof typeof LS_KEYS];

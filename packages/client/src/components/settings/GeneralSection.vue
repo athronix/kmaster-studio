@@ -54,6 +54,65 @@ function onGridColsChange(value: number | null): void {
   localStorage.setItem('km_grid_cols', String(v));
 }
 
+// —— T01：市场卡片行数配置 ——
+const MARKET_LAYOUT_KEY = 'km.v3.marketLayout';
+
+interface MarketLayoutConfig {
+  featuredRows: number;
+  installedRows: number;
+  marketRows: number;
+}
+
+function readMarketLayout(): MarketLayoutConfig {
+  try {
+    const raw = localStorage.getItem(MARKET_LAYOUT_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<MarketLayoutConfig>;
+      return {
+        featuredRows: typeof parsed.featuredRows === 'number' ? parsed.featuredRows : 1,
+        installedRows: typeof parsed.installedRows === 'number' ? parsed.installedRows : 1,
+        marketRows: typeof parsed.marketRows === 'number' ? parsed.marketRows : 4,
+      };
+    }
+  } catch { /* fall through to defaults */ }
+  return { featuredRows: 1, installedRows: 1, marketRows: 4 };
+}
+
+function writeMarketLayout(cfg: MarketLayoutConfig): void {
+  localStorage.setItem(MARKET_LAYOUT_KEY, JSON.stringify(cfg));
+}
+
+const featuredRows = ref<number>(readMarketLayout().featuredRows);
+const installedRows = ref<number>(readMarketLayout().installedRows);
+const marketRows = ref<number>(readMarketLayout().marketRows);
+
+function onFeaturedRowsChange(value: number | null): void {
+  featuredRows.value = value ?? 1;
+  writeMarketLayout({
+    featuredRows: featuredRows.value,
+    installedRows: installedRows.value,
+    marketRows: marketRows.value,
+  });
+}
+
+function onInstalledRowsChange(value: number | null): void {
+  installedRows.value = value ?? 1;
+  writeMarketLayout({
+    featuredRows: featuredRows.value,
+    installedRows: installedRows.value,
+    marketRows: marketRows.value,
+  });
+}
+
+function onMarketRowsChange(value: number | null): void {
+  marketRows.value = value ?? 4;
+  writeMarketLayout({
+    featuredRows: featuredRows.value,
+    installedRows: installedRows.value,
+    marketRows: marketRows.value,
+  });
+}
+
 /** 日志详情弹窗状态 */
 const logDetailShow = ref(false);
 const logDetailEntry = ref<LogEntry | null>(null);
@@ -204,6 +263,51 @@ function onLogDetail(entry: LogEntry): void {
           />
         </div>
         <div class="sec-hint">调整 Agent/Skill/MCP 市场页的卡片列数（3-8），刷新后生效</div>
+      </div>
+
+      <div class="sec-row">
+        <div class="sec-label">精选推荐行数</div>
+        <div class="sec-control">
+          <n-input-number
+            :value="featuredRows"
+            :min="1"
+            :max="3"
+            :step="1"
+            style="max-width: 160px"
+            @update:value="onFeaturedRowsChange"
+          />
+        </div>
+        <div class="sec-hint">精选推荐模块的展示行数（1-3），配合列数决定每页卡片数量</div>
+      </div>
+
+      <div class="sec-row">
+        <div class="sec-label">已安装行数</div>
+        <div class="sec-control">
+          <n-input-number
+            :value="installedRows"
+            :min="1"
+            :max="5"
+            :step="1"
+            style="max-width: 160px"
+            @update:value="onInstalledRowsChange"
+          />
+        </div>
+        <div class="sec-hint">已安装模块的展示行数（1-5），配合列数决定每页卡片数量</div>
+      </div>
+
+      <div class="sec-row">
+        <div class="sec-label">市场可选行数</div>
+        <div class="sec-control">
+          <n-input-number
+            :value="marketRows"
+            :min="1"
+            :max="10"
+            :step="1"
+            style="max-width: 160px"
+            @update:value="onMarketRowsChange"
+          />
+        </div>
+        <div class="sec-hint">市场可选模块的展示行数（1-10），配合列数决定每页卡片数量</div>
       </div>
 
       <div class="sec-row">

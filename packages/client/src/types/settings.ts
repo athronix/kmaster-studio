@@ -243,6 +243,22 @@ export interface SettingsSnapshot {
   lastCategory: SettingsCategory;
 }
 
+// ═══════════════════════ 市场布局配置（T01）═══════════════════════
+
+/**
+ * 市场卡片行数配置，持久化到 localStorage['km.v3.marketLayout']。
+ * 与 localStorage['km_grid_cols']（列数）配合决定每页卡片数：
+ *   每页卡片数 = 列数 × 对应行数
+ */
+export interface MarketLayoutConfig {
+  /** 精选推荐行数，默认 1 */
+  featuredRows: number;
+  /** installed 行数，默认 1 */
+  installedRows: number;
+  /** 市场可选行数，默认 4 */
+  marketRows: number;
+}
+
 /**
  * LayoutShell 下发的 Grid 轨道 CSS 变量。
  * 用 `--${string}` 索引签名而非固定 4 键，使其可直接绑定到 Vue 的 `:style`
