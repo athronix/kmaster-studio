@@ -18,7 +18,7 @@ export const skillsRouter = new Router();
  * `GET /api/skills` 的响应契约（T01 显式标注）。
  *
  * ⚠️ 本端点**恒返回全量三段对象**，🚫 不支持任何 query 过滤参数
- * （历史上前端曾传 `?source=candidates`，那是幽灵参数，服务端从未消费）。
+ * （历史上前端曾追加一个候选过滤 query，那是幽灵参数，服务端从未消费）。
  * 前端如需「仅候选」视图，请自行取 `.candidates`。
  */
 export interface SkillsResponse {
