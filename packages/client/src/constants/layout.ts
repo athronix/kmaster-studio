@@ -257,6 +257,8 @@ export const LS_KEYS = {
   sidebarCollapse: 'km.sidebar.collapse',
   /** Recent 分组口径的用户覆盖值：`{ maxCount, withinHours }`（P2，暂只读） */
   sidebarRecent: 'km.sidebar.recent',
+  /** 归档会话可见性开关：boolean，默认 false（SL-04）。 */
+  showArchived: 'km.sidebar.showArchived',
 } as const;
 
 export type LsKey = (typeof LS_KEYS)[keyof typeof LS_KEYS];

@@ -11,10 +11,8 @@
  *   ⑧ pinned 会话必须同时出现在 byWorkspace（锁死 C-1：continue 已删）
  *   ⑨ 分组只依赖 session.pinned，空 pinnedSessions Set 不影响（锁死 C-2）
  *
- * 测试策略：`getGroupedSessions` 依赖 pinia store 与 naive-ui 的 `useMessage`，
- * 在 node 环境直接实例化 composable 成本高。故把三个纯函数逻辑
- * （computeRecent / computeByWorkspace / pinned 过滤）按与实现**逐字一致**的方式
- * 在此重建并断言 —— 实现改动会因常量/排序器共享而同步反映。
+ * 测试策略：SL-01 已将三个算法下沉为 `utils/sessionGrouping.ts` 纯函数，
+ * 测试直接 import 纯函数，实现改动会因常量/排序器共享而同步反映。
  */
 import { describe, it, expect } from 'vitest';
 import {
@@ -23,8 +21,12 @@ import {
   UNBOUND_WORKSPACE_KEY,
   WORKSPACE_SORT,
 } from '../constants/sidebar';
-import { isWithinHours } from '../utils/time';
-import { workspaceKeyOf, UNBOUND_WORKSPACE_LABEL, type WorkspaceGroup } from './useSessionList';
+import {
+  computeRecent,
+  computeByWorkspace,
+  computePinned,
+} from '../utils/sessionGrouping';
+import { workspaceKeyOf, UNBOUND_WORKSPACE_LABEL } from './useSessionList';
 import type { Session } from '../types/chat';
 
 const NOW = new Date(2026, 7, 6, 12, 0, 0).getTime();
@@ -48,41 +50,6 @@ function session(over: Partial<Session> & { id: string }): Session {
   };
 }
 
-// ── 与 useSessionList.ts 实现逐字一致的三个分组算法 ──
-
-function computeRecent(all: Session[], running: Set<string>, now = NOW): Session[] {
-  const sorted = [...all].filter((s) => !s.archived).sort((a, b) => b.updated_at - a.updated_at);
-  const bucket = new Map<string, Session>();
-  for (const s of sorted) if (running.has(s.id)) bucket.set(s.id, s);
-  for (const s of sorted.slice(0, RECENT_DEFAULTS.maxCount)) bucket.set(s.id, s);
-  for (const s of sorted) {
-    if (isWithinHours(s.updated_at, RECENT_DEFAULTS.withinHours, now)) bucket.set(s.id, s);
-  }
-  return [...bucket.values()].slice(0, RECENT_HARD_CAP);
-}
-
-function computeByWorkspace(all: Session[]): WorkspaceGroup[] {
-  const map = new Map<string, Session[]>();
-  for (const s of all) {
-    if (s.archived) continue;
-    const key = workspaceKeyOf(s);
-    const arr = map.get(key);
-    if (arr) arr.push(s);
-    else map.set(key, [s]);
-  }
-  return [...map.entries()]
-    .sort(([a], [b]) => WORKSPACE_SORT.compareGroup(a, b))
-    .map(([key, items]) => ({
-      key,
-      label: key === UNBOUND_WORKSPACE_KEY ? UNBOUND_WORKSPACE_LABEL : key,
-      items: [...items].sort(WORKSPACE_SORT.compareSession),
-    }));
-}
-
-function computePinned(all: Session[]): Session[] {
-  return all.filter((s) => !s.archived && !!s.pinned).sort(WORKSPACE_SORT.compareSession);
-}
-
 describe('computeRecent —— §3.5 并集算法', () => {
   it('① running 会话稳定居首，即使 updated_at 很旧', () => {
     const all = [
@@ -91,7 +58,7 @@ describe('computeRecent —— §3.5 并集算法', () => {
       // 很旧但正在运行
       session({ id: 'old-running', updated_at: NOW - 100 * HOUR }),
     ];
-    const recent = computeRecent(all, new Set(['old-running']));
+    const recent = computeRecent(all, new Set(['old-running']), NOW);
     expect(recent[0].id).toBe('old-running');
   });
 
@@ -100,7 +67,7 @@ describe('computeRecent —— §3.5 并集算法', () => {
       session({ id: 'r-old', updated_at: NOW - 50 * HOUR }),
       session({ id: 'r-new', updated_at: NOW - 10 * HOUR }),
     ];
-    const recent = computeRecent(all, new Set(['r-old', 'r-new']));
+    const recent = computeRecent(all, new Set(['r-old', 'r-new']), NOW);
     expect(recent.map((s) => s.id)).toEqual(['r-new', 'r-old']);
   });
 
@@ -110,7 +77,7 @@ describe('computeRecent —— §3.5 并集算法', () => {
       session({ id: 's1', updated_at: NOW - 1000 }),
       session({ id: 's2', updated_at: NOW - 2 * HOUR }),
     ];
-    const recent = computeRecent(all, new Set(['s1']));
+    const recent = computeRecent(all, new Set(['s1']), NOW);
     expect(recent.filter((s) => s.id === 's1')).toHaveLength(1);
     expect(new Set(recent.map((s) => s.id)).size).toBe(recent.length);
   });
@@ -120,7 +87,7 @@ describe('computeRecent —— §3.5 并集算法', () => {
     const all = Array.from({ length: 8 }, (_, i) =>
       session({ id: `s${i}`, updated_at: NOW - (10 + i) * HOUR })
     );
-    const recent = computeRecent(all, new Set());
+    const recent = computeRecent(all, new Set(), NOW);
     expect(recent).toHaveLength(RECENT_DEFAULTS.maxCount);
     expect(recent.map((s) => s.id)).toEqual(['s0', 's1', 's2', 's3', 's4']);
   });
@@ -129,7 +96,7 @@ describe('computeRecent —— §3.5 并集算法', () => {
     const all = Array.from({ length: 8 }, (_, i) =>
       session({ id: `s${i}`, updated_at: NOW - i * 10 * 60_000 }) // 每 10 分钟一条，全在 3h 内
     );
-    const recent = computeRecent(all, new Set());
+    const recent = computeRecent(all, new Set(), NOW);
     expect(recent).toHaveLength(8);
   });
 
@@ -137,7 +104,7 @@ describe('computeRecent —— §3.5 并集算法', () => {
     const all = Array.from({ length: 40 }, (_, i) =>
       session({ id: `s${i}`, updated_at: NOW - i * 60_000 }) // 全在 3h 内 → 全部命中
     );
-    const recent = computeRecent(all, new Set());
+    const recent = computeRecent(all, new Set(), NOW);
     expect(recent).toHaveLength(RECENT_HARD_CAP);
     expect(RECENT_HARD_CAP).toBe(20);
   });
@@ -147,17 +114,17 @@ describe('computeRecent —— §3.5 并集算法', () => {
       session({ id: 'live', updated_at: NOW - 1000 }),
       session({ id: 'gone', updated_at: NOW - 500, archived: 1 }),
     ];
-    const recent = computeRecent(all, new Set());
+    const recent = computeRecent(all, new Set(), NOW);
     expect(recent.map((s) => s.id)).toEqual(['live']);
   });
 
   it('④b archived 的 running 会话同样被排除', () => {
     const all = [session({ id: 'x', updated_at: NOW, archived: 1 })];
-    expect(computeRecent(all, new Set(['x']))).toHaveLength(0);
+    expect(computeRecent(all, new Set(['x']), NOW)).toHaveLength(0);
   });
 
   it('⑤ 空列表返回空数组，不抛错', () => {
-    expect(computeRecent([], new Set())).toEqual([]);
+    expect(computeRecent([], new Set(), NOW)).toEqual([]);
   });
 });
 
@@ -245,7 +212,7 @@ describe('Q8 非互斥 —— 锁死 C-1 / C-2 两处静默冲突', () => {
   it('⑧b 置顶会话也可同时出现在 recent（三组完全非互斥）', () => {
     const s = session({ id: 'p1', pinned: true, updated_at: NOW - 1000 });
     const all = [s];
-    expect(computeRecent(all, new Set()).map((x) => x.id)).toContain('p1');
+    expect(computeRecent(all, new Set(), NOW).map((x) => x.id)).toContain('p1');
     expect(computePinned(all).map((x) => x.id)).toContain('p1');
   });
 

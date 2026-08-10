@@ -48,6 +48,8 @@ export interface GroupedSessions {
   recent: Session[];
   pinned: Session[];
   byWorkspace: WorkspaceGroup[];
+  /** SL-04 新增：已归档会话列表（showArchived=true 时有值）。 */
+  archived: Session[];
 }
 
 /**
