@@ -17,7 +17,15 @@ export interface ServerToClientEvents {
   'run.started': (p: { run_id: string; session_id: string }) => void;
   // M4/F17：实装队列语义，载荷携带排队项与剩余待发数
   'run.queued': (p: { session_id: string; item: QueueItem; pending: number }) => void;
-  'run.completed': (p: { session_id: string; message_id: string; message: string; usage: Usage }) => void;
+  // T01/L3：`context_tokens` 为**可选**扩展字段（不新增 WS 事件类型），
+  // 供前端在一次往返内同步上下文占用条，缺省时前端回落 REST `/api/context/estimate`。
+  'run.completed': (p: {
+    session_id: string;
+    message_id: string;
+    message: string;
+    usage: Usage;
+    context_tokens?: ContextTokensPayload;
+  }) => void;
   'run.failed': (p: { session_id: string; error: string }) => void;
   'message.delta': (p: { session_id: string; message_id: string; delta: string; guidance?: boolean }) => void;
   'reasoning.delta': (p: { session_id: string; message_id: string; delta: string }) => void;
@@ -32,7 +40,13 @@ export interface ServerToClientEvents {
   'plan.resolved': (p: { session_id: string; plan_id: string }) => void;
   'artifact.created': (p: { session_id: string; artifact: Artifact }) => void;
   'artifact.updated': (p: { session_id: string; artifact: Artifact }) => void;
-  'usage.updated': (p: { session_id: string; input_tokens: number; output_tokens: number; cost?: number }) => void;
+  'usage.updated': (p: {
+    session_id: string;
+    input_tokens: number;
+    output_tokens: number;
+    cost?: number;
+    context_tokens?: ContextTokensPayload;
+  }) => void;
   'session.title.updated': (p: { session_id: string; title: string }) => void;
   'abort.started': (p: { session_id: string }) => void;
   'abort.timeout': (p: { session_id: string }) => void;
@@ -124,6 +138,81 @@ export interface McpServer {
   env?: Record<string, string>;
   status?: 'connected' | 'error' | 'unknown';
   tools?: number;
+}
+
+// —— T01 插件枚举（GET /api/plugins，对齐 hermes-studio HermesPluginInfo）——
+
+/** 插件形态：来自 plugin.yaml `kind` 字段（未知值归一为 other）。 */
+export type PluginKind = 'platform' | 'backend' | 'model-provider' | 'standalone' | 'other';
+
+/** 插件来源：bundled = hermes-agent 内置；user = `$HERMES_HOME/plugins` 用户安装。 */
+export type PluginSource = 'bundled' | 'user';
+
+/**
+ * 生效态（三态，非用户开关本身）：
+ * - `enabled`      —— 无需额外配置，或所需环境变量已齐备，或 config.yaml 显式启用
+ * - `needs_config` —— manifest 声明了 `requires_env` 但环境变量缺失
+ * - `disabled`     —— config.yaml `plugins.<name>.enabled === false` 显式关闭
+ */
+export type PluginStatus = 'enabled' | 'needs_config' | 'disabled';
+
+export interface PluginItem {
+  /** 稳定标识：`<source>:<相对路径>`，跨来源同名不冲突 */
+  id: string;
+  /** manifest `name` */
+  name: string;
+  kind: PluginKind;
+  source: PluginSource;
+  effectiveStatus: PluginStatus;
+  /** manifest `provides_tools`（缺省空数组） */
+  providesTools: string[];
+  description: string;
+  /** manifest `label`（展示名，缺省回落 name） */
+  label?: string;
+  version?: string;
+  /** manifest `requires_env` 归一化后的变量名列表 */
+  requiresEnv?: string[];
+  /** requiresEnv 中当前尚未配置的部分（effectiveStatus=needs_config 的依据） */
+  missingEnv?: string[];
+  /** 分组目录名，如 `platforms` / `image_gen`（顶层插件为 undefined） */
+  group?: string;
+}
+
+// —— T01 平台渠道配置（GET/PUT /api/config/platform）——
+
+/** 渠道类型：与 hermes-agent `plugins/platforms/<id>` 目录同名。 */
+export type PlatformChannelType =
+  | 'telegram' | 'discord' | 'slack' | 'whatsapp' | 'matrix'
+  | 'wecom' | 'feishu' | 'dingtalk' | 'qqbot' | 'teams'
+  | 'email' | 'line' | 'sms' | 'irc' | 'mattermost'
+  | 'google_chat' | 'homeassistant' | 'ntfy' | 'photon' | 'simplex' | 'raft'
+  | 'other';
+
+/**
+ * 单个平台渠道的配置。
+ *
+ * 🔒 `credentials` 为**只写**字段：GET 一律不回显明文，只经 `configuredKeys` / `maskedKeys`
+ * 告知「哪些键已配置 / 掩码预览」；PUT 时传空串表示清除该键。
+ */
+export interface PlatformChannelConfig {
+  id: string;
+  type: PlatformChannelType;
+  enabled: boolean;
+  /** 🔒 仅 PUT 上行使用，GET 下行恒为 undefined */
+  credentials?: Record<string, string>;
+  /** GET 下行：已配置的凭据键名 */
+  configuredKeys?: string[];
+  /** GET 下行：键 → 掩码值（如 `123****cdef`） */
+  maskedKeys?: Record<string, string>;
+  /** 展示名（缺省回落 id） */
+  label?: string;
+}
+
+/** GET /api/config/platform 返回结构 */
+export interface PlatformConfigResponse {
+  channels: PlatformChannelConfig[];
+  /** 磁盘上可用的渠道类型（来自 hermes-agent `plugins/platforms/`），用于「新增渠道」下拉 */
+  availableTypes: PlatformChannelType[];
 }
 
 // —— F19 上传引用 ——
@@ -320,6 +409,20 @@ export interface ContextEstimate {
   model?: string;
   categories?: ContextCategory[];
   estimated: true; // UI 恒标注「估算值」
+}
+
+/**
+ * T01/L3：WS 事件随行的上下文占用快照（挂在 `usage.updated` / `run.completed` 的可选字段上）。
+ *
+ * ⚠️ 不是新事件类型，`WS_EVENTS` 注册表保持不变。字段映射自 `ContextEstimate`：
+ * - `total_tokens`    ← `ContextEstimate.context_used`
+ * - `context_length`  ← `ContextEstimate.context_max`（bridge `estimateContext()` 按模型上下文窗口给出）
+ */
+export interface ContextTokensPayload {
+  /** 已占用 token 数（估算值，等价 `ContextEstimate.context_used`） */
+  total_tokens: number;
+  /** 当前模型上下文窗口上限（等价 `ContextEstimate.context_max`） */
+  context_length: number;
 }
 
 // ═══════════════════════ 运行请求 / 通用结构 ═══════════════════════

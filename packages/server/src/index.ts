@@ -19,6 +19,7 @@ import { hermesRouter } from './routes/hermes.js';
 // T01/U-35：拆出的独立路由（从 sessions.ts 迁出）
 import { modelsRouter } from './routes/models.js';
 import { skillsRouter } from './routes/skills.js';
+import { pluginsRouter } from './routes/plugins.js';
 import { mcpRouter } from './routes/mcp.js';
 // T02：新增路由
 import { logsRouter } from './routes/logs.js';
@@ -49,6 +50,7 @@ app.use(sessionsRouter.routes()).use(sessionsRouter.allowedMethods());
 // U-35：拆出的独立路由
 app.use(modelsRouter.routes()).use(modelsRouter.allowedMethods());
 app.use(skillsRouter.routes()).use(skillsRouter.allowedMethods());
+app.use(pluginsRouter.routes()).use(pluginsRouter.allowedMethods());
 app.use(mcpRouter.routes()).use(mcpRouter.allowedMethods());
 // M4 新增路由面：记忆库 / 定时任务 / 排队队列 / 用量统计
 app.use(memoryRouter.routes()).use(memoryRouter.allowedMethods());

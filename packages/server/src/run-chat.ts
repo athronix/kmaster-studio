@@ -11,7 +11,15 @@ import type { Server, Namespace } from 'socket.io';
 import { randomUUID } from 'node:crypto';
 import { db } from './db.js';
 import { createBridge } from './bridge.js';
-import type { BridgeEvent, StartRunRequest, HermesMode, ContextEstimate, QueueItem, Settings } from './protocol.js';
+import type {
+  BridgeEvent,
+  StartRunRequest,
+  HermesMode,
+  ContextEstimate,
+  ContextTokensPayload,
+  QueueItem,
+  Settings,
+} from './protocol.js';
 
 // M5/F21：profile 切换后需要丢弃指向旧 HERMES_HOME 的连接并重建，故为可重新赋值绑定。
 let bridge = createBridge();
@@ -88,6 +96,23 @@ export async function getContextEstimate(sessionId: string, force = false): Prom
   return estimate;
 }
 
+/** T01/L3：`ContextEstimate` → WS 随行载荷（字段名对齐 hermes-studio 的 context_tokens）。 */
+function toContextTokens(estimate: ContextEstimate): ContextTokensPayload {
+  return { total_tokens: estimate.context_used, context_length: estimate.context_max };
+}
+
+/**
+ * T01/L3：**同步**读取上下文估算缓存并转成 WS 随行载荷。
+ *
+ * ⚠️ 刻意不做 async：`Bridge.onEvent` 的签名是同步 `(e) => void`，一旦在其中 await，
+ * 后续事件会抢先 emit 造成乱序。故流式途中的 `usage.updated` 只贴「缓存命中」的快照，
+ * 缓存未命中时省略该可选字段（前端回落 REST `/api/context/estimate`）。
+ */
+function peekContextTokens(sessionId: string): ContextTokensPayload | undefined {
+  const cached = estimateCache.get(sessionId);
+  return cached ? toContextTokens(cached) : undefined;
+}
+
 /**
  * 执行一次完整 run（F1 全链路）。下行事件一律 ns.emit 广播。
  * 结束后在 finally 中释放忙标记并尝试出队下一条（F17 自动续发）。
@@ -152,7 +177,14 @@ export async function executeRun(ns: Namespace, req: StartRunRequest): Promise<s
           output_tokens: e.output_tokens,
           cost: e.cost,
         });
-        ns.emit('usage.updated', { session_id, input_tokens: e.input_tokens, output_tokens: e.output_tokens, cost: e.cost });
+        // T01/L3：随行贴上下文占用快照（缓存命中才带，保持 onEvent 同步、不改事件顺序）
+        ns.emit('usage.updated', {
+          session_id,
+          input_tokens: e.input_tokens,
+          output_tokens: e.output_tokens,
+          cost: e.cost,
+          context_tokens: peekContextTokens(session_id),
+        });
         break;
       }
       // —— M4/F16 子代理：原样透传身份字段，仅补会话与宿主消息锚点 ——
@@ -199,9 +231,27 @@ export async function executeRun(ns: Namespace, req: StartRunRequest): Promise<s
     // 用户消息落库
     store.appendMessage({ session_id, role: 'user', content: message, guidance: 0 });
 
+    // T01/L3：后台预热上下文估算缓存（fire-and-forget，不给 run 起步增加延迟），
+    // 让流式途中的 usage.updated 有机会带上 context_tokens。失败静默，属纯增强。
+    void getContextEstimate(session_id, true).catch(() => undefined);
+
     await bridge.chat({ sessionId: session_id, message, model: effModel, mode: effMode, profile, instructions, onEvent });
     store.appendMessage({ session_id, role: 'assistant', content: fullText, usage_json: JSON.stringify({ input_tokens: inputTokens, output_tokens: outputTokens }) });
-    ns.emit('run.completed', { session_id, message_id: assistantMsgId, message: fullText, usage: { input_tokens: inputTokens, output_tokens: outputTokens } });
+    // T01/L3：助手消息已落库，强制重算一次，保证 run.completed 携带最终上下文占用。
+    // 估算失败不得影响 run 完成语义 → 降级为不带该可选字段。
+    let completedContextTokens: ContextTokensPayload | undefined;
+    try {
+      completedContextTokens = toContextTokens(await getContextEstimate(session_id, true));
+    } catch {
+      completedContextTokens = undefined;
+    }
+    ns.emit('run.completed', {
+      session_id,
+      message_id: assistantMsgId,
+      message: fullText,
+      usage: { input_tokens: inputTokens, output_tokens: outputTokens },
+      context_tokens: completedContextTokens,
+    });
     // 标题自动生成
     const title = await bridge.getSessionTitle(session_id);
     if (title && title !== '新会话') {
