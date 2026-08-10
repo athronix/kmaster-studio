@@ -12,9 +12,12 @@
  * - 顶栏：标题 + 搜索框（hideHeader 时由外层 PageHeader 接管）
  * - 首屏模块：
  *     · 默认         → 精选推荐（横向滚动）
- *     · installedMode → 已安装列表（独立搜索 + 标签平铺 + 2×5 网格 + 分页）
+ *     · installedMode → 已安装列表（独立搜索 + 标签平铺 + 动态列数网格 + 分页）
  * - 分类工具栏：大类标签 + 排序 + 领域标签（频度排序）
- * - 卡片网格（CSS Grid 5 列）+ 分页
+ * - 卡片网格（CSS Grid 动态列数）+ 分页
+ *
+ * T04：列数从 localStorage['km_grid_cols'] 读取，行数从 localStorage['km.v3.marketLayout'] 读取，
+ * 分页大小 = 列数 × 行数。
  */
 import { computed, ref, watch, type PropType } from 'vue';
 import {
@@ -29,8 +32,61 @@ import {
   NEmpty,
 } from 'naive-ui';
 import { useSortedDomains, recordDomainClick } from '../../composables/useDomainTags';
-import { INTERACTION } from '../../constants/layout';
+import { INTERACTION, MARKET_DEFAULTS } from '../../constants/layout';
 import type { EntityDef, SortOrder } from '../../types/market';
+
+/** 安全读取 localStorage['km_grid_cols']（可能是纯数字或 JSON 数字，回落 5） */
+function readGridColsFromStorage(): number {
+  try {
+    const raw = localStorage.getItem('km_grid_cols');
+    if (raw === null || raw === '') return MARKET_DEFAULTS.gridCols;
+    // 尝试 JSON 解析（lsSet 写入的格式）
+    try {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === 'number' && Number.isFinite(parsed) && parsed >= 3 && parsed <= 8) return parsed;
+    } catch { /* 不是 JSON，尝试直接转数字 */ }
+    const n = Number(raw);
+    return Number.isFinite(n) && n >= 3 && n <= 8 ? n : MARKET_DEFAULTS.gridCols;
+  } catch {
+    return MARKET_DEFAULTS.gridCols;
+  }
+}
+
+/** 从 localStorage['km.v3.marketLayout'] 读取行数配置 */
+interface MarketRowsConfig {
+  featuredRows: number;
+  installedRows: number;
+  marketRows: number;
+}
+
+function readMarketRows(): MarketRowsConfig {
+  try {
+    const raw = localStorage.getItem('km.v3.marketLayout');
+    if (raw === null || raw === '') {
+      return {
+        featuredRows: MARKET_DEFAULTS.featuredRows,
+        installedRows: MARKET_DEFAULTS.installedRows,
+        marketRows: MARKET_DEFAULTS.marketRows,
+      };
+    }
+    const parsed = JSON.parse(raw) as Partial<MarketRowsConfig>;
+    return {
+      featuredRows: Number.isFinite(parsed.featuredRows) && (parsed.featuredRows ?? 0) > 0 ? parsed.featuredRows! : MARKET_DEFAULTS.featuredRows,
+      installedRows: Number.isFinite(parsed.installedRows) && (parsed.installedRows ?? 0) > 0 ? parsed.installedRows! : MARKET_DEFAULTS.installedRows,
+      marketRows: Number.isFinite(parsed.marketRows) && (parsed.marketRows ?? 0) > 0 ? parsed.marketRows! : MARKET_DEFAULTS.marketRows,
+    };
+  } catch {
+    return {
+      featuredRows: MARKET_DEFAULTS.featuredRows,
+      installedRows: MARKET_DEFAULTS.installedRows,
+      marketRows: MARKET_DEFAULTS.marketRows,
+    };
+  }
+}
+
+// 在 setup 时读取一次 localStorage（非响应式，但跨组件使用时由 props 覆盖即可）
+const storageGridCols = readGridColsFromStorage();
+const storageMarketRows = readMarketRows();
 
 const props = defineProps({
   title: { type: String, required: true },
@@ -52,6 +108,12 @@ const props = defineProps({
   installedItems: { type: Array as PropType<EntityDef[]>, default: () => [] },
   /** 已安装模块标题 */
   installedTitle: { type: String, default: '已安装' },
+  /** T04：网格列数（不传则从 localStorage['km_grid_cols'] 读取，回落 5） */
+  gridCols: { type: Number, default: undefined },
+  /** T04：installed 模块行数（不传则从 localStorage['km.v3.marketLayout'] 读取，回落 1） */
+  installedRows: { type: Number, default: undefined },
+  /** T04：市场模块行数（不传则从 localStorage['km.v3.marketLayout'] 读取，回落 4） */
+  marketRows: { type: Number, default: undefined },
 });
 
 const emit = defineEmits<{
@@ -66,6 +128,39 @@ const emit = defineEmits<{
 
 const searchQuery = ref('');
 const MAX_VISIBLE_DOMAIN_TAGS = 8;
+
+// ── T04：解析最终使用的列数 / 行数 ──
+const resolvedGridCols = computed<number>(() => {
+  if (props.gridCols !== undefined && Number.isFinite(props.gridCols) && props.gridCols >= 3 && props.gridCols <= 8) {
+    return props.gridCols;
+  }
+  return storageGridCols;
+});
+
+const resolvedInstalledRows = computed<number>(() => {
+  if (props.installedRows !== undefined && Number.isFinite(props.installedRows) && props.installedRows > 0) {
+    return props.installedRows;
+  }
+  return storageMarketRows.installedRows;
+});
+
+const resolvedMarketRows = computed<number>(() => {
+  if (props.marketRows !== undefined && Number.isFinite(props.marketRows) && props.marketRows > 0) {
+    return props.marketRows;
+  }
+  return storageMarketRows.marketRows;
+});
+
+/** 动态网格 inline style */
+const gridStyle = computed<Record<string, string>>(() => ({
+  gridTemplateColumns: `repeat(${resolvedGridCols.value}, 1fr)`,
+}));
+
+/** T04：动态市场分页大小选项（1x / 2x / 4x 基础分页） */
+const dynamicPageSizeOptions = computed<number[]>(() => {
+  const base = resolvedGridCols.value * resolvedMarketRows.value;
+  return [base, base * 2, base * 4];
+});
 
 // 搜索防抖 300ms
 let searchTimer: ReturnType<typeof setTimeout> | null = null;
@@ -118,8 +213,8 @@ const installedTag = ref('全部');
 /** 已安装模块当前页码（1 起） */
 const installedPage = ref(1);
 
-/** 每页 10 条（2 行 × 5 列，§7.5） */
-const installedPageSize = INTERACTION.installedPageSize;
+/** T04：动态分页大小 = 列数 × 行数 */
+const installedPageSize = computed<number>(() => resolvedGridCols.value * resolvedInstalledRows.value);
 
 function onInstalledSearch(val: string): void {
   installedQuery.value = val;
@@ -164,13 +259,19 @@ const installedFiltered = computed<EntityDef[]>(() => {
 
 /** 当前页的已安装项 */
 const installedPaged = computed<EntityDef[]>(() => {
-  const start = (installedPage.value - 1) * installedPageSize;
-  return installedFiltered.value.slice(start, start + installedPageSize);
+  const start = (installedPage.value - 1) * installedPageSize.value;
+  return installedFiltered.value.slice(start, start + installedPageSize.value);
 });
 
 /** 过滤后总数变化时把越界页码拉回最后一页 */
 watch(installedFiltered, (list) => {
-  const maxPage = Math.max(1, Math.ceil(list.length / installedPageSize));
+  const maxPage = Math.max(1, Math.ceil(list.length / installedPageSize.value));
+  if (installedPage.value > maxPage) installedPage.value = maxPage;
+});
+
+/** installedPageSize 变化时也校验页码 */
+watch(installedPageSize, (newSize) => {
+  const maxPage = Math.max(1, Math.ceil(installedFiltered.value.length / newSize));
   if (installedPage.value > maxPage) installedPage.value = maxPage;
 });
 
@@ -225,7 +326,7 @@ function resetInstalledFilters(): void {
         >{{ tag }}</n-tag>
       </div>
 
-      <div class="km-market-installed-grid">
+      <div class="km-market-installed-grid" :style="gridStyle">
         <slot
           name="installed-card"
           v-for="item in installedPaged"
@@ -319,8 +420,8 @@ function resetInstalledFilters(): void {
       </div>
     </div>
 
-    <!-- 卡片网格 -->
-    <div class="km-market-grid">
+    <!-- 卡片网格（T04：动态列数） -->
+    <div class="km-market-grid" :style="gridStyle">
       <slot
         name="card"
         v-for="entity in entities"
@@ -333,13 +434,13 @@ function resetInstalledFilters(): void {
       </div>
     </div>
 
-    <!-- 分页 -->
+    <!-- 分页（T04：pageSizes 跟随 gridCols × marketRows 动态计算） -->
     <div v-if="total > pageSize" class="km-market-pagination">
       <n-pagination
         :page="page"
         :page-size="pageSize"
         :item-count="total"
-        :page-sizes="[20, 50, 100]"
+        :page-sizes="dynamicPageSizeOptions"
         @update:page="(p: number) => emit('update:page', p)"
         @update:page-size="(ps: number) => emit('update:pageSize', ps)"
       />
@@ -432,6 +533,7 @@ function resetInstalledFilters(): void {
 
 .km-market-installed-grid {
   display: grid;
+  /* grid-template-columns 由 :style 动态覆盖 */
   grid-template-columns: repeat(5, 1fr);
   gap: var(--km-space-md);
 }
@@ -484,6 +586,7 @@ function resetInstalledFilters(): void {
   overflow-y: auto;
   padding: 0 var(--km-space-20) var(--km-space-20);
   display: grid;
+  /* grid-template-columns 由 :style 动态覆盖 */
   grid-template-columns: repeat(5, 1fr);
   gap: var(--km-space-lg);
   align-content: start;

@@ -3,12 +3,15 @@
  * SkillManageSection — 设置 → Skills 管理（V3 T4 / S4.9）。
  *
  * 薄封装：复用 CardMarketLayout 的市场浏览能力，
- * 并以 installedMode 把首屏模块换成「已安装技能」（独立搜索 + 标签 + 2×5 + 分页）。
+ * 并以 installedMode 把首屏模块换成「已安装技能」（独立搜索 + 标签 + 动态列数 + 分页）。
  *
  * 数据源两侧**均为后端真实数据**（ST-04：mock 常量已于 U-09 删除，此处不再有任何桩数据）：
  *   - 已安装：`useSkillList().filtered`（← `GET /api/skills` 的 `installed`）
  *   - 市场候选：`useSkillList().candidateSkills`（← 同一响应的 `candidates`，已按 D1 过滤去重）
  * 两侧通过名称做已安装标记。
+ *
+ * T04：分页大小 = gridCols × marketRows，gridCols 从 localStorage['km_grid_cols'] 读取，
+ * marketRows 从 localStorage['km.v3.marketLayout'] 读取。
  */
 import { computed, onMounted, ref } from 'vue';
 import { NSpin, useMessage } from 'naive-ui';
@@ -17,7 +20,48 @@ import EntityCard from '../market/EntityCard.vue';
 import InstalledCard from '../market/InstalledCard.vue';
 import { useSkillList } from '../../composables/useSkillList';
 import { useChatStore } from '../../stores/chat';
+import { MARKET_DEFAULTS } from '../../constants/layout';
 import { type EntityDef, type Skill as MarketSkill, type SortOrder } from '../../types/market';
+
+/** T04：安全读取 localStorage['km_grid_cols'] */
+function readGridCols(): number {
+  try {
+    const raw = localStorage.getItem('km_grid_cols');
+    if (raw === null || raw === '') return MARKET_DEFAULTS.gridCols;
+    try {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === 'number' && Number.isFinite(parsed) && parsed >= 3 && parsed <= 8) return parsed;
+    } catch { /* not JSON */ }
+    const n = Number(raw);
+    return Number.isFinite(n) && n >= 3 && n <= 8 ? n : MARKET_DEFAULTS.gridCols;
+  } catch {
+    return MARKET_DEFAULTS.gridCols;
+  }
+}
+
+/** T04：安全读取 localStorage['km.v3.marketLayout'] */
+interface MarketRowsConfig {
+  featuredRows: number;
+  installedRows: number;
+  marketRows: number;
+}
+
+function readMarketRows(): MarketRowsConfig {
+  try {
+    const raw = localStorage.getItem('km.v3.marketLayout');
+    if (raw === null || raw === '') {
+      return { featuredRows: MARKET_DEFAULTS.featuredRows, installedRows: MARKET_DEFAULTS.installedRows, marketRows: MARKET_DEFAULTS.marketRows };
+    }
+    const parsed = JSON.parse(raw) as Partial<MarketRowsConfig>;
+    return {
+      featuredRows: Number.isFinite(parsed.featuredRows) && (parsed.featuredRows ?? 0) > 0 ? parsed.featuredRows! : MARKET_DEFAULTS.featuredRows,
+      installedRows: Number.isFinite(parsed.installedRows) && (parsed.installedRows ?? 0) > 0 ? parsed.installedRows! : MARKET_DEFAULTS.installedRows,
+      marketRows: Number.isFinite(parsed.marketRows) && (parsed.marketRows ?? 0) > 0 ? parsed.marketRows! : MARKET_DEFAULTS.marketRows,
+    };
+  } catch {
+    return { featuredRows: MARKET_DEFAULTS.featuredRows, installedRows: MARKET_DEFAULTS.installedRows, marketRows: MARKET_DEFAULTS.marketRows };
+  }
+}
 
 const emit = defineEmits<{
   (e: 'open-detail', entity: EntityDef): void;
@@ -27,10 +71,15 @@ const chat = useChatStore();
 const toast = useMessage();
 const { filtered: installedRaw, candidateSkills, loading, refresh, install, uninstall } = useSkillList();
 
+// T04：读取配置
+const gridCols = readGridCols();
+const marketRows = readMarketRows();
+
 const searchQuery = ref<string>('');
 const sort = ref<SortOrder>('default');
 const page = ref<number>(1);
-const pageSize = ref<number>(20);
+/** T04：动态分页大小 = 列数 × 市场行数 */
+const pageSize = ref<number>(gridCols * marketRows.marketRows);
 
 onMounted(() => {
   void refresh();
@@ -156,6 +205,9 @@ async function onUninstall(entity: EntityDef): Promise<void> {
         :page-size="pageSize"
         :total="total"
         :domain-tags="domainTags"
+        :grid-cols="gridCols"
+        :installed-rows="marketRows.installedRows"
+        :market-rows="marketRows.marketRows"
         @update:sort="(s: SortOrder) => (sort = s)"
         @update:page="(p: number) => (page = p)"
         @update:page-size="(ps: number) => ((pageSize = ps), (page = 1))"

@@ -9,12 +9,17 @@ import KIcon from '../common/KIcon.vue';/**
  *   - 内置角色卡片：不可编辑/删除，可禁用
  *   - 自建角色卡片：可编辑/删除
  *   - 从市场添加按钮 → 连到 ExpertPickerPanel
+ *
+ * T04：新增分页支持。pageSize = gridCols × installedRows。
+ * gridCols 从 localStorage['km_grid_cols'] 读取，installedRows 从 localStorage['km.v3.marketLayout'] 读取。
+ * 超过 pageSize 时显示 NPagination 分页器。
  */
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import {
   NButton,
   NDropdown,
   NEmpty,
+  NPagination,
   NPopconfirm,
   NTag,
   NSpin,
@@ -23,7 +28,48 @@ import {
 } from 'naive-ui';
 import { useAgentRolesStore } from '../../stores/agentRoles';
 import { useChatStore } from '../../stores/chat';
+import { MARKET_DEFAULTS } from '../../constants/layout';
 import type { AgentRole } from '../../types/settings';
+
+/** T04：安全读取 localStorage['km_grid_cols']（可能是纯数字或 JSON 数字） */
+function readGridCols(): number {
+  try {
+    const raw = localStorage.getItem('km_grid_cols');
+    if (raw === null || raw === '') return MARKET_DEFAULTS.gridCols;
+    try {
+      const parsed = JSON.parse(raw);
+      if (typeof parsed === 'number' && Number.isFinite(parsed) && parsed >= 3 && parsed <= 8) return parsed;
+    } catch { /* not JSON */ }
+    const n = Number(raw);
+    return Number.isFinite(n) && n >= 3 && n <= 8 ? n : MARKET_DEFAULTS.gridCols;
+  } catch {
+    return MARKET_DEFAULTS.gridCols;
+  }
+}
+
+/** T04：安全读取 localStorage['km.v3.marketLayout'] */
+interface MarketRowsConfig {
+  featuredRows: number;
+  installedRows: number;
+  marketRows: number;
+}
+
+function readMarketRows(): MarketRowsConfig {
+  try {
+    const raw = localStorage.getItem('km.v3.marketLayout');
+    if (raw === null || raw === '') {
+      return { featuredRows: MARKET_DEFAULTS.featuredRows, installedRows: MARKET_DEFAULTS.installedRows, marketRows: MARKET_DEFAULTS.marketRows };
+    }
+    const parsed = JSON.parse(raw) as Partial<MarketRowsConfig>;
+    return {
+      featuredRows: Number.isFinite(parsed.featuredRows) && (parsed.featuredRows ?? 0) > 0 ? parsed.featuredRows! : MARKET_DEFAULTS.featuredRows,
+      installedRows: Number.isFinite(parsed.installedRows) && (parsed.installedRows ?? 0) > 0 ? parsed.installedRows! : MARKET_DEFAULTS.installedRows,
+      marketRows: Number.isFinite(parsed.marketRows) && (parsed.marketRows ?? 0) > 0 ? parsed.marketRows! : MARKET_DEFAULTS.marketRows,
+    };
+  } catch {
+    return { featuredRows: MARKET_DEFAULTS.featuredRows, installedRows: MARKET_DEFAULTS.installedRows, marketRows: MARKET_DEFAULTS.marketRows };
+  }
+}
 
 const props = withDefaults(
   defineProps<{
@@ -41,6 +87,18 @@ const emit = defineEmits<{
 const rolesStore = useAgentRolesStore();
 const chat = useChatStore();
 const toast = useMessage();
+
+// T04：读取分页配置
+const gridCols = readGridCols();
+const marketRows = readMarketRows();
+/** T04：分页大小 = 列数 × installed 行数 */
+const pageSize = gridCols * marketRows.installedRows;
+const currentPage = ref<number>(1);
+
+// T04：搜索关键字变化时重置页码
+watch(() => props.search, () => {
+  currentPage.value = 1;
+});
 
 /** T08：挂载时从 API 加载 */
 onMounted(() => {
@@ -65,6 +123,18 @@ const visibleRoles = computed<AgentRole[]>(() => {
       .toLowerCase();
     return hay.includes(q);
   });
+});
+
+/** T04：当前页的角色列表 */
+const pagedRoles = computed<AgentRole[]>(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  return visibleRoles.value.slice(start, start + pageSize);
+});
+
+/** T04：过滤后总数变化时把越界页码拉回最后一页 */
+watch(visibleRoles, (list) => {
+  const maxPage = Math.max(1, Math.ceil(list.length / pageSize));
+  if (currentPage.value > maxPage) currentPage.value = maxPage;
 });
 
 /** 当前正在右栏编辑的角色 id（用于卡片高亮）。 */
@@ -144,6 +214,11 @@ function summaryOf(role: AgentRole): string {
   if (role.mcp.length > 0) parts.push(`MCP：${role.mcp.join('、')}`);
   return parts.length === 0 ? '尚未配置专长与技能' : parts.join('　·　');
 }
+
+/** T04：动态网格列数 style */
+const gridStyle = computed<Record<string, string>>(() => ({
+  gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+}));
 </script>
 
 <template>
@@ -193,10 +268,10 @@ function summaryOf(role: AgentRole): string {
       </template>
     </n-empty>
 
-    <!-- 卡片列表 -->
-    <div v-if="!rolesStore.loading && visibleRoles.length > 0" class="ars-grid">
+    <!-- 卡片列表（T04：动态列数 + 分页） -->
+    <div v-if="!rolesStore.loading && visibleRoles.length > 0" class="ars-grid" :style="gridStyle">
       <div
-        v-for="role in visibleRoles"
+        v-for="role in pagedRoles"
         :key="role.id"
         class="ars-card"
         :class="{
@@ -254,6 +329,17 @@ function summaryOf(role: AgentRole): string {
         </div>
       </div>
     </div>
+
+    <!-- T04：分页器（总数超过 pageSize 时显示） -->
+    <div v-if="visibleRoles.length > pageSize" class="ars-pager">
+      <n-pagination
+        :page="currentPage"
+        :page-size="pageSize"
+        :item-count="visibleRoles.length"
+        size="small"
+        @update:page="(p: number) => (currentPage = p)"
+      />
+    </div>
   </div>
 </template>
 
@@ -310,8 +396,15 @@ function summaryOf(role: AgentRole): string {
 
 .ars-grid {
   display: grid;
+  /* grid-template-columns 由 :style 动态覆盖 */
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--km-space-md);
+}
+
+.ars-pager {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--km-space-xs);
 }
 
 .ars-card {
