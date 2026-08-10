@@ -14,6 +14,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { getModels, getProviders, putProvider, type ModelsResponse } from '../api/client';
+import { useChatStore } from './chat';
 import { INTERACTION, LS_KEYS, lsGet, lsSet, shortId } from '../constants/layout';
 import {
   CUSTOM_PROVIDER_KEY,
@@ -196,6 +197,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     provider.keyMasked = provider.apiKey !== '' || patch.keyMasked === true;
     providers.value = [...providers.value, provider];
     persist();
+    void useChatStore().reloadModels();
     return provider;
   }
 
@@ -227,6 +229,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     providers.value = providers.value.filter((p) => p.id !== id);
     pruneDefaults(removedIds);
     persist();
+    void useChatStore().reloadModels();
     return true;
   }
 
@@ -251,6 +254,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     updateProvider(providerId, { models: next });
     pruneDefaults(new Set([modelId]));
     persist();
+    void useChatStore().reloadModels();
     return true;
   }
 
@@ -259,6 +263,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     if (modelId !== '' && !getModel(modelId)) return false;
     defaults.value = { ...defaults.value, [slot]: modelId };
     persist();
+    void useChatStore().reloadModels();
     return true;
   }
 
@@ -456,6 +461,8 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
           }
         }
       }
+      // MD-01：写后同步 chat store 模型列表
+      void useChatStore().reloadModels();
     } catch {
       // 静默失败，保留现有数据
     } finally {

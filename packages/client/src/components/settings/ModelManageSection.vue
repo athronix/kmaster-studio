@@ -239,6 +239,16 @@ const usageTable = computed<UsageRow[]>(() =>
             <span>·</span>
             <span>{{ provider.models.length }} 个模型</span>
           </div>
+          <!-- T05-03：Provider 卡片模型预览（前 3 个模型名） -->
+          <div v-if="provider.models.length > 0" class="mms-provider-preview">
+            模型：
+            <span
+              v-for="(m, i) in provider.models.slice(0, 3)"
+              :key="m.id"
+              class="mms-preview-model"
+            >{{ store.displayName(m) }}<span v-if="i < Math.min(provider.models.length, 3) - 1">、</span></span>
+            <span v-if="provider.models.length > 3" class="mms-preview-more">…等 {{ provider.models.length }} 个</span>
+          </div>
         </div>
         <div class="mms-provider-ops">
           <n-button
@@ -293,6 +303,7 @@ const usageTable = computed<UsageRow[]>(() =>
             <th>供应商</th>
             <th>能力</th>
             <th class="mms-num">上下文</th>
+            <th>可见性</th>
             <th class="mms-ops">操作</th>
           </tr>
         </thead>
@@ -313,6 +324,9 @@ const usageTable = computed<UsageRow[]>(() =>
               >{{ capabilityLabel(cap) }}</n-tag>
             </td>
             <td class="mms-num">{{ model.contextLength > 0 ? `${Math.round(model.contextLength / 1000)}k` : '—' }}</td>
+            <td>
+              <n-tag size="tiny" :bordered="false" type="success">可见</n-tag>
+            </td>
             <td class="mms-ops">
               <n-popconfirm @positive-click="onRemoveModel(provider.id, model.id, store.displayName(model))">
                 <template #trigger>
@@ -470,6 +484,21 @@ const usageTable = computed<UsageRow[]>(() =>
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--km-mono, ui-monospace, monospace);
+}
+
+/* T05-03：Provider 卡片模型预览 */
+.mms-provider-preview {
+  font-size: var(--km-font-xs);
+  opacity: 0.5;
+  margin-top: 2px;
+}
+
+.mms-preview-model {
+  font-family: var(--km-mono, ui-monospace, monospace);
+}
+
+.mms-preview-more {
+  opacity: 0.6;
 }
 
 .mms-provider-ops {

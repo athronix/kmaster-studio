@@ -900,6 +900,21 @@ export const useChatStore = defineStore('chat', () => {
     globalSettings.value = await putSettings({ default_mode: mode, default_model: model });
   }
   async function loadModels() { const res = await getModels(); models.value = res.providers; }
+
+  /**
+   * MD-01：强制刷新 models 列表（供 modelConfig store 写后同步调用）。
+   *
+   * 设置页新增/删除/修改模型后，聊天选择器必须立即可见变化。
+   * API 不可用时静默失败，保留现有数据——旧列表总比空列表好。
+   */
+  async function reloadModels(): Promise<void> {
+    try {
+      const res = await getModels();
+      models.value = res.providers;
+    } catch {
+      // 静默失败，保留现有数据
+    }
+  }
   /** ST-01：`getSkills()` 现返回 `{ installed, candidates, categories }`，store 只关心已装列表。 */
   async function loadSkills() { skills.value = (await getSkills()).installed; }
   async function loadMcp() { mcpServers.value = await getMcp(); }
@@ -1062,7 +1077,7 @@ export const useChatStore = defineStore('chat', () => {
     setWorkspace,
     // T04/CH-D：会话级 Agent 角色
     setSessionAgent,
-    loadModels, loadSkills, loadMcp, addMcp, removeMcp, installAgent, uninstallAgent, uploadFile, clearUploads, invokeSkill,
+    loadModels, reloadModels, loadSkills, loadMcp, addMcp, removeMcp, installAgent, uninstallAgent, uploadFile, clearUploads, invokeSkill,
     // P1 #12
     editingMessage, resendMessage, clearEditingMessage,
     // M4 action
