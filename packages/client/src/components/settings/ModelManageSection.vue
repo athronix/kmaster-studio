@@ -9,6 +9,8 @@ import KIcon from '../common/KIcon.vue';/**
  *      未匹配到模型级数据时显示「—」而不是编造 0（A5）。
  *
  * 弹窗联动：AddModelDialog（双测试）→ ResultDialog（结果展示）。
+ *
+ * T02：标签从自定义 button → NTabs；供应商列表从行式 → ProviderModelCard 网格。
  */
 import { computed, onMounted, ref } from 'vue';
 import {
@@ -17,17 +19,18 @@ import {
   NPopconfirm,
   NSelect,
   NSpin,
+  NTabPane,
+  NTabs,
   NTag,
   useMessage,
 } from 'naive-ui';
 import { useModelConfigStore } from '../../stores/modelConfig';
 import AddModelDialog from '../dialog/AddModelDialog.vue';
 import ResultDialog from '../dialog/ResultDialog.vue';
+import ProviderModelCard from './ProviderModelCard.vue';
 import {
   DEFAULT_MODEL_SLOTS,
-  apiMethodLabel,
   capabilityLabel,
-  providerLabel,
 } from '../../constants/providers';
 import {
   emptyResultDialog,
@@ -65,12 +68,6 @@ async function reloadModels(): Promise<void> {
     loading.value = false;
   }
 }
-
-const TABS: { key: SubTab; label: string }[] = [
-  { key: 'providers', label: '供应商' },
-  { key: 'models', label: '模型与默认槽位' },
-  { key: 'usage', label: '用量' },
-];
 
 // ═══════════════════════ ① 供应商 ═══════════════════════
 
@@ -124,17 +121,6 @@ function onDialogConfirm(providerId: string): void {
   if (provider !== null && provider.models.length > 0 && store.defaults.default === '') {
     store.setDefault('default', provider.models[0].id);
   }
-}
-
-function keyStateOf(provider: ModelProviderConfig): { label: string; type: 'success' | 'warning' | 'default' } {
-  if (provider.apiKey !== '') return { label: 'Key 已填写', type: 'success' };
-  if (provider.keyMasked) return { label: 'Key 已配置（需重填以重测）', type: 'warning' };
-  return { label: '未配置 Key', type: 'default' };
-}
-
-function testedText(provider: ModelProviderConfig): string {
-  if (provider.lastTestedAt === 0) return '从未测试';
-  return `${provider.verified ? '通过' : '失败'} · ${new Date(provider.lastTestedAt).toLocaleString()}`;
 }
 
 // ═══════════════════════ ② 模型与默认槽位 ═══════════════════════
@@ -192,193 +178,162 @@ const usageTable = computed<UsageRow[]>(() =>
 
 <template>
   <div class="mms">
-    <!-- 子标签 -->
-    <div class="mms-tabs">
-      <button
-        v-for="tab in TABS"
-        :key="tab.key"
-        class="mms-tab"
-        :class="{ active: subTab === tab.key }"
-        @click="subTab = tab.key"
-      >{{ tab.label }}</button>
-      <div class="mms-tabs-spacer"></div>
-      <n-button size="small" type="primary" @click="onAddProvider"><template #icon><KIcon name="Plus" :size="16" /></template>新增供应商</n-button>
-    </div>
+    <!-- T02：标签改用 NTabs（type="line"） -->
+    <n-tabs v-model:value="subTab" type="line" animated>
+      <n-tab-pane name="providers" tab="供应商">
+        <div class="mms-panel">
+          <!-- 工具栏 -->
+          <div class="mms-toolbar">
+            <span class="mms-toolbar-hint" v-if="store.providerCount">
+              共 {{ store.providerCount }} 个供应商
+            </span>
+            <span v-else></span>
+            <n-button size="small" type="primary" @click="onAddProvider">
+              <template #icon><KIcon name="Plus" :size="16" /></template>
+              新增供应商
+            </n-button>
+          </div>
 
-    <!-- ① 供应商 -->
-    <div v-if="subTab === 'providers'" class="mms-panel">
-      <n-empty
-        v-if="!store.providerCount"
-        description="还没有配置任何模型供应商"
-      >
-        <template #extra>
-          <n-button size="small" type="primary" @click="onAddProvider">新增第一个供应商</n-button>
-        </template>
-      </n-empty>
-
-      <div
-        v-for="provider in store.providers"
-        :key="provider.id"
-        class="mms-provider"
-      >
-        <div class="mms-provider-main">
-          <div class="mms-provider-name">
-            {{ provider.name }}
-            <n-tag size="tiny" :bordered="false">{{ providerLabel(provider.providerKey) }}</n-tag>
-            <n-tag size="tiny" :bordered="false" :type="keyStateOf(provider).type">
-              {{ keyStateOf(provider).label }}
-            </n-tag>
-            <n-tag size="tiny" :bordered="false" :type="provider.verified ? 'success' : 'default'">
-              {{ testedText(provider) }}
-            </n-tag>
-          </div>
-          <div class="mms-provider-sub">
-            <span class="mms-provider-url">{{ provider.url || '未填写 Base URL' }}</span>
-            <span>·</span>
-            <span>{{ apiMethodLabel(provider.apiMethod) }}</span>
-            <span>·</span>
-            <span>{{ provider.models.length }} 个模型</span>
-          </div>
-          <!-- T05-03：Provider 卡片模型预览（前 3 个模型名） -->
-          <div v-if="provider.models.length > 0" class="mms-provider-preview">
-            模型：
-            <span
-              v-for="(m, i) in provider.models.slice(0, 3)"
-              :key="m.id"
-              class="mms-preview-model"
-            >{{ store.displayName(m) }}<span v-if="i < Math.min(provider.models.length, 3) - 1">、</span></span>
-            <span v-if="provider.models.length > 3" class="mms-preview-more">…等 {{ provider.models.length }} 个</span>
-          </div>
-        </div>
-        <div class="mms-provider-ops">
-          <n-button
-            size="tiny"
-            tertiary
-            :loading="testingId === provider.id"
-            @click="onRetest(provider)"
-          >重测</n-button>
-          <n-button size="tiny" tertiary @click="onEditProvider(provider)">编辑</n-button>
-          <n-popconfirm @positive-click="onRemoveProvider(provider)">
-            <template #trigger>
-              <n-button size="tiny" quaternary type="error">删除</n-button>
+          <!-- 空态 -->
+          <n-empty
+            v-if="!store.providerCount"
+            description="还没有配置任何模型供应商"
+          >
+            <template #extra>
+              <n-button size="small" type="primary" @click="onAddProvider">新增第一个供应商</n-button>
             </template>
-            删除供应商「{{ provider.name }}」会同时移除其全部模型，并清空引用这些模型的默认槽位。确认删除？
-          </n-popconfirm>
-        </div>
-      </div>
-    </div>
+          </n-empty>
 
-    <!-- ② 模型与默认槽位 -->
-    <div v-else-if="subTab === 'models'" class="mms-panel">
-      <div class="mms-block-title">默认模型槽位</div>
-      <div class="mms-slots">
-        <div v-for="slot in slotOptions" :key="slot.key" class="mms-slot">
-          <div class="mms-slot-label">
-            {{ slot.label }}
-            <span class="mms-slot-desc">{{ slot.desc }}</span>
+          <!-- T02：供应商网格（替代行式 .mms-provider 布局） -->
+          <div v-else class="mms-provider-grid">
+            <ProviderModelCard
+              v-for="provider in store.providers"
+              :key="provider.id"
+              :provider="provider"
+              :testing-id="testingId"
+              :model-display-name="store.displayName"
+              @retest="onRetest"
+              @edit="onEditProvider"
+              @delete="onRemoveProvider"
+            />
           </div>
-          <n-select
-            :value="store.defaults[slot.key]"
-            :options="slot.options"
-            size="small"
-            :placeholder="slot.options.length > 1 ? '选择模型' : '暂无符合能力要求的模型'"
-            @update:value="(v: string) => onSetDefault(slot.key, v)"
-          />
         </div>
-      </div>
+      </n-tab-pane>
 
-      <div class="mms-block-title mms-block-title-gap">全部模型（{{ store.modelCount }}）</div>
-      <n-empty
-        v-if="!store.modelCount"
-        description="还没有任何模型"
-      >
-        <template #extra>
-          <n-button size="small" type="primary" @click="onAddProvider">新增供应商并添加模型</n-button>
-        </template>
-      </n-empty>
-      <table v-else class="mms-table">
-        <thead>
-          <tr>
-            <th>模型</th>
-            <th>供应商</th>
-            <th>能力</th>
-            <th class="mms-num">上下文</th>
-            <th>可见性</th>
-            <th class="mms-ops">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="{ provider, model } in store.allModels" :key="model.id">
-            <td>
-              <div class="mms-model-name">{{ store.displayName(model) }}</div>
-              <div class="mms-model-id">{{ model.id }}</div>
-            </td>
-            <td>{{ provider.name }}</td>
-            <td>
-              <n-tag
-                v-for="cap in model.capabilities"
-                :key="cap"
-                size="tiny"
-                :bordered="false"
-                class="mms-cap"
-              >{{ capabilityLabel(cap) }}</n-tag>
-            </td>
-            <td class="mms-num">{{ model.contextLength > 0 ? `${Math.round(model.contextLength / 1000)}k` : '—' }}</td>
-            <td>
-              <n-tag size="tiny" :bordered="false" type="success">可见</n-tag>
-            </td>
-            <td class="mms-ops">
-              <n-popconfirm @positive-click="onRemoveModel(provider.id, model.id, store.displayName(model))">
-                <template #trigger>
-                  <n-button size="tiny" quaternary type="error">删除</n-button>
-                </template>
-                删除模型「{{ store.displayName(model) }}」后，引用它的默认槽位会被清空。确认删除？
-              </n-popconfirm>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <n-tab-pane name="models" tab="模型与默认槽位">
+        <div class="mms-panel">
+          <div class="mms-block-title">默认模型槽位</div>
+          <div class="mms-slots">
+            <div v-for="slot in slotOptions" :key="slot.key" class="mms-slot">
+              <div class="mms-slot-label">
+                {{ slot.label }}
+                <span class="mms-slot-desc">{{ slot.desc }}</span>
+              </div>
+              <n-select
+                :value="store.defaults[slot.key]"
+                :options="slot.options"
+                size="small"
+                :placeholder="slot.options.length > 1 ? '选择模型' : '暂无符合能力要求的模型'"
+                @update:value="(v: string) => onSetDefault(slot.key, v)"
+              />
+            </div>
+          </div>
 
-    <!-- ③ 用量 -->
-    <div v-else class="mms-panel">
-      <n-spin :show="loading">
-        <div class="mms-usage-bar">
-          <span class="mms-usage-hint">
-            T08：数据来自 <code>/api/models</code> 的 usage 聚合（近7天）；
-            未匹配到模型级统计时显示「—」，不做估算。
-          </span>
-          <n-button size="tiny" tertiary @click="reloadModels">刷新</n-button>
+          <div class="mms-block-title mms-block-title-gap">全部模型（{{ store.modelCount }}）</div>
+          <n-empty
+            v-if="!store.modelCount"
+            description="还没有任何模型"
+          >
+            <template #extra>
+              <n-button size="small" type="primary" @click="onAddProvider">新增供应商并添加模型</n-button>
+            </template>
+          </n-empty>
+          <table v-else class="mms-table">
+            <thead>
+              <tr>
+                <th>模型</th>
+                <th>供应商</th>
+                <th>能力</th>
+                <th class="mms-num">上下文</th>
+                <th>可见性</th>
+                <th class="mms-ops">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="{ provider, model } in store.allModels" :key="model.id">
+                <td>
+                  <div class="mms-model-name">{{ store.displayName(model) }}</div>
+                  <div class="mms-model-id">{{ model.id }}</div>
+                </td>
+                <td>{{ provider.name }}</td>
+                <td>
+                  <n-tag
+                    v-for="cap in model.capabilities"
+                    :key="cap"
+                    size="tiny"
+                    :bordered="false"
+                    class="mms-cap"
+                  >{{ capabilityLabel(cap) }}</n-tag>
+                </td>
+                <td class="mms-num">{{ model.contextLength > 0 ? `${Math.round(model.contextLength / 1000)}k` : '—' }}</td>
+                <td>
+                  <n-tag size="tiny" :bordered="false" type="success">可见</n-tag>
+                </td>
+                <td class="mms-ops">
+                  <n-popconfirm @positive-click="onRemoveModel(provider.id, model.id, store.displayName(model))">
+                    <template #trigger>
+                      <n-button size="tiny" quaternary type="error">删除</n-button>
+                    </template>
+                    删除模型「{{ store.displayName(model) }}」后，引用它的默认槽位会被清空。确认删除？
+                  </n-popconfirm>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </n-tab-pane>
 
-        <n-empty
-          v-if="!usageTable.length"
-          description="还没有可统计的模型"
-        >
-          <template #extra>
-            <n-button size="small" type="primary" @click="onAddProvider">先添加一个供应商</n-button>
-          </template>
-        </n-empty>
-        <table v-else class="mms-table">
-          <thead>
-            <tr>
-              <th>模型</th>
-              <th>供应商</th>
-              <th class="mms-num">近7天调用</th>
-              <th class="mms-num">近7天 Tokens</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in usageTable" :key="row.modelId">
-              <td>{{ row.modelName }}</td>
-              <td>{{ row.providerName }}</td>
-              <td class="mms-num">{{ row.calls }}</td>
-              <td class="mms-num">{{ row.tokens }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </n-spin>
-    </div>
+      <n-tab-pane name="usage" tab="用量">
+        <div class="mms-panel">
+          <n-spin :show="loading">
+            <div class="mms-usage-bar">
+              <span class="mms-usage-hint">
+                T08：数据来自 <code>/api/models</code> 的 usage 聚合（近7天）；
+                未匹配到模型级统计时显示「—」，不做估算。
+              </span>
+              <n-button size="tiny" tertiary @click="reloadModels">刷新</n-button>
+            </div>
+
+            <n-empty
+              v-if="!usageTable.length"
+              description="还没有可统计的模型"
+            >
+              <template #extra>
+                <n-button size="small" type="primary" @click="onAddProvider">先添加一个供应商</n-button>
+              </template>
+            </n-empty>
+            <table v-else class="mms-table">
+              <thead>
+                <tr>
+                  <th>模型</th>
+                  <th>供应商</th>
+                  <th class="mms-num">近7天调用</th>
+                  <th class="mms-num">近7天 Tokens</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in usageTable" :key="row.modelId">
+                  <td>{{ row.modelName }}</td>
+                  <td>{{ row.providerName }}</td>
+                  <td class="mms-num">{{ row.calls }}</td>
+                  <td class="mms-num">{{ row.tokens }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </n-spin>
+        </div>
+      </n-tab-pane>
+    </n-tabs>
 
     <!-- 弹窗 -->
     <AddModelDialog
@@ -402,109 +357,34 @@ const usageTable = computed<UsageRow[]>(() =>
 .mms {
   display: flex;
   flex-direction: column;
-  gap: var(--km-space-14);
 }
 
-.mms-tabs {
-  display: flex;
-  align-items: center;
-  gap: var(--km-space-6);
-}
-
-.mms-tabs-spacer {
-  flex: 1;
-}
-
-.mms-tab {
-  padding: 5px var(--km-space-14);
-  border: 1px solid var(--km-border);
-  border-radius: var(--km-radius-md);
-  background: transparent;
-  color: var(--km-text);
-  font-size: var(--km-font-sm);
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.15s ease, background 0.15s ease;
-}
-
-.mms-tab:hover {
-  opacity: 1;
-}
-
-.mms-tab.active {
-  opacity: 1;
-  background: var(--km-bg);
-  border-color: var(--km-accent);
-  color: var(--km-accent);
-}
-
+/* T02：NTabs 下方面板间距（naive-ui NTabs 本身自带 tabs-nav 间距，这里统一面板上边距） */
 .mms-panel {
   display: flex;
   flex-direction: column;
   gap: var(--km-space-10);
+  padding-top: var(--km-space-sm);
 }
 
-/* 供应商卡片 */
-.mms-provider {
+/* 工具栏 */
+.mms-toolbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--km-space-md);
-  padding: var(--km-space-10) var(--km-space-md);
-  border: 1px solid var(--km-border);
-  border-radius: var(--km-radius-lg);
-  background: var(--km-panel);
 }
 
-.mms-provider-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.mms-provider-name {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--km-space-6);
-  font-size: var(--km-font-sm);
-  font-weight: 600;
-}
-
-.mms-provider-sub {
-  display: flex;
-  align-items: center;
-  gap: var(--km-space-6);
-  font-size: var(--km-font-xs);
-  opacity: 0.55;
-  margin-top: 3px;
-}
-
-.mms-provider-url {
-  max-width: 340px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--km-mono, ui-monospace, monospace);
-}
-
-/* T05-03：Provider 卡片模型预览 */
-.mms-provider-preview {
+.mms-toolbar-hint {
   font-size: var(--km-font-xs);
   opacity: 0.5;
-  margin-top: 2px;
 }
 
-.mms-preview-model {
-  font-family: var(--km-mono, ui-monospace, monospace);
-}
-
-.mms-preview-more {
-  opacity: 0.6;
-}
-
-.mms-provider-ops {
-  display: flex;
-  gap: var(--km-space-xs);
-  flex-shrink: 0;
+/* T02：供应商卡片网格（替代旧 .mms-provider 行式布局） */
+.mms-provider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--km-space-10);
 }
 
 /* 默认槽位 */
