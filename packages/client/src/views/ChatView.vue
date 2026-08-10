@@ -46,6 +46,23 @@ const sessionsLoading = ref(false);
 /** 会话列表 / 历史消息加载失败原因；空串表示无错误。 */
 const loadError = ref('');
 
+/**
+ * 错误横幅标题。这条横幅被多个来源复用（会话加载 / 新建会话 / CH-C 工作区设置 /
+ * CH-D Agent 切换），标题必须跟着来源走——否则「设置工作区失败」会顶着
+ * 「会话加载失败」的帽子弹出来，用户完全对不上自己刚才点了什么。
+ */
+const loadErrorTitle = ref('会话加载失败');
+
+/** 该错误是否能靠「重试」重新拉会话列表修复；配置类失败重试无意义，直接不给按钮。 */
+const loadErrorRetryable = ref(true);
+
+/** 统一置错入口（标题 / 文案 / 可重试性三者必须同时给，避免漏改其一）。 */
+function setLoadError(title: string, e: unknown, fallback: string, retryable = false): void {
+  loadErrorTitle.value = title;
+  loadError.value = e instanceof Error ? e.message : fallback;
+  loadErrorRetryable.value = retryable;
+}
+
 /** 载态：拉取会话列表，或切换会话时读取历史消息。 */
 const historyLoading = computed<boolean>(() => sessionsLoading.value || store.openingSession);
 
@@ -68,7 +85,7 @@ async function loadSessionList(): Promise<void> {
   try {
     await store.loadSessions();
   } catch (e: unknown) {
-    loadError.value = e instanceof Error ? e.message : '会话列表加载失败，请检查服务端连接';
+    setLoadError('会话加载失败', e, '会话列表加载失败，请检查服务端连接', true);
   } finally {
     sessionsLoading.value = false;
   }
@@ -84,7 +101,7 @@ async function handleCreateSession(): Promise<void> {
   try {
     await store.createSession();
   } catch (e: unknown) {
-    loadError.value = e instanceof Error ? e.message : '新建会话失败';
+    setLoadError('新建会话失败', e, '新建会话失败，请检查服务端连接', true);
   }
 }
 
@@ -113,11 +130,8 @@ const currentModelName = computed(() => {
   return model;
 });
 
-const currentAgentName = computed(() => {
-  if (!sid.value) return '';
-  const session = store.sessions.find((s) => s.id === sid.value);
-  return session?.agent ?? 'Default';
-});
+/** 顶栏 Agent badge：与底栏同一份解析结果，无会话时不出 badge。 */
+const currentAgentName = computed<string>(() => (sid.value ? currentAgent.value : ''));
 
 // ── 对话内搜索 ──
 const searchQuery = ref('');
@@ -178,13 +192,32 @@ const currentWorkspace = computed<string>(() => {
   return s?.workspace ?? '';
 });
 
+/**
+ * 底栏 Agent 展示名。
+ *
+ * 侧车列 `session.agent` 存的是 `AgentEntry.id`（与 `createSession(agent)` 同一口径），
+ * 而用户要看的是人类可读名，所以这里查一次 `realAgents` 做 id → name 解析。
+ * 查不到就**原样显示**——可能是 Agent 已被卸载，或该值来自 hermes 的
+ * `profile_name` 回落（服务端 `mergeSession`），此时把原值糊成 'Default'
+ * 反而会掩盖「绑定还在、角色包没了」这个真问题。
+ */
 const currentAgent = computed<string>(() => {
   if (!sid.value) return 'Default';
-  const s = store.sessions.find((x) => x.id === sid.value);
-  return s?.agent ?? 'Default';
+  const bound = store.sessions.find((x) => x.id === sid.value)?.agent;
+  if (!bound) return 'Default';
+  return realAgents.value.find((a) => a.id === bound)?.name ?? bound;
 });
 
 const ctxRef = computed(() => (sid.value ? store.contextBySession[sid.value] : undefined));
+
+/**
+ * CH-B/L3：上下文用量是否**真的有数据**。
+ *
+ * 判据是 `context_max > 0`——没有分母就算不出百分比。缺数据时底栏整条隐藏，
+ * 🚫 不渲染 0% 假环（`ctxPercentage` 的 `?? 0` 只是给 prop 一个合法数字，
+ * 不代表「用量为零」，两者语义必须靠这个开关区分开）。
+ */
+const ctxAvailable = computed<boolean>(() => !!ctxRef.value && ctxRef.value.context_max > 0);
 const ctxPercentage = computed(() => Math.round(ctxRef.value?.context_percent ?? 0));
 const ctxUsed = computed(() => ctxRef.value?.context_used ?? 0);
 const ctxMax = computed(() => ctxRef.value?.context_max ?? 0);
@@ -192,17 +225,53 @@ const ctxMax = computed(() => ctxRef.value?.context_max ?? 0);
 const sendMode = ref<'interrupt' | 'steer' | 'queue'>('queue');
 
 // ── 底栏事件处理 ──
-function onChangeWorkspace(): void {
-  // 触发工作区选择 —— ChatInput 或调用方处理
-  // 此处 emit 给 ChatInput 处理
+/**
+ * CH-C：切换会话工作目录。
+ *
+ * 传 `null` 让 store 自己弹选择器（Electron 走原生对话框，web 走 prompt 兜底；
+ * 用户取消时 store 内部静默 return）。改完 store 会乐观更新 `sessions`，
+ * 会话列表分组随即重新归组，无需刷新页面。
+ */
+async function onChangeWorkspace(): Promise<void> {
+  if (!sid.value) return;
+  try {
+    await store.setWorkspace(sid.value, null);
+  } catch (e) {
+    // 🚫 不吞异常：走 ChatView 既有的顶部 NAlert 错误条给可见反馈
+    setLoadError('工作区设置失败', e, '设置工作区失败，请检查服务端连接');
+  }
 }
 
 function onChangeMode(mode: HermesMode): void {
   if (sid.value) store.setMode(sid.value, mode);
 }
 
-function onChangeAgent(): void {
-  // Agent 切换 —— 后续由 AgentTabBar select 事件驱动
+/**
+ * CH-D：Agent 角色可选列表（底栏下拉数据源）。
+ *
+ * 复用已装 Agent 清单 `realAgents`（`getAgents('installed')`，onMounted 拉一次），
+ * 🚫 不另起接口、不造 mock 数据。
+ */
+const agentOptions = computed(() =>
+  realAgents.value.map((a) => ({ label: a.name, key: a.id })),
+);
+
+/**
+ * CH-D：切换当前会话绑定的 Agent 角色。
+ *
+ * 服务端只改 kmaster.db 侧车的 `agent` 列；store 内部做乐观更新 + 失败回滚，
+ * 这里只负责把回滚后上抛的错误呈现给用户。
+ *
+ * ⚠️ `agentId === null` 是**合法入参**（底栏「默认角色（解除绑定）」项），
+ * 不能当空值 early-return 掉——那会让「解除绑定」变成一个静默无反应的按钮。
+ */
+async function onChangeAgent(agentId: string | null): Promise<void> {
+  if (!sid.value) return;
+  try {
+    await store.setSessionAgent(sid.value, agentId);
+  } catch (e) {
+    setLoadError('Agent 切换失败', e, '切换 Agent 失败，请检查服务端连接');
+  }
 }
 
 function onChangeModel(model: string): void {
@@ -371,13 +440,13 @@ watch(
           v-if="loadError"
           class="km-chat-alert"
           type="error"
-          title="会话加载失败"
+          :title="loadErrorTitle"
           closable
           @close="loadError = ''"
         >
           <div class="km-chat-alert-body">
             <span class="km-chat-alert-text">{{ loadError }}</span>
-            <n-button size="tiny" tertiary @click="retryLoad">重试</n-button>
+            <n-button v-if="loadErrorRetryable" size="tiny" tertiary @click="retryLoad">重试</n-button>
           </div>
         </n-alert>
 
@@ -410,7 +479,9 @@ watch(
       :workspace="currentWorkspace"
       :mode="currentMode"
       :agent="currentAgent"
+      :agent-options="agentOptions"
       :model="currentModel"
+      :context-available="ctxAvailable"
       :context-percent="ctxPercentage"
       :context-used="ctxUsed"
       :context-max="ctxMax"

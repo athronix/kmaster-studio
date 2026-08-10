@@ -15,6 +15,14 @@ import ContextRing from './ContextRing.vue';
 
 const router = useRouter();
 
+/** T04/CH-D：Agent 下拉的候选项（由 ChatView 从 `getAgents('installed')` 灌入）。 */
+export interface AgentOption {
+  /** 写回会话侧车 `agent` 列的值，等于 `AgentEntry.id`（与 `createSession(agent)` 同口径） */
+  key: string;
+  /** 人类可读展示名，等于 `AgentEntry.name` */
+  label: string;
+}
+
 const props = withDefaults(
   defineProps<{
     workspace: string;
@@ -24,6 +32,15 @@ const props = withDefaults(
     contextPercent: number;
     contextUsed?: number;
     contextMax?: number;
+    /**
+     * T04/CH-B：上下文用量是否可展示。
+     *
+     * `false` 时整个上下文环（含 tooltip）**不渲染**——数据缺失就该隐藏，
+     * 🚫 不得渲染一个 0% 的假环（见 `ContextTokensPayload` doc）。
+     */
+    contextAvailable?: boolean;
+    /** T04/CH-D：可选的 Agent 角色列表；空数组时下拉显示占位项。 */
+    agentOptions?: AgentOption[];
     sendMode: 'interrupt' | 'steer' | 'queue';
   }>(),
   {
@@ -34,6 +51,8 @@ const props = withDefaults(
     contextPercent: 0,
     contextUsed: 0,
     contextMax: 0,
+    contextAvailable: false,
+    agentOptions: () => [],
     sendMode: 'queue',
   },
 );
@@ -41,11 +60,15 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'change-workspace'): void;
   (e: 'change-mode', mode: HermesMode): void;
-  (e: 'change-agent'): void;
+  /** T04/CH-D：`null` 表示「解除绑定，回落默认角色」。 */
+  (e: 'change-agent', agent: string | null): void;
   (e: 'change-model', model: string): void;
   (e: 'change-send-mode', mode: 'interrupt' | 'steer' | 'queue'): void;
   (e: 'add-model'): void;
 }>();
+
+/** 解除 Agent 绑定的哨兵 key（不会与真实 Agent 名冲突）。 */
+const AGENT_CLEAR_KEY = '__agent_default__';
 
 /** 模式选项（Ask / Plan / Craft） */
 const modeOptions = CHAT_MODES.map((m) => ({
@@ -91,13 +114,35 @@ const modelShort = computed<string>(() => {
   return props.model.length > 20 ? props.model.slice(0, 20) + '…' : props.model;
 });
 
-/** ContextRing tooltip */
+/**
+ * ContextRing tooltip。
+ *
+ * ⚠️ 分母兜底为 0（此前写死 100000）：假分母会让「服务端没给上下文窗口」的会话
+ * 显示出一个煞有介事的百分比。真正的缺失处理在 `contextAvailable` —— 整条隐藏。
+ */
 const ctxTooltip = computed<string>(() => {
   const u = props.contextUsed ?? 0;
-  const m = props.contextMax ?? 100000;
+  const m = props.contextMax ?? 0;
   const p = m > 0 ? Math.round((u / m) * 100) : 0;
   return `${p}%: ${(u / 256).toFixed(1)}kb/${(m / 256).toFixed(1)}kb 上下文已使用`;
 });
+
+// ── T04/CH-D：Agent 选择 dropdown ──
+const agentDropdownOptions = computed(() => {
+  if (props.agentOptions.length === 0) {
+    return [{ label: '暂无已安装的 Agent', key: '__agent_empty__', disabled: true }];
+  }
+  return [
+    ...props.agentOptions.map((o) => ({ label: o.label, key: o.key })),
+    { key: '__agent_divider__', type: 'divider' as const },
+    { label: '默认角色（解除绑定）', key: AGENT_CLEAR_KEY },
+  ];
+});
+
+function onAgentSelect(key: string): void {
+  if (key === '__agent_empty__') return;
+  emit('change-agent', key === AGENT_CLEAR_KEY ? null : key);
+}
 
 // ── 模型选择 dropdown options（最后一行"添加模型"）──
 const modelDropdownOptions = computed(() => {
@@ -142,17 +187,23 @@ function onModelSelect(key: string): void {
         <span v-else class="km-config-label km-config-placeholder">工作区</span>
       </n-button>
 
-      <!-- Agent -->
-      <n-button
-        size="tiny"
-        text
-        class="km-config-btn"
-        :title="'Agent: ' + agent"
-        @click="emit('change-agent')"
+      <!-- Agent（CH-D：改为 NDropdown，与模式/模型同一交互口径） -->
+      <n-dropdown
+        trigger="click"
+        placement="top-start"
+        :options="agentDropdownOptions"
+        @select="onAgentSelect"
       >
-        <span class="km-config-icon"><KIcon name="Robot" :size="14" /></span>
-        <span class="km-config-label">{{ agent }}</span>
-      </n-button>
+        <n-button
+          size="tiny"
+          text
+          class="km-config-btn"
+          :title="'Agent: ' + agent"
+        >
+          <span class="km-config-icon"><KIcon name="Robot" :size="14" /></span>
+          <span class="km-config-label">{{ agent }}</span>
+        </n-button>
+      </n-dropdown>
 
       <!-- 模式 -->
       <n-dropdown
@@ -170,8 +221,8 @@ function onModelSelect(key: string): void {
 
     <!-- 右侧：上下文环 / 模型 / 发送模式 -->
     <div class="km-config-right">
-      <!-- 上下文用量环 -->
-      <n-tooltip trigger="hover" placement="top">
+      <!-- 上下文用量环（CH-B：数据缺失即整条隐藏，不渲染 0% 假环） -->
+      <n-tooltip v-if="contextAvailable" trigger="hover" placement="top">
         <template #trigger>
           <div class="km-config-ring-wrap">
             <ContextRing

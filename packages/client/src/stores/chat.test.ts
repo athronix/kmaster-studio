@@ -176,6 +176,162 @@ describe('chat store reducer — 消息流聚合', () => {
   });
 });
 
+// ── T04/CH-A：WS 随行 context_tokens 合入 contextBySession ──
+// 三条硬语义各锁一条：① 携带时更新数值且不冲掉富字段；② 缺失时旧值原样保留；
+// ③ 分母非法时按缺失处理（不写 0% 假环）。
+describe('chat store T04/CH-A — context_tokens 随行快照', () => {
+  /** 造一份「REST 估算已落地」的初始状态，含只有 REST 才有的富字段。 */
+  function seedRestEstimate(s: ReturnType<typeof useChatStore>): void {
+    s.contextBySession[SID] = {
+      context_used: 1000,
+      context_max: 8000,
+      context_percent: 12.5,
+      estimated_total: 1200,
+      model: 'gpt-x',
+      categories: [{ id: 'sys', label: '系统提示', tokens: 400 }],
+      estimated: true,
+    };
+  }
+
+  it('run.completed 携带 context_tokens → 数值更新，且 categories 等富字段不被冲掉', () => {
+    const s = useChatStore();
+    seedRestEstimate(s);
+    s.dispatch('run.completed', {
+      session_id: SID,
+      message_id: MID,
+      context_tokens: { total_tokens: 4000, context_length: 16000 },
+    });
+    const ctx = s.contextBySession[SID];
+    // 四个数值字段被 WS 快照覆盖
+    expect(ctx.context_used).toBe(4000);
+    expect(ctx.context_max).toBe(16000);
+    expect(ctx.context_percent).toBeCloseTo(25);
+    expect(ctx.estimated).toBe(true);
+    // 富字段只有 REST 才有，浅合并必须原样保留（整体赋值会把它们抹掉）
+    expect(ctx.categories).toEqual([{ id: 'sys', label: '系统提示', tokens: 400 }]);
+    expect(ctx.model).toBe('gpt-x');
+    expect(ctx.estimated_total).toBe(1200);
+  });
+
+  it('usage.updated 不带 context_tokens → 旧值原样保留（🚫 不回落 0/NaN）', () => {
+    const s = useChatStore();
+    seedRestEstimate(s);
+    // 先用一条带快照的 run.completed 把「WS 已写过一次」这个前提做实——
+    // 否则初始状态若为空，断言「保留旧值」就是空对空，测不出任何东西。
+    s.dispatch('run.completed', {
+      session_id: SID, context_tokens: { total_tokens: 4000, context_length: 16000 },
+    });
+    const before = { ...s.contextBySession[SID] };
+    expect(before.context_used).toBe(4000);
+
+    s.dispatch('usage.updated', {
+      session_id: SID, input_tokens: 10, output_tokens: 20, cost: 0.001,
+    });
+    // usage 本体照常记录
+    expect(s.usageBySession[SID].input_tokens).toBe(10);
+    // 上下文整条不动：既没被清零，也没被 NaN 污染
+    expect(s.contextBySession[SID]).toEqual(before);
+    expect(Number.isNaN(s.contextBySession[SID].context_percent)).toBe(false);
+  });
+
+  it('同一 usage.updated 重复投递 3 次 → 与投递 1 次结果一致（幂等）', () => {
+    const s = useChatStore();
+    seedRestEstimate(s);
+    const ev = {
+      session_id: SID,
+      input_tokens: 77,
+      output_tokens: 88,
+      cost: 0.005,
+      context_tokens: { total_tokens: 3200, context_length: 12800 },
+    };
+
+    s.dispatch('usage.updated', { ...ev });
+    const afterFirst = { ...s.contextBySession[SID] };
+    const usageAfterFirst = { ...s.usageBySession[SID] };
+
+    // WS 重连 / 多端广播都可能让同一条事件重复到达，reducer 必须是幂等的：
+    // 只赋值不累加，重复 N 次和 1 次必须完全等价。
+    s.dispatch('usage.updated', { ...ev });
+    s.dispatch('usage.updated', { ...ev });
+
+    expect(s.contextBySession[SID]).toEqual(afterFirst);
+    expect(s.usageBySession[SID]).toEqual(usageAfterFirst);
+    expect(s.contextBySession[SID].context_used).toBe(3200);
+    expect(s.contextBySession[SID].context_percent).toBeCloseTo(25);
+    // 富字段在三次投递后依然健在
+    expect(s.contextBySession[SID].categories).toHaveLength(1);
+  });
+
+  it('usage.updated 携带合法 context_tokens → 就地更新数值', () => {
+    const s = useChatStore();
+    seedRestEstimate(s);
+    s.dispatch('usage.updated', {
+      session_id: SID,
+      input_tokens: 10,
+      output_tokens: 20,
+      context_tokens: { total_tokens: 2000, context_length: 8000 },
+    });
+    expect(s.contextBySession[SID].context_used).toBe(2000);
+    expect(s.contextBySession[SID].context_percent).toBeCloseTo(25);
+  });
+
+  it('context_length <= 0 视同缺失：没有分母不写入，不产生 0% 假环', () => {
+    const s = useChatStore();
+    seedRestEstimate(s);
+    const before = { ...s.contextBySession[SID] };
+    s.dispatch('run.completed', {
+      session_id: SID, context_tokens: { total_tokens: 500, context_length: 0 },
+    });
+    expect(s.contextBySession[SID]).toEqual(before);
+  });
+
+  it('用量超出窗口时百分比夹在 100（§7.3/L3）', () => {
+    const s = useChatStore();
+    s.dispatch('run.completed', {
+      session_id: SID, context_tokens: { total_tokens: 9999, context_length: 1000 },
+    });
+    expect(s.contextBySession[SID].context_percent).toBe(100);
+  });
+
+  it('首次收到快照（此前无 REST 估算）也能建条目', () => {
+    const s = useChatStore();
+    expect(s.contextBySession[SID]).toBeUndefined();
+    s.dispatch('run.completed', {
+      session_id: SID, context_tokens: { total_tokens: 300, context_length: 1200 },
+    });
+    expect(s.contextBySession[SID].context_used).toBe(300);
+    expect(s.contextBySession[SID].context_percent).toBeCloseTo(25);
+  });
+});
+
+// ── T04/CH-F：modeBySession 脏值收敛 ──
+describe('chat store T04/CH-F — normalizeMode 脏值回落', () => {
+  it('合法 hermes 令牌原样返回', () => {
+    const s = useChatStore();
+    expect(s.normalizeMode('default')).toBe('default');
+    expect(s.normalizeMode('accept_edits')).toBe('accept_edits');
+    expect(s.normalizeMode('dont_ask')).toBe('dont_ask');
+  });
+
+  it('脏值（UI 值 / 空 / 非字符串）回落到全局默认', () => {
+    const s = useChatStore();
+    s.globalSettings.default_mode = 'dont_ask';
+    // 'craft' 是 UI 值不是网络令牌，历史库里混得最多
+    expect(s.normalizeMode('craft')).toBe('dont_ask');
+    expect(s.normalizeMode('')).toBe('dont_ask');
+    expect(s.normalizeMode(null)).toBe('dont_ask');
+    expect(s.normalizeMode(undefined)).toBe('dont_ask');
+    expect(s.normalizeMode(42)).toBe('dont_ask');
+  });
+
+  it('全局默认本身也是脏值时，兜底到 default', () => {
+    const s = useChatStore();
+    // 模拟服务端 /api/settings 返回了非法 default_mode
+    s.globalSettings.default_mode = 'plan' as any;
+    expect(s.normalizeMode('craft')).toBe('default');
+  });
+});
+
 describe('chat store M3 — 管理面（模式/模型/技能/MCP/上传/设置）', () => {
   it('setMode / setModel 更新每会话覆盖', () => {
     const s = useChatStore();
@@ -301,6 +457,107 @@ describe('chat store M4 — F17 队列 reducer（AC5）', () => {
     const s = useChatStore();
     s.dispatch('run.queued', { session_id: SID } as any);
     expect(s.queueBySession[SID]).toBeUndefined();
+  });
+});
+
+// ── T04/CH-A：WS 随行 context_tokens 合入 contextBySession ──
+// 核心不变量有两条：①「有就浅合并、富字段不冲掉」②「没有就一个字都不写」。
+describe('chat store T04/CH-A — 上下文用量随行快照', () => {
+  /** 模拟 openSession 里 REST 估算灌进来的完整值（带 categories 等富字段）。 */
+  const seedEstimate = (s: ReturnType<typeof useChatStore>) => {
+    s.contextBySession[SID] = {
+      context_used: 1000,
+      context_max: 200000,
+      context_percent: 0.5,
+      estimated_total: 1200,
+      model: 'claude-x',
+      categories: [{ id: 'sys', label: '系统提示', tokens: 400 }],
+      estimated: true,
+    };
+  };
+
+  it('run.completed 带 context_tokens → 数值更新且 categories 等富字段不被冲掉', () => {
+    const s = useChatStore();
+    seedEstimate(s);
+    s.dispatch('run.completed', {
+      session_id: SID,
+      message_id: MID,
+      context_tokens: { total_tokens: 50_000, context_length: 200_000 },
+    });
+    const ctx = s.contextBySession[SID];
+    expect(ctx.context_used).toBe(50_000);
+    expect(ctx.context_max).toBe(200_000);
+    expect(ctx.context_percent).toBeCloseTo(25, 6);
+    expect(ctx.estimated).toBe(true);
+    // WS 快照只有两枚数字，富字段必须原样保留（整体替换会让右栏分类明细变空）
+    expect(ctx.categories).toEqual([{ id: 'sys', label: '系统提示', tokens: 400 }]);
+    expect(ctx.model).toBe('claude-x');
+    expect(ctx.estimated_total).toBe(1200);
+  });
+
+  it('usage.updated 不带 context_tokens → 旧值原样保留，🚫 不回落 0/NaN', () => {
+    const s = useChatStore();
+    seedEstimate(s);
+    const before = { ...s.contextBySession[SID] };
+    s.dispatch('usage.updated', {
+      session_id: SID, input_tokens: 10, output_tokens: 20, cost: 0.1,
+    });
+    expect(s.contextBySession[SID]).toEqual(before);
+    // usage 本身照常记录，两条状态互不干扰
+    expect(s.usageBySession[SID]).toEqual({ input_tokens: 10, output_tokens: 20, cost: 0.1 });
+  });
+
+  it('usage.updated 带 context_tokens 时就地更新；context_length<=0 视同缺失', () => {
+    const s = useChatStore();
+    s.dispatch('usage.updated', {
+      session_id: SID, input_tokens: 1, output_tokens: 2,
+      context_tokens: { total_tokens: 300, context_length: 1000 },
+    });
+    expect(s.contextBySession[SID].context_percent).toBeCloseTo(30, 6);
+    // 分母为 0 → 算不出百分比 → 整条不写，保留上一次的有效值
+    s.dispatch('usage.updated', {
+      session_id: SID, input_tokens: 1, output_tokens: 2,
+      context_tokens: { total_tokens: 999, context_length: 0 },
+    });
+    expect(s.contextBySession[SID].context_used).toBe(300);
+  });
+});
+
+// ── T04/CH-F：mode 脏值单点归一 ──
+describe('chat store T04/CH-F — normalizeMode 脏值回落', () => {
+  it('合法 token 原样返回；脏值 / 空值回落全局默认，最终兜底 default', () => {
+    const s = useChatStore();
+    s.globalSettings.default_mode = 'accept_edits';
+
+    // 合法 hermes 令牌 —— 原样透传
+    expect(s.normalizeMode('default')).toBe('default');
+    expect(s.normalizeMode('accept_edits')).toBe('accept_edits');
+    expect(s.normalizeMode('dont_ask')).toBe('dont_ask');
+
+    // 历史脏值：UI 值（craft/plan/ask）、空串、null、非字符串 —— 一律回落全局默认
+    expect(s.normalizeMode('craft')).toBe('accept_edits');
+    expect(s.normalizeMode('plan')).toBe('accept_edits');
+    expect(s.normalizeMode('')).toBe('accept_edits');
+    expect(s.normalizeMode(null)).toBe('accept_edits');
+    expect(s.normalizeMode(undefined)).toBe('accept_edits');
+    expect(s.normalizeMode(42)).toBe('accept_edits');
+
+    // 全局默认自己也脏时，兜底到 'default'（🚫 不得把脏值二次放行）
+    s.globalSettings.default_mode = 'craft' as any;
+    expect(s.normalizeMode('ask')).toBe('default');
+  });
+
+  it('openSession 恢复历史会话时把脏 mode 收敛为合法 token', async () => {
+    const s = useChatStore();
+    const { http } = await import('../api/client');
+    (http as any).mockImplementation((url: string) => {
+      if (url.endsWith('/messages')) return Promise.resolve({ messages: [] });
+      return Promise.resolve({ session: { id: SID, mode: 'craft', model: 'm1' } });
+    });
+    await s.openSession(SID);
+    // 'craft' 是 UI 值不是 hermes 令牌，裸断言时代会被原样灌进 store
+    expect(s.modeBySession[SID]).toBe('default');
+    (http as any).mockResolvedValue({ ok: true });
   });
 });
 
