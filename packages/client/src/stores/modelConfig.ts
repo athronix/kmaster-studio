@@ -450,17 +450,50 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
       if (res.usage) {
         modelUsage.value = res.usage;
       }
-      // 同步 ProviderGroup 到本地 providers（合并模式）
+      // 同步 API ProviderGroup → 本地 providers
+      const merged: ModelProviderConfig[] = [];
       for (const group of res.providers) {
         const existing = providers.value.find((p) => p.providerKey === group.provider);
         if (existing) {
-          // 更新已验证状态（如果后端提供了 authenticated）
-          if (group.authenticated !== undefined) {
-            existing.verified = group.authenticated;
-            existing.lastTestedAt = Date.now();
-          }
+          // 已存在：更新验证状态 + 模型列表（API 为准）
+          existing.verified = group.authenticated === true;
+          existing.lastTestedAt = group.authenticated === true ? Date.now() : 0;
+          // 合并 API 模型列表（保留用户自定义模型）
+          const apiIds = new Set(group.models.map((m) => m.id));
+          const userDefined = existing.models.filter((m) => !apiIds.has(m.id));
+          const apiModels: ModelConfig[] = group.models.map((m) => ({
+            id: m.id,
+            name: m.name,
+            alias: '',
+            capabilities: ([] as ModelCapability[]),
+            contextLength: m.context || 0,
+          }));
+          existing.models = [...apiModels, ...userDefined];
+          merged.push(existing);
+        } else {
+          // 🆕 新增：从 API 创建 provider 条目
+          merged.push({
+            id: group.provider,
+            providerKey: group.provider,
+            name: group.label || group.provider,
+            url: '',
+            apiMethod: 'openai' as ApiMethod,
+            apiKey: '',
+            keyMasked: group.authenticated === true,
+            models: group.models.map((m) => ({
+              id: m.id,
+              name: m.name,
+              alias: '',
+              capabilities: ([] as ModelCapability[]),
+              contextLength: m.context || 0,
+            })),
+            verified: group.authenticated === true,
+            lastTestedAt: group.authenticated === true ? Date.now() : 0,
+          });
         }
       }
+      providers.value = merged;
+      persist();
       // MD-01：写后同步 chat store 模型列表
       void useChatStore().reloadModels();
     } catch {
