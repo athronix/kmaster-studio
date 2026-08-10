@@ -34,6 +34,19 @@ function agentsResponse(installed: string[], candidates: string[]) {
   } as unknown as Awaited<ReturnType<typeof getAgents>>;
 }
 
+/**
+ * 造一个最小可用的 skills 响应。
+ * ST-01：`getSkills()` 返回的是 `{ installed, candidates, categories }` 三段对象，
+ * 🚫 不再是裸数组——旧 mock 返回数组会让 `.installed` 变 undefined，与线上崩溃同因。
+ */
+function skillsResponse(installed: string[], candidates: string[]) {
+  return {
+    installed: installed.map((name) => ({ name, category: '', enabled: true })),
+    candidates: candidates.map((name, i) => ({ id: `c-${i}`, name })),
+    categories: [],
+  } as unknown as Awaited<ReturnType<typeof getSkills>>;
+}
+
 describe('dedupeCount —— 去重计数基元', () => {
   it('按键去重，重复项只算一次', () => {
     const list = [{ name: 'a' }, { name: 'a' }, { name: 'b' }];
@@ -63,8 +76,7 @@ describe('useSidebarCounts —— 三源聚合', () => {
   it('① 重名专家只计 1 次；installed ∪ candidates 去重得 total', async () => {
     // installed 有重名 'pm'；candidates 与 installed 有交集 'pm'
     mockGetAgents.mockResolvedValue(agentsResponse(['pm', 'pm', 'dev'], ['pm', 'qa']));
-    mockGetSkills.mockResolvedValue([]);
-    mockHttp.mockResolvedValue({ candidates: [] } as never);
+    mockGetSkills.mockResolvedValue(skillsResponse([], []));
     mockGetMcpList.mockResolvedValue({ deployed: [], candidates: [] });
 
     const c = useSidebarCounts();
@@ -78,8 +90,7 @@ describe('useSidebarCounts —— 三源聚合', () => {
 
   it('② MCP 唯一键为 id ?? name：有 id 用 id，无 id 回落 name', async () => {
     mockGetAgents.mockResolvedValue(agentsResponse([], []));
-    mockGetSkills.mockResolvedValue([]);
-    mockHttp.mockResolvedValue({ candidates: [] } as never);
+    mockGetSkills.mockResolvedValue(skillsResponse([], []));
     mockGetMcpList.mockResolvedValue({
       // deployed 无 id（McpServer 只有 name）
       deployed: [{ name: 'git' }, { name: 'fs' }] as never,
@@ -100,8 +111,7 @@ describe('useSidebarCounts —— 三源聚合', () => {
 
   it('②b MCP 同 id 的重复项只计一次', async () => {
     mockGetAgents.mockResolvedValue(agentsResponse([], []));
-    mockGetSkills.mockResolvedValue([]);
-    mockHttp.mockResolvedValue({ candidates: [] } as never);
+    mockGetSkills.mockResolvedValue(skillsResponse([], []));
     mockGetMcpList.mockResolvedValue({
       deployed: [{ id: 'x', name: 'a' }] as never,
       candidates: [{ id: 'x', name: 'a-renamed' }] as never,
@@ -116,8 +126,8 @@ describe('useSidebarCounts —— 三源聚合', () => {
 
   it('③ 专家源 reject 时，技能与 MCP 仍正常出数', async () => {
     mockGetAgents.mockRejectedValue(new Error('专家接口 500'));
-    mockGetSkills.mockResolvedValue([{ name: 'pdf' }, { name: 'xlsx' }] as never);
-    mockHttp.mockResolvedValue({ candidates: [{ name: 'pdf' }, { name: 'ppt' }] } as never);
+    // 已装 {pdf, xlsx}，候选 {pdf, ppt} → 并集去重 {pdf, xlsx, ppt} = 3
+    mockGetSkills.mockResolvedValue(skillsResponse(['pdf', 'xlsx'], ['pdf', 'ppt']));
     mockGetMcpList.mockResolvedValue({
       deployed: [{ name: 'git' }] as never,
       candidates: [] as never,
@@ -150,25 +160,27 @@ describe('useSidebarCounts —— 三源聚合', () => {
     expect(c.loaded.value).toBe(true);
   });
 
-  it('④ 技能候选源失败时降级为「只算已装」，不影响 installed', async () => {
+  it('④ ST-02 回归锁：技能计数只发一次 getSkills，不再打幽灵 query 请求', async () => {
     mockGetAgents.mockResolvedValue(agentsResponse([], []));
-    mockGetSkills.mockResolvedValue([{ name: 'pdf' }] as never);
-    mockHttp.mockRejectedValue(new Error('candidates 挂了'));
+    mockGetSkills.mockResolvedValue(skillsResponse(['pdf'], ['pdf', 'ppt']));
     mockGetMcpList.mockResolvedValue({ deployed: [], candidates: [] });
 
     const c = useSidebarCounts();
     await c.refresh();
 
+    // installed = {pdf}；total = {pdf, ppt}（交集 pdf 不重复计）
     expect(c.counts.value.skills.installed).toBe(1);
-    expect(c.counts.value.skills.total).toBe(1);
-    // 技能整体成功（内部已容错），不写入 error
+    expect(c.counts.value.skills.total).toBe(2);
+    // 一次请求拿全两段
+    expect(mockGetSkills).toHaveBeenCalledTimes(1);
+    // 🚫 不得再经裸 http 打第二发（旧代码在这里额外请求了一次同一端点）
+    expect(mockHttp).not.toHaveBeenCalled();
     expect(c.error.value).toBe('');
   });
 
   it('⑤ 模块级单例：两次调用共享同一份状态', async () => {
     mockGetAgents.mockResolvedValue(agentsResponse(['a'], ['b']));
-    mockGetSkills.mockResolvedValue([]);
-    mockHttp.mockResolvedValue({ candidates: [] } as never);
+    mockGetSkills.mockResolvedValue(skillsResponse([], []));
     mockGetMcpList.mockResolvedValue({ deployed: [], candidates: [] });
 
     const a = useSidebarCounts();
@@ -188,8 +200,7 @@ describe('useSidebarCounts —— 三源聚合', () => {
 
   it('⑥b ensureLoaded 在已加载后不再重复请求（缺陷 #2 回归锁）', async () => {
     mockGetAgents.mockResolvedValue(agentsResponse(['a'], []));
-    mockGetSkills.mockResolvedValue([]);
-    mockHttp.mockResolvedValue({ candidates: [] } as never);
+    mockGetSkills.mockResolvedValue(skillsResponse([], []));
     mockGetMcpList.mockResolvedValue({ deployed: [], candidates: [] });
 
     const c = useSidebarCounts();
@@ -205,8 +216,7 @@ describe('useSidebarCounts —— 三源聚合', () => {
 
   it('⑥c ensureLoaded 在未加载时会触发一次拉取', async () => {
     mockGetAgents.mockResolvedValue(agentsResponse(['a'], []));
-    mockGetSkills.mockResolvedValue([]);
-    mockHttp.mockResolvedValue({ candidates: [] } as never);
+    mockGetSkills.mockResolvedValue(skillsResponse([], []));
     mockGetMcpList.mockResolvedValue({ deployed: [], candidates: [] });
 
     const c = useSidebarCounts();
@@ -218,8 +228,7 @@ describe('useSidebarCounts —— 三源聚合', () => {
 
   it('⑦ 并发 refresh 去重：同帧两次只发一轮请求', async () => {
     mockGetAgents.mockResolvedValue(agentsResponse(['a'], []));
-    mockGetSkills.mockResolvedValue([]);
-    mockHttp.mockResolvedValue({ candidates: [] } as never);
+    mockGetSkills.mockResolvedValue(skillsResponse([], []));
     mockGetMcpList.mockResolvedValue({ deployed: [], candidates: [] });
 
     const c = useSidebarCounts();

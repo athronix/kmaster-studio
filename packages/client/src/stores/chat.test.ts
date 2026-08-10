@@ -15,7 +15,9 @@ vi.mock('../api/client', () => {
     // getModels 返回 ModelsResponse（{ providers, usage }），store 取 res.providers；
     // 旧 mock 直接回裸数组导致 res.providers === undefined
     getModels: vi.fn().mockResolvedValue({ providers: models, usage: {} }),
-    getSkills: vi.fn().mockResolvedValue(skills),
+    // ST-01：getSkills 返回 { installed, candidates, categories } 三段对象，
+    // 🚫 不是裸数组（旧 mock 回数组会掩盖 store 侧 `.installed` 取值错误）
+    getSkills: vi.fn().mockResolvedValue({ installed: skills, candidates: [], categories: ['c1'] }),
     getMcp: vi.fn().mockResolvedValue(servers),
     postMcp: vi.fn().mockImplementation((server: any) => Promise.resolve([...servers, { name: server.name, command: server.command, status: 'unknown' as const }])),
     deleteMcp: vi.fn().mockResolvedValue(undefined),
