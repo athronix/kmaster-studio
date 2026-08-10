@@ -249,6 +249,13 @@ export interface SessionPatch {
   mode?: string | null;
   model?: string | null;
   workspace?: string | null;
+  /**
+   * T04/CH-D：会话绑定的 Agent 角色。
+   *
+   * 只写 kmaster.db 侧车 `agent` 列；`null` / 空串表示解除绑定，
+   * 出参 `Session.agent` 随即回落 hermes 的 `profile_name`。
+   */
+  agent?: string | null;
   /** 置顶：`boolean` 显式覆盖；`null` 清除覆盖回落 hermes（服务端三态） */
   pinned?: boolean | null;
   /** 归档：入参兼容 `boolean` 与 `number`（0/1）；`null` 清除覆盖 */

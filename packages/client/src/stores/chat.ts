@@ -34,11 +34,12 @@ import {
 import { isDesktop, pickFolder, readTextFile, openPath } from '../utils/desktop-bridge';
 import {
   WS_EVENTS,
+  CHAT_MODES,
   type Message, type Session, type Usage, type ToolCall, type RunState,
   type ApprovalChoice, type PlanChoice, type HermesMode, type ProviderGroup,
   type Skill, type McpServer, type UploadRef, type Settings,
   type SubagentState, type SubagentStatus, type CompressionNotice,
-  type QueueItem, type ContextEstimate,
+  type QueueItem, type ContextEstimate, type ContextTokensPayload,
   type CronRun, type JobArtifactRef,
 } from '../types/chat';
 import type { RightPanelMode } from '../constants/layout';
@@ -236,7 +237,8 @@ export const useChatStore = defineStore('chat', () => {
     sessions.value = [session, ...sessions.value];
     activeSessionId.value = session.id;
     ensure(session.id);
-    if (session.mode) modeBySession.value[session.id] = session.mode as HermesMode;
+    // CH-F：服务端 mode 是 `string | null`，经 normalizeMode 收敛后再入 store
+    if (session.mode) modeBySession.value[session.id] = normalizeMode(session.mode);
     if (session.model) modelBySession.value[session.id] = session.model;
     if (config?.agent) agentStates.value[session.id] = config.agent;
     // 高亮新会话
@@ -425,6 +427,66 @@ export const useChatStore = defineStore('chat', () => {
     list.sort((a, b) => a.position - b.position);
   }
 
+  /** 是否为合法的 hermes 编辑审批令牌（真源 `CHAT_MODES`，types/chat.ts:37）。 */
+  function isHermesMode(value: unknown): value is HermesMode {
+    return typeof value === 'string' && CHAT_MODES.some((m) => m.token === value);
+  }
+
+  /**
+   * T04/CH-F：把任意来源的 mode 原始值收敛为合法 `HermesMode`（单点归一）。
+   *
+   * 背景：服务端 `SessionSummary.mode` 是 `string | null`，历史库里混有 UI 值
+   * （`craft` / `plan` / `ask`）、空串以及早期实验令牌。此前三处写的都是
+   * `session.mode as HermesMode` 裸断言，脏值会被原样灌进 `modeBySession`，
+   * 下游 `CHAT_MODES.find()` 查不到就退化成「按钮上直接显示原始 token」，
+   * 而发送时又把这个非法值透传给 hermes——一处脏、两处坏。
+   *
+   * 回落顺序：合法原值 → 全局默认（同样校验，防止全局设置本身是脏的）→ `'default'`。
+   *
+   * @param raw 任意原始值（含 `null` / `undefined` / 非法字符串）
+   * @returns 一定合法的 `HermesMode`
+   */
+  function normalizeMode(raw: unknown): HermesMode {
+    if (isHermesMode(raw)) return raw;
+    const fallback = globalSettings.value.default_mode;
+    return isHermesMode(fallback) ? fallback : 'default';
+  }
+
+  /**
+   * T04/CH-A：把 `usage.updated` / `run.completed` 随行的 `context_tokens`
+   * 合入 `contextBySession`（契约见 `ContextTokensPayload`，types/chat.ts:497）。
+   *
+   * 两条硬语义：
+   * 1. **缺失即不写**。该字段在两个事件上都是可选的（`usage.updated` 仅在服务端
+   *    估算缓存命中时携带），缺失时保留上一次的估算值，🚫 不得回落 0 / NaN
+   *    ——否则底栏的上下文环会在每一轮 run 中途闪回 0%。
+   * 2. **只覆盖四个字段**。WS 快照只有 `total_tokens` / `context_length` 两枚数字，
+   *    整体替换会把 REST 估算带来的 `categories` / `model` / `estimated_total`
+   *    富字段冲掉（右栏分类明细随即变空），因此这里是浅合并而非赋值。
+   *
+   * `context_length <= 0` 视同「拿不到模型上下文窗口」→ 按缺失处理：没有分母就
+   * 算不出百分比，写进去只会得到一个恒为 0% 的假环（CH-B 的隐藏判据也依赖于此）。
+   */
+  function applyContextTokens(sid: string, raw: unknown): void {
+    const payload = raw as Partial<ContextTokensPayload> | null | undefined;
+    if (!payload) return;
+    const used = Number(payload.total_tokens);
+    const max = Number(payload.context_length);
+    if (!Number.isFinite(used) || !Number.isFinite(max)) return;
+    if (used < 0 || max <= 0) return;
+    const prev = contextBySession.value[sid];
+    contextBySession.value[sid] = {
+      ...prev,
+      context_used: used,
+      context_max: max,
+      // L3 公式：`min(total_tokens / context_length * 100, 100)`。上限必须夹——
+      // 服务端在压缩窗口边界上会短暂报出 used > max（估算滞后于实际裁剪），
+      // 不夹会让底栏渲染出「117%」这种越界环。
+      context_percent: Math.min((used / max) * 100, 100),
+      estimated: true,
+    };
+  }
+
   function dispatch(ev: string, p: any) {
     const sid = p?.session_id;
     if (!sid) return;
@@ -436,7 +498,14 @@ export const useChatStore = defineStore('chat', () => {
         // 本端同样会收到。非本端发起 → 标记「镜像中」，仅加一条只读提示条，
         // 消息流照常聚合（不改任何既有 reducer 行为）。
         if (!localPendingRuns.has(sid)) mirroredBySession.value[sid] = true;
-        // K01.2：WS 下行标注当前 session 的 agent（服务端透传 agent 字段）
+        // K01.2：WS 下行标注当前 session 的 agent。
+        // ⚠️ T04 实测：这是**死分支**——服务端 `run.started` 载荷只有
+        // `{ run_id, session_id }`（protocol.ts:17 类型如此，run-chat.ts:127
+        // 实际 emit 也如此），从未透传过 `agent`。
+        // 保留而不删：① L3 红线要求 WS 注册表/载荷零改动，🚫 不得为了「激活」
+        // 它去给 run.started 加字段；② 后端若来日补上该字段，这里即刻生效。
+        // 因此 `agentStates` 的真实写入点只有 createSession / createSessionWithConfig
+        // / setSessionAgent 三处，语义是「会话绑定的 agent」而非「正在跑的 agent」。
         if (p.agent) agentStates.value[sid] = p.agent;
         break;
       case 'message.delta': {
@@ -501,6 +570,8 @@ export const useChatStore = defineStore('chat', () => {
       }
       case 'usage.updated':
         usageBySession.value[sid] = { input_tokens: p.input_tokens, output_tokens: p.output_tokens, cost: p.cost };
+        // CH-A：随行上下文快照（仅缓存命中时携带，缺失即保持旧值不动）
+        applyContextTokens(sid, p?.context_tokens);
         break;
       case 'run.completed':
       case 'run.failed':
@@ -509,6 +580,9 @@ export const useChatStore = defineStore('chat', () => {
         // 仍会补发 run.completed / run.failed，在那里统一结算，避免重复递减）
         settleLocalRun(sid);
         delete mirroredBySession.value[sid];
+        // CH-A：run.completed 恒携带（服务端强制重算，除非估算本身失败）；
+        // run.failed 一般不带，共用同一守卫，缺失即不写。
+        applyContextTokens(sid, p?.context_tokens);
         break;
       case 'abort.started':
         runState.value[sid] = 'aborting';
@@ -619,7 +693,8 @@ export const useChatStore = defineStore('chat', () => {
     activeSessionId.value = session.id;
     ensure(session.id);
     // 新会话继承全局默认（服务端已写入 mode/model/workspace）
-    if (session.mode) modeBySession.value[session.id] = session.mode as HermesMode;
+    // CH-F：同 createSessionWithConfig，统一走 normalizeMode
+    if (session.mode) modeBySession.value[session.id] = normalizeMode(session.mode);
     if (session.model) modelBySession.value[session.id] = session.model;
     if (session.agent) agentStates.value[session.id] = session.agent;
     return session.id;
@@ -631,7 +706,8 @@ export const useChatStore = defineStore('chat', () => {
       ensure(sid);
       // 从 SessionRow 恢复每会话覆盖的 mode/model/workspace
       const { session } = await http<{ session: Session }>(`/api/sessions/${sid}`);
-      if (session.mode) modeBySession.value[sid] = session.mode as HermesMode;
+      // CH-F：历史会话的 mode 最脏（可能是早期 UI 值 craft/plan/ask），必须归一
+      if (session.mode) modeBySession.value[sid] = normalizeMode(session.mode);
       if (session.model) modelBySession.value[sid] = session.model;
       // V3/#19：会话级工作目录（终端 cwd 默认值）。UI 不缓存到独立 ref——
       // store 之外需要 cwd 时直接从 session 列表读取，避免状态漂移。
@@ -775,6 +851,48 @@ export const useChatStore = defineStore('chat', () => {
     const target = sessions.value.find((x) => x.id === sid);
     if (target) target.workspace = trimmed || null;
   }
+
+  /**
+   * T04/CH-D：设置会话绑定的 Agent 角色（乐观更新 + PUT 持久化 + 失败回滚）。
+   *
+   * 服务端只写 kmaster.db 侧车的 `agent` 列（🚫 不碰 hermes state.db）；
+   * 传 `null` / 空串表示解除绑定，出参会回落 hermes 的 `profile_name`。
+   *
+   * 同步维护 `agentStates` 镜像：另两个写入点是 `createSession()` 与
+   * `createSessionWithConfig()`，存的都是 `AgentEntry.id`，本函数必须同口径，
+   * 否则「建会话时选的」与「事后改的」两份值会长成不同形状。
+   * （`run.started` 分支看着也在写，但服务端从不透传 `agent`，是死分支。）
+   *
+   * ⚠️ 口径：侧车 `agent` 列存 **id 不存 name**。`name` 在 `agents/*.md` 分支
+   * 可被 front-matter 覆盖成任意展示名，不唯一也不稳定，只配做展示。
+   *
+   * @param sid   会话 id
+   * @param agent Agent **id**（= `AgentEntry.id`）；`null` / 空串 = 解除绑定
+   * @throws 请求失败时回滚本地状态并上抛，由调用方给可见反馈（§7.2：不在此吞异常）
+   */
+  async function setSessionAgent(sid: string, agent: string | null): Promise<void> {
+    const next = (agent ?? '').trim() || null;
+    const target = sessions.value.find((x) => x.id === sid);
+    const beforeAgent = target?.agent ?? null;
+    const beforeState = agentStates.value[sid];
+
+    if (target) target.agent = next;
+    if (next) agentStates.value[sid] = next;
+    else delete agentStates.value[sid];
+
+    try {
+      await http(`/api/sessions/${sid}`, {
+        method: 'PUT',
+        body: JSON.stringify({ agent: next }),
+      });
+    } catch (e) {
+      const rollback = sessions.value.find((x) => x.id === sid);
+      if (rollback) rollback.agent = beforeAgent;
+      if (beforeState === undefined) delete agentStates.value[sid];
+      else agentStates.value[sid] = beforeState;
+      throw e;
+    }
+  }
   async function loadGlobalSettings() {
     globalSettings.value = await getSettings();
   }
@@ -896,7 +1014,15 @@ export const useChatStore = defineStore('chat', () => {
     return res;
   }
 
-  /** 拉取上下文占用估算（openSession / run.completed 后各一次，UI 恒标注「估算值」）。 */
+  /**
+   * 拉取上下文占用估算（REST 全量版，含 `categories` 等富字段，UI 恒标注「估算值」）。
+   *
+   * ⚠️ 调用点只有 `openSession()` 一处（打开会话时与队列并行拉取）。
+   * 旧注释写的「run.completed 后各一次」是**假的**——run 结束后的刷新走的是
+   * WS 随行的 `context_tokens`（CH-A `applyContextTokens`，浅合并两枚数字），
+   * 不再发 REST。因此 `categories` 等富字段只在打开会话那一刻拿到一次，
+   * 之后由 WS 快照就地更新数值部分。
+   */
   async function loadContextEstimate(sid: string, force = false) {
     const est = await getContextLength(sid, force);
     contextBySession.value[sid] = est;
@@ -930,8 +1056,12 @@ export const useChatStore = defineStore('chat', () => {
     dispatch, ensure, registerSocket, loadSessions, createSession, openSession, sendMessage,
     stop, steer, approve, clarify, respondPlan, deleteSession, renameSession,
     setMode, setModel, loadGlobalSettings, setGlobalSettings,
+    // CH-F：mode 脏值单点归一（导出供 UI / 单测直接校验）
+    normalizeMode,
     // V3/#19：会话级工作目录
     setWorkspace,
+    // T04/CH-D：会话级 Agent 角色
+    setSessionAgent,
     loadModels, loadSkills, loadMcp, addMcp, removeMcp, installAgent, uninstallAgent, uploadFile, clearUploads, invokeSkill,
     // P1 #12
     editingMessage, resendMessage, clearEditingMessage,
