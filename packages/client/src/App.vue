@@ -74,6 +74,27 @@ html, body, #app {
   overflow: hidden;
 }
 
+/* 全局滚动条：跟随主题，低调不扎眼 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--km-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--km-border) 80%, var(--km-text));
+}
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--km-border) transparent;
+}
+
 .km-app-root {
   height: 100%;
   width: 100%;

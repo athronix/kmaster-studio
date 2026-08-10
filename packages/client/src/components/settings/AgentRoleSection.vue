@@ -14,7 +14,7 @@ import KIcon from '../common/KIcon.vue';/**
  * gridCols 从 localStorage['km_grid_cols'] 读取，installedRows 从 localStorage['km.v3.marketLayout'] 读取。
  * 超过 pageSize 时显示 NPagination 分页器。
  */
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import {
   NButton,
   NDropdown,
@@ -88,12 +88,27 @@ const rolesStore = useAgentRolesStore();
 const chat = useChatStore();
 const toast = useMessage();
 
-// T04：读取分页配置
-const gridCols = readGridCols();
-const marketRows = readMarketRows();
-/** T04：分页大小 = 列数 × installed 行数 */
-const pageSize = gridCols * marketRows.installedRows;
+// T04：响应式分页配置（监听 GeneralSection 变更事件）
+const gridCols = ref<number>(readGridCols());
+const marketRows = ref<MarketRowsConfig>(readMarketRows());
+const pageSize = computed<number>(() => gridCols.value * marketRows.value.installedRows);
 const currentPage = ref<number>(1);
+
+function refreshLayoutConfig(): void {
+  gridCols.value = readGridCols();
+  marketRows.value = readMarketRows();
+  currentPage.value = 1;
+}
+
+// 监听 GeneralSection 触发的 settings-change 事件
+function onSettingsChange(e: Event): void {
+  if (e instanceof CustomEvent && e.type === 'market-layout-changed') {
+    refreshLayoutConfig();
+  }
+}
+onMounted(() => window.addEventListener('market-layout-changed', onSettingsChange));
+onUnmounted(() => window.removeEventListener('market-layout-changed', onSettingsChange));
+
 
 // T04：搜索关键字变化时重置页码
 watch(() => props.search, () => {
@@ -127,13 +142,13 @@ const visibleRoles = computed<AgentRole[]>(() => {
 
 /** T04：当前页的角色列表 */
 const pagedRoles = computed<AgentRole[]>(() => {
-  const start = (currentPage.value - 1) * pageSize;
-  return visibleRoles.value.slice(start, start + pageSize);
+  const start = (currentPage.value - 1) * pageSize.value;
+  return visibleRoles.value.slice(start, start + pageSize.value);
 });
 
 /** T04：过滤后总数变化时把越界页码拉回最后一页 */
 watch(visibleRoles, (list) => {
-  const maxPage = Math.max(1, Math.ceil(list.length / pageSize));
+  const maxPage = Math.max(1, Math.ceil(list.length / pageSize.value));
   if (currentPage.value > maxPage) currentPage.value = maxPage;
 });
 
@@ -217,7 +232,7 @@ function summaryOf(role: AgentRole): string {
 
 /** T04：动态网格列数 style */
 const gridStyle = computed<Record<string, string>>(() => ({
-  gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+  gridTemplateColumns: `repeat(${gridCols.value}, 1fr)`,
 }));
 </script>
 

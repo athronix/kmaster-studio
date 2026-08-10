@@ -52,6 +52,7 @@ function onGridColsChange(value: number | null): void {
   const v = (value ?? 5);
   gridCols.value = v;
   localStorage.setItem('km_grid_cols', String(v));
+  window.dispatchEvent(new CustomEvent('market-layout-changed'));
 }
 
 // —— T01：市场卡片行数配置 ——
@@ -80,6 +81,7 @@ function readMarketLayout(): MarketLayoutConfig {
 
 function writeMarketLayout(cfg: MarketLayoutConfig): void {
   localStorage.setItem(MARKET_LAYOUT_KEY, JSON.stringify(cfg));
+  window.dispatchEvent(new CustomEvent('market-layout-changed'));
 }
 
 const featuredRows = ref<number>(readMarketLayout().featuredRows);

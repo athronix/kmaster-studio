@@ -16,7 +16,7 @@
  * gridCols 从 localStorage['km_grid_cols'] 读取，
  * installedRows/marketRows 从 localStorage['km.v3.marketLayout'] 读取。
  */
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { NButton, NSpin, NTag, NTabs, NTabPane, NEmpty, NPagination, NPopconfirm, useMessage } from 'naive-ui';
 import KIcon from '../common/KIcon.vue';
 import { getMcpList, postMcp, deleteMcp, type McpAsset } from '../../api/client';
@@ -65,15 +65,27 @@ function readMarketRows(): MarketRowsConfig {
 
 const toast = useMessage();
 
-// T04：读取分页配置
-const gridCols = readGridCols();
-const marketRows = readMarketRows();
-/** 已部署分页大小 = 列数 × installed 行数 */
-const deployedPageSize = gridCols * marketRows.installedRows;
-/** 候选池分页大小 = 列数 × 市场行数 */
-const candidatesPageSize = gridCols * marketRows.marketRows;
+// T04：响应式分页配置
+const gridCols = ref<number>(readGridCols());
+const marketRows = ref<typeof readMarketRows extends () => infer R ? R : never>(readMarketRows());
+const deployedPageSize = computed<number>(() => gridCols.value * marketRows.value.installedRows);
+const candidatesPageSize = computed<number>(() => gridCols.value * marketRows.value.marketRows);
 const deployedPage = ref<number>(1);
 const candidatesPage = ref<number>(1);
+
+function refreshLayoutConfig(): void {
+  gridCols.value = readGridCols();
+  marketRows.value = readMarketRows();
+  deployedPage.value = 1;
+  candidatesPage.value = 1;
+}
+function onSettingsChange(e: Event): void {
+  if (e instanceof CustomEvent && e.type === 'market-layout-changed') {
+    refreshLayoutConfig();
+  }
+}
+onMounted(() => window.addEventListener('market-layout-changed', onSettingsChange));
+onUnmounted(() => window.removeEventListener('market-layout-changed', onSettingsChange));
 
 const loading = ref(false);
 const deployed = ref<McpServer[]>([]);
@@ -104,30 +116,30 @@ async function load(): Promise<void> {
 
 /** T04：已部署分页数据 */
 const pagedDeployed = computed<McpServer[]>(() => {
-  const start = (deployedPage.value - 1) * deployedPageSize;
-  return deployed.value.slice(start, start + deployedPageSize);
+  const start = (deployedPage.value - 1) * deployedPageSize.value;
+  return deployed.value.slice(start, start + deployedPageSize.value);
 });
 
 /** T04：候选池分页数据 */
 const pagedCandidates = computed<McpAsset[]>(() => {
-  const start = (candidatesPage.value - 1) * candidatesPageSize;
-  return candidates.value.slice(start, start + candidatesPageSize);
+  const start = (candidatesPage.value - 1) * candidatesPageSize.value;
+  return candidates.value.slice(start, start + candidatesPageSize.value);
 });
 
 /** T04：数据变化时把越界页码拉回 */
 watch(deployed, (list) => {
-  const maxPage = Math.max(1, Math.ceil(list.length / deployedPageSize));
+  const maxPage = Math.max(1, Math.ceil(list.length / deployedPageSize.value));
   if (deployedPage.value > maxPage) deployedPage.value = maxPage;
 });
 
 watch(candidates, (list) => {
-  const maxPage = Math.max(1, Math.ceil(list.length / candidatesPageSize));
+  const maxPage = Math.max(1, Math.ceil(list.length / candidatesPageSize.value));
   if (candidatesPage.value > maxPage) candidatesPage.value = maxPage;
 });
 
 /** T04：动态网格列数 style */
 const gridStyle = computed<Record<string, string>>(() => ({
-  gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+  gridTemplateColumns: `repeat(${gridCols.value}, 1fr)`,
 }));
 
 /** 已部署 MCP 的状态标签 */

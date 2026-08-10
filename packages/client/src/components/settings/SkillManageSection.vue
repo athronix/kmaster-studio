@@ -13,7 +13,7 @@
  * T04：分页大小 = gridCols × marketRows，gridCols 从 localStorage['km_grid_cols'] 读取，
  * marketRows 从 localStorage['km.v3.marketLayout'] 读取。
  */
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { NSpin, useMessage } from 'naive-ui';
 import CardMarketLayout from '../market/CardMarketLayout.vue';
 import EntityCard from '../market/EntityCard.vue';
@@ -71,15 +71,28 @@ const chat = useChatStore();
 const toast = useMessage();
 const { filtered: installedRaw, candidateSkills, loading, refresh, install, uninstall } = useSkillList();
 
-// T04：读取配置
-const gridCols = readGridCols();
-const marketRows = readMarketRows();
+// T04：响应式分页配置
+const gridCols = ref<number>(readGridCols());
+const marketRows = ref<MarketRowsConfig>(readMarketRows());
 
 const searchQuery = ref<string>('');
 const sort = ref<SortOrder>('default');
 const page = ref<number>(1);
 /** T04：动态分页大小 = 列数 × 市场行数 */
-const pageSize = ref<number>(gridCols * marketRows.marketRows);
+const pageSize = computed<number>(() => gridCols.value * marketRows.value.marketRows);
+
+function refreshLayoutConfig(): void {
+  gridCols.value = readGridCols();
+  marketRows.value = readMarketRows();
+  page.value = 1;
+}
+function onSettingsChange(e: Event): void {
+  if (e instanceof CustomEvent && e.type === 'market-layout-changed') {
+    refreshLayoutConfig();
+  }
+}
+onMounted(() => window.addEventListener('market-layout-changed', onSettingsChange));
+onUnmounted(() => window.removeEventListener('market-layout-changed', onSettingsChange));
 
 onMounted(() => {
   void refresh();
@@ -210,7 +223,6 @@ async function onUninstall(entity: EntityDef): Promise<void> {
         :market-rows="marketRows.marketRows"
         @update:sort="(s: SortOrder) => (sort = s)"
         @update:page="(p: number) => (page = p)"
-        @update:page-size="(ps: number) => ((pageSize = ps), (page = 1))"
         @search="(q: string) => ((searchQuery = q), (page = 1))"
         @select="onSelect"
       >
