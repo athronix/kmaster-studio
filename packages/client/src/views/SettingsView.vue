@@ -44,7 +44,7 @@ import {
 } from '../api/client';
 import type { MarketConfig, ResourceItem } from '../types/market';
 import type { SkillAsset } from '../types/asset';
-import type { McpServer } from '../types/chat';
+import type { McpServer, PluginItem, PlatformChannelConfig } from '../types/chat';
 import {
   DEFAULT_SETTINGS_CATEGORY,
   isSettingsCategory,
@@ -64,11 +64,14 @@ const ProfileSection = defineAsyncComponent(
 const ModelManageSection = defineAsyncComponent(
   () => import('../components/settings/ModelManageSection.vue')
 );
+const PluginsSection = defineAsyncComponent(
+  () => import('../components/settings/PluginsSection.vue')
+);
+const ChannelsSection = defineAsyncComponent(
+  () => import('../components/settings/ChannelsSection.vue')
+);
 const MemoryView = defineAsyncComponent(() => import('./MemoryView.vue'));
 const JobsView = defineAsyncComponent(() => import('./JobsView.vue'));
-const PlaceholderSection = defineAsyncComponent(
-  () => import('../components/settings/PlaceholderSection.vue')
-);
 
 // ═══════════════════ Props ═══════════════════
 
@@ -107,14 +110,19 @@ const isMarketSettings = computed(() =>
 
 // ═══════════════════ T02：选中项 & 详情面板 ═══════════════════
 
-const selectedItem = ref<ResourceItem | null>(null);
+/** 支持 market（expert/skill/mcp）和 plugin/channel 实体 */
+type DetailItem = ResourceItem | PluginItem | PlatformChannelConfig;
+
+const selectedItem = ref<DetailItem | null>(null);
 
 /** SettingsDetailPanel 的实体类型，由当前路由类别派生。 */
-const detailEntityType = computed<'expert' | 'skill' | 'mcp'>(() => {
+const detailEntityType = computed<'expert' | 'skill' | 'mcp' | 'plugin' | 'channel'>(() => {
   switch (activeCategory.value) {
     case 'agent-role': return 'expert';
     case 'skills': return 'skill';
     case 'mcp': return 'mcp';
+    case 'plugins': return 'plugin';
+    case 'channel': return 'channel';
     default: return 'expert';
   }
 });
@@ -122,24 +130,34 @@ const detailEntityType = computed<'expert' | 'skill' | 'mcp'>(() => {
 // useInstall('expert') — 仅用于 summon（仅 expert 类型支持）
 const { summon: detailSummon } = useInstall('expert');
 
+/** 窄化 DetailItem 为有 name 属性（ResourceItem | PluginItem）。 */
+function toHasName(item: DetailItem): { name: string; id: string } | null {
+  if ('name' in item && typeof (item as any).name === 'string') {
+    return item as { name: string; id: string };
+  }
+  return null;
+}
+
 async function handleDetailInstall(id: string): Promise<void> {
   try {
     const item = selectedItem.value;
     if (!item || item.id !== id) return;
+    const named = toHasName(item);
+    if (!named) return;
     if (detailEntityType.value === 'mcp') {
-      await postMcp({ name: item.name, command: item.name });
-      message.success(`${item.name} 部署成功`);
+      await postMcp({ name: named.name, command: named.name });
+      message.success(`${named.name} 部署成功`);
       return;
     }
     if (detailEntityType.value === 'skill') {
-      await installSkillApi(item.name);
-      message.success(`${item.name} 安装成功`);
+      await installSkillApi(named.name);
+      message.success(`${named.name} 安装成功`);
       return;
     }
     // expert
     const { install: inst } = useInstall('expert');
-    await inst(item.name);
-    message.success(`${item.name} 安装成功`);
+    await inst(named.name);
+    message.success(`${named.name} 安装成功`);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : '操作失败';
     message.error(msg);
@@ -150,20 +168,22 @@ async function handleDetailUninstall(id: string): Promise<void> {
   try {
     const item = selectedItem.value;
     if (!item || item.id !== id) return;
+    const named = toHasName(item);
+    if (!named) return;
     if (detailEntityType.value === 'mcp') {
-      await apiDeleteMcp(item.name);
-      message.success(`${item.name} 已卸载`);
+      await apiDeleteMcp(named.name);
+      message.success(`${named.name} 已卸载`);
       return;
     }
     if (detailEntityType.value === 'skill') {
-      await uninstallSkillApi(item.name);
-      message.success(`${item.name} 已卸载`);
+      await uninstallSkillApi(named.name);
+      message.success(`${named.name} 已卸载`);
       return;
     }
     // expert
     const { uninstall: unst } = useInstall('expert');
-    await unst(item.name);
-    message.success(`${item.name} 已卸载`);
+    await unst(named.name);
+    message.success(`${named.name} 已卸载`);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : '卸载失败';
     message.error(msg);
@@ -174,7 +194,9 @@ async function handleDetailSummon(id: string): Promise<void> {
   try {
     const item = selectedItem.value;
     if (!item || item.id !== id) return;
-    await detailSummon(item.name);
+    const named = toHasName(item);
+    if (!named) return;
+    await detailSummon(named.name);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : '召唤失败';
     message.error(msg);
@@ -183,6 +205,11 @@ async function handleDetailSummon(id: string): Promise<void> {
 
 function onCardClick(item: ResourceItem): void {
   selectedItem.value = item;
+}
+
+/** Plugins / Channels section 的 open-detail 事件。 */
+function onPluginChannelDetail(entity: PluginItem | PlatformChannelConfig): void {
+  selectedItem.value = entity;
 }
 
 // ═══════════════════ T03：市场设置 configs ═══════════════════
@@ -372,8 +399,8 @@ const SECTION_MAP: Record<SettingsCategory, Component> = {
   skills: {} as Component,
   mcp: {} as Component,
   tools: ToolsSection,
-  plugins: PlaceholderSection,
-  channel: PlaceholderSection,
+  plugins: PluginsSection,
+  channel: ChannelsSection,
   memory: MemoryView,
   model: ModelManageSection,
   jobs: JobsView,
@@ -388,11 +415,6 @@ const EMBEDDED_CATEGORIES: readonly SettingsCategory[] = ['memory', 'jobs'];
 /** 是否内嵌整页视图（此时外层不再套卡片内边距）。 */
 const isEmbeddedView = computed<boolean>(() => EMBEDDED_CATEGORIES.includes(activeCategory.value));
 
-/** 占位类别（P2 范围，PRD §8.3 未禁止）。 */
-const isPlaceholder = computed<boolean>(
-  () => activeCategory.value === 'plugins' || activeCategory.value === 'channel'
-);
-
 /** 支持内容搜索的类别（其余类别隐藏 PageHeader 搜索框，避免出现无效控件）。 */
 const SEARCHABLE_CATEGORIES: readonly SettingsCategory[] = [
   'agent-role',
@@ -400,16 +422,15 @@ const SEARCHABLE_CATEGORIES: readonly SettingsCategory[] = [
   'mcp',
   'model',
   'jobs',
+  'plugins',
+  'channel',
 ];
 
 /** 当前类别是否支持搜索。 */
 const searchable = computed<boolean>(() => SEARCHABLE_CATEGORIES.includes(activeCategory.value));
 
-/** 传给 section 的 props：占位页需类别名，内嵌视图需 embedded，可搜索页需 search。 */
+/** 传给 section 的 props：内嵌视图需 embedded，可搜索页需 search。 */
 const sectionProps = computed<Record<string, unknown>>(() => {
-  if (isPlaceholder.value) {
-    return { label: meta.value.label, icon: meta.value.icon };
-  }
   if (isEmbeddedView.value) {
     return { embedded: true, search: searchQuery.value };
   }
@@ -471,7 +492,7 @@ watch(activeCategory, () => {
       </template>
     </PageHeader>
 
-    <div class="km-settings-body" :class="{ 'km-settings-body-flush': isEmbeddedView || isMarketSettings }">
+    <div class="km-settings-body" :class="{ 'km-settings-body-flush': isEmbeddedView || isMarketSettings || activeCategory === 'plugins' || activeCategory === 'channel' }">
       <!-- 错误态：分区加载失败（异步 chunk 拉取失败 / section 内部抛错） -->
       <n-alert
         v-if="sectionError"
@@ -514,6 +535,40 @@ watch(activeCategory, () => {
             icon="HandClick"
             title="未选择条目"
             description="点击左侧卡片，在此查看详情与安装 / 卸载操作。"
+          />
+          <SettingsDetailPanel
+            v-else
+            :item="selectedItem"
+            :entity-type="detailEntityType"
+            class="km-settings-detail"
+            @install="handleDetailInstall"
+            @uninstall="handleDetailUninstall"
+            @summon="handleDetailSummon"
+          />
+        </div>
+      </template>
+
+      <!-- plugins / channel：带右侧详情面板的左右分栏（P2 回填） -->
+      <template v-else-if="activeCategory === 'plugins' || activeCategory === 'channel'">
+        <div class="km-plugin-channel-row">
+          <div class="km-plugin-channel-main">
+            <Suspense>
+              <component :is="activeSection" v-bind="sectionProps" :key="sectionKey" @open-detail="onPluginChannelDetail" />
+              <template #fallback>
+                <div class="km-settings-loading">
+                  <n-spin size="small" />
+                  <span>正在加载「{{ meta.label }}」…</span>
+                </div>
+              </template>
+            </Suspense>
+          </div>
+          <!-- 空态：右栏尚未选中任何条目 -->
+          <EmptyState
+            v-if="!selectedItem"
+            class="km-settings-detail km-settings-detail-empty"
+            icon="HandClick"
+            title="未选择条目"
+            description="点击左侧条目，在此查看详情。"
           />
           <SettingsDetailPanel
             v-else
@@ -615,6 +670,21 @@ watch(activeCategory, () => {
   border-left: 1px solid var(--km-card-border);
   overflow-y: auto;
   background: var(--km-card-bg);
+}
+
+/* T05-04：plugins / channel 左右分栏 */
+.km-plugin-channel-row {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+}
+
+.km-plugin-channel-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: var(--km-space-lg) var(--km-space-20) var(--km-space-2xl);
 }
 
 /* T02：右栏空态（复用详情栏尺寸，保证左右分栏宽度不跳动） */
