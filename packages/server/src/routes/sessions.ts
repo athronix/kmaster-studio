@@ -238,6 +238,7 @@ sessionsRouter.get('/api/sessions/:id', async (ctx) => {
  * - title：改名。
  * - mode/model：每会话覆盖（继承自全局默认）。**部分更新**——只传 mode 不会把 model 抹成 null。
  * - workspace：每会话工作目录（绑终端 cwd，web 模式作为文件上下文锚点）。
+ * - agent：T04/CH-D 会话绑定的 Agent 角色（kmaster.db 侧车列，null/'' 解除绑定）。
  * - skills / mcpServers（亦接受 mcp_servers）：B-01 侧车列。
  * - pinned / archived：B-02 / B-03，boolean 入参，落库 0/1。
  *
@@ -260,6 +261,13 @@ function applySessionPatch(store: Store, id: string, body: any): number {
   if (body?.workspace !== undefined) {
     // body.workspace === null 或 '' 视为「清空工作区」。
     store.setSessionWorkspace(id, body.workspace ?? null);
+    hits++;
+  }
+  // —— T04/CH-D：agent 角色（只写 kmaster.db 侧车列，🚫 绝不写 hermes state.db）——
+  // null / '' / 非字符串 一律归一为「解除绑定」，出参 mergeSession() 随即回落
+  // hermes 的 profile_name；不传该键则完全不动（与 workspace 同一部分更新语义）。
+  if (body?.agent !== undefined) {
+    store.setSessionAgent(id, typeof body.agent === 'string' ? body.agent : null);
     hits++;
   }
   // —— B-01：skills / mcpServers（双写兼容 snake_case）——

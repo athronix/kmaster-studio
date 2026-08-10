@@ -157,6 +157,13 @@ export interface Store {
   setSessionModeModel: (id: string, mode?: string | null, model?: string | null) => void;
   // V3/#19：每会话工作目录（持久层接口；调用方传 null/'' 视为清空）
   setSessionWorkspace: (id: string, workspace?: string | null) => void;
+  /**
+   * T04/CH-D：每会话 Agent 角色（kmaster.db 侧车 `agent` 列）。
+   *
+   * 调用方传 `null` / 空串视为「解除绑定」——出参 `mergeSession()` 会自动
+   * 回落 hermes 的 `profile_name`。🚫 本方法不写 hermes state.db。
+   */
+  setSessionAgent: (id: string, agent?: string | null) => void;
 
   // —— B-01/B-02/B-03（schema v2）会话侧车字段 ——
   /**
@@ -511,6 +518,8 @@ async function initSqlite(): Promise<Store | null> {
     // V3/#19：workspace 更新单独成语句（与 mode/model 解耦，简化调用方语义）。
     // 传 null 视为清空，传 '' 也视作清空（避免界面遗留空字符串状态）。
     const stmtSetWorkspace = db.prepare('UPDATE sessions SET workspace = ?, updated_at = ? WHERE id = ?');
+    // T04/CH-D：Agent 角色侧车列（列本身由上面的 ALTER TABLE 幂等补齐）
+    const stmtSetAgent = db.prepare('UPDATE sessions SET agent = ?, updated_at = ? WHERE id = ?');
     // —— schema v2：侧车字段写入语句（列级独立，避免误清空未传字段）——
     const stmtSetSkills = db.prepare('UPDATE sessions SET skills = ?, updated_at = ? WHERE id = ?');
     const stmtSetMcpServers = db.prepare('UPDATE sessions SET mcp_servers = ?, updated_at = ? WHERE id = ?');
@@ -577,6 +586,12 @@ async function initSqlite(): Promise<Store | null> {
         // 空串归一为 null：UI 选「清空工作区」时不会出现「workspace=''」半状态。
         const ws = workspace && workspace.trim() ? workspace : null;
         stmtSetWorkspace.run(ws, Date.now(), id);
+      },
+      setSessionAgent: (id, agent) => {
+        // 与 setSessionWorkspace 同一口径：空串归一为 null，避免 agent='' 半状态
+        // 把 mergeSession() 的「回落 profile_name」分支短路掉。
+        const next = agent && agent.trim() ? agent.trim() : null;
+        stmtSetAgent.run(next, Date.now(), id);
       },
       getSessionsByIds: (ids) => {
         const uniq = [...new Set(ids.filter((x) => typeof x === 'string' && x !== ''))];
@@ -762,6 +777,13 @@ async function initMem(): Promise<Store> {
       if (s) {
         const ws = workspace && workspace.trim() ? workspace : null;
         s.workspace = ws;
+        s.updated_at = Date.now();
+      }
+    },
+    setSessionAgent: (id, agent) => {
+      const s = mem.sessions.get(id);
+      if (s) {
+        s.agent = agent && agent.trim() ? agent.trim() : null;
         s.updated_at = Date.now();
       }
     },
