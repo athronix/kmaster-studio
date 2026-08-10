@@ -1,3 +1,6 @@
+// ⚠️ 本文件与 packages/server/src/protocol.ts 为双端共享契约，任一侧变更必须同步。
+import type { SkillAsset } from './asset';
+
 export type Role = 'user' | 'assistant' | 'system' | 'tool' | 'command';
 
 export interface ToolCall {
@@ -65,6 +68,112 @@ export interface Skill {
   category: string;
   description?: string;
   enabled: boolean;
+}
+
+/**
+ * `GET /api/skills` 的**完整**响应契约（T02/ST-01）。
+ *
+ * ⚠️ 后端 `routes/skills.ts` 恒返回这三段，🚫 **不存在** `{ skills: [...] }` 这种形态，
+ * 也**不接受任何 query 过滤参数**（历史上那个候选过滤参数是幽灵参数，服务端从未消费）。
+ * 与 `packages/server/src/routes/skills.ts` 的 `SkillsResponse` 逐字对齐。
+ */
+export interface SkillsResponse {
+  /** 已安装技能 */
+  installed: Skill[];
+  /** 市场候选（可能与 installed 同名，按 D1 口径由前端过滤去重） */
+  candidates: SkillAsset[];
+  /** 分类枚举（installed + candidates 的 category 并集） */
+  categories: string[];
+}
+
+/** SkillHub 在线搜索结果项（GET /api/skillhub/skills?q=）。 */
+export interface SkillHubResult {
+  name: string;
+  description: string;
+  icon: string;
+  tags: string[];
+  source: string;
+}
+
+// —— T02 插件枚举（GET /api/plugins）——
+// ⚠️ 与 packages/server/src/protocol.ts 的同名类型为双端共享契约，任一侧变更必须同步。
+
+/** 插件形态：来自 plugin.yaml `kind` 字段（未知值归一为 other）。 */
+export type PluginKind = 'platform' | 'backend' | 'model-provider' | 'standalone' | 'other';
+
+/** 插件来源：bundled = hermes-agent 内置；user = `$HERMES_HOME/plugins` 用户安装。 */
+export type PluginSource = 'bundled' | 'user';
+
+/**
+ * 生效态（三态）：
+ * - `enabled`      —— 无需额外配置，或所需环境变量已齐备，或 config.yaml 显式启用
+ * - `needs_config` —— manifest 声明了 `requires_env` 但环境变量缺失
+ * - `disabled`     —— config.yaml 显式关闭
+ */
+export type PluginStatus = 'enabled' | 'needs_config' | 'disabled';
+
+export interface PluginItem {
+  /** 稳定标识：`<source>:<相对路径>` */
+  id: string;
+  name: string;
+  kind: PluginKind;
+  source: PluginSource;
+  effectiveStatus: PluginStatus;
+  providesTools: string[];
+  description: string;
+  /** 展示名，缺省回落 name */
+  label?: string;
+  version?: string;
+  requiresEnv?: string[];
+  /** requiresEnv 中尚未配置的部分（needs_config 的依据） */
+  missingEnv?: string[];
+  /** 分组目录名，如 `platforms` / `image_gen` */
+  group?: string;
+}
+
+// —— T02 平台渠道配置（GET/PUT /api/config/platform）——
+
+/** 渠道类型：与 hermes-agent `plugins/platforms/<id>` 目录同名。 */
+export type PlatformChannelType =
+  | 'telegram' | 'discord' | 'slack' | 'whatsapp' | 'matrix'
+  | 'wecom' | 'feishu' | 'dingtalk' | 'qqbot' | 'teams'
+  | 'email' | 'line' | 'sms' | 'irc' | 'mattermost'
+  | 'google_chat' | 'homeassistant' | 'ntfy' | 'photon' | 'simplex' | 'raft'
+  | 'other';
+
+/**
+ * 单个平台渠道配置。
+ *
+ * 🔒 `credentials` 只写不回显：GET 下行恒为 undefined，只给 `configuredKeys` / `maskedKeys`；
+ * PUT 上行传空串表示**清除**该键，未提及的键保持原值。
+ */
+export interface PlatformChannelConfig {
+  id: string;
+  type: PlatformChannelType;
+  enabled: boolean;
+  /** 🔒 仅 PUT 上行使用 */
+  credentials?: Record<string, string>;
+  /** GET 下行：已配置的凭据键名 */
+  configuredKeys?: string[];
+  /** GET 下行：键 → 掩码值 */
+  maskedKeys?: Record<string, string>;
+  label?: string;
+}
+
+/** GET /api/config/platform 返回结构 */
+export interface PlatformConfigResponse {
+  channels: PlatformChannelConfig[];
+  /** 磁盘上可用的渠道类型，用于「新增渠道」下拉 */
+  availableTypes: PlatformChannelType[];
+}
+
+/** PUT /api/config/platform 返回结构 */
+export interface PlatformConfigSaveResult {
+  ok: boolean;
+  /** config.yaml `_config_version` 写后值 */
+  version: number;
+  /** 保存后的掩码快照 */
+  channels: PlatformChannelConfig[];
 }
 
 // —— F12 MCP 连接器 ——
@@ -369,6 +478,25 @@ export interface ContextEstimate {
   model?: string;
   categories?: ContextCategory[];
   estimated: true;
+}
+
+/**
+ * T02/L3：`usage.updated` 与 `run.completed` 事件随行的上下文占用快照。
+ *
+ * ⚠️ 不是新事件类型，`WS_EVENTS` 注册表保持不变；该字段在两个事件上都是**可选**的：
+ * - `run.completed` 恒携带（服务端强制重算），除非估算本身失败
+ * - `usage.updated` 仅在服务端估算缓存命中时携带
+ *
+ * 因此消费方（如 ContextUsageBar）**必须处理缺失**：缺失即整条隐藏，
+ * 🚫 不得回落 0 / NaN 造成进度条闪烁。
+ *
+ * 字段映射自 `ContextEstimate`：
+ * - `total_tokens`   ← `context_used`
+ * - `context_length` ← `context_max`
+ */
+export interface ContextTokensPayload {
+  total_tokens: number;
+  context_length: number;
 }
 
 // ═══════════════════════ WS 下行事件注册表 ═══════════════════════

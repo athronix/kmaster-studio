@@ -1,16 +1,18 @@
 // REST 封装层：视图与 store 一律经此文件访问后端（NFR1 视图零直接网络调用）。
 // 契约基准：docs/design/TECHNICAL-SOLUTION-M4.md §3.6 + packages/server/src/routes/*。
 import type {
-  ProviderGroup, Skill, McpServer, UploadRef, Settings,
+  ProviderGroup, SkillsResponse, McpServer, UploadRef, Settings,
   MemoryEntry, MemoryGroup,
   CronJob, CronRun,
   QueueItem,
   UsageStatRow, UsageTotals, UsageGroupBy,
-  ContextEstimate,
+  ContextEstimate, ContextTokensPayload,
   ProviderListResult, SetProviderKeyResult,
   ProfileListResult, UseProfileResult,
+  PluginItem, PlatformChannelConfig, PlatformConfigResponse, PlatformConfigSaveResult,
   HealthInfo,
   Session, SessionPatch,
+  SkillHubResult,
 } from '../types/chat';
 
 const BASE = '';
@@ -105,9 +107,25 @@ export async function getModels(): Promise<ModelsResponse> {
   return http<ModelsResponse>('/api/models');
 }
 
-export async function getSkills(): Promise<Skill[]> {
-  const { skills } = await http<{ skills: Skill[] }>('/api/skills');
-  return skills;
+/**
+ * `GET /api/skills` → `{ installed, candidates, categories }`（ST-01 崩溃修复）。
+ *
+ * ⚠️ 修复前这里解构的是 `{ skills }` —— 后端**从来没有**返回过该字段，
+ * 于是 `skills` 恒为 `undefined`，所有 `getSkills().map(...)` 的调用方直接
+ * 抛 `Cannot read properties of undefined (reading 'map')` 把技能页打崩。
+ *
+ * 🚫 不再传任何 query 过滤参数（服务端 routes/skills.ts 从不消费 query，历史上那个候选过滤参数是幽灵参数）；
+ * 需要候选列表的调用方直接取返回值的 `.candidates`。
+ *
+ * 三段字段做了兜底归一：即便后端某段缺失也退化为空数组，绝不把 undefined 抛给视图层。
+ */
+export async function getSkills(): Promise<SkillsResponse> {
+  const res = await http<Partial<SkillsResponse>>('/api/skills');
+  return {
+    installed: res?.installed ?? [],
+    candidates: res?.candidates ?? [],
+    categories: res?.categories ?? [],
+  };
 }
 
 /** T07: MCP 聚合端点 → { deployed, candidates } */
@@ -465,6 +483,134 @@ export async function installSkill(name: string): Promise<{ ok: boolean; install
 
 export async function uninstallSkill(name: string): Promise<{ ok: boolean }> {
   return http<{ ok: boolean }>(`/api/skills/${encodeURIComponent(name)}`, { method: 'DELETE' });
+}
+
+// ═══════════════════ T02：插件枚举 / 平台渠道配置 ═══════════════════
+
+/**
+ * `GET /api/plugins` → `PluginItem[]`。
+ *
+ * 只读端点；hermes 侧扫不到任何 `plugin.yaml` manifest 时返回空数组（前端走空态），
+ * 🚫 不会抛错。同样对缺字段做兜底，绝不把 undefined 抛给视图层。
+ */
+export async function getPlugins(): Promise<PluginItem[]> {
+  const res = await http<{ plugins?: PluginItem[] }>('/api/plugins');
+  return res?.plugins ?? [];
+}
+
+/**
+ * `GET /api/config/platform` → `{ channels, availableTypes }`。
+ *
+ * 🔒 下行**不含**任何明文凭据，只有 `configuredKeys` / `maskedKeys`。
+ */
+export async function getPlatformConfig(): Promise<PlatformConfigResponse> {
+  const res = await http<Partial<PlatformConfigResponse>>('/api/config/platform');
+  return {
+    channels: res?.channels ?? [],
+    availableTypes: res?.availableTypes ?? [],
+  };
+}
+
+/**
+ * `PUT /api/config/platform` —— 整表替换渠道列表。
+ *
+ * 单个渠道的 `credentials` 走**增量合并**：
+ * - 未出现的键   → 保留原值（前端本就拿不到明文，不可能原样回传）
+ * - 值为空串     → 删除该凭据
+ * - 其余         → 覆盖写入
+ */
+export async function savePlatformConfig(
+  channels: PlatformChannelConfig[],
+): Promise<PlatformConfigSaveResult> {
+  const res = await http<Partial<PlatformConfigSaveResult>>('/api/config/platform', {
+    method: 'PUT',
+    body: JSON.stringify({ channels }),
+  });
+  return {
+    ok: res?.ok ?? false,
+    version: res?.version ?? 0,
+    channels: res?.channels ?? [],
+  };
+}
+
+/**
+ * SkillHub 上游条目的**原始**形态。
+ *
+ * server 端 `routes/skillhub.ts` 是**透传**上游 lightmake.site 的 JSON（只额外盖一个 `source`），
+ * 字段命名不受我们控制，因此这里全部按可选处理、逐字段兜底归一。
+ */
+interface RawSkillHubItem {
+  name?: unknown;
+  slug?: unknown;
+  title?: unknown;
+  description?: unknown;
+  summary?: unknown;
+  icon?: unknown;
+  tags?: unknown;
+  categories?: unknown;
+}
+
+function pickString(...candidates: unknown[]): string {
+  for (const c of candidates) {
+    if (typeof c === 'string' && c.trim() !== '') return c.trim();
+  }
+  return '';
+}
+
+function pickStringArray(...candidates: unknown[]): string[] {
+  for (const c of candidates) {
+    if (Array.isArray(c)) {
+      const list = c.filter((x): x is string => typeof x === 'string' && x.trim() !== '');
+      if (list.length > 0) return list;
+    }
+  }
+  return [];
+}
+
+/** SkillHub 原始条目 → 归一展示项（没有名字的脏数据直接丢弃）。 */
+function normalizeSkillHubItem(raw: RawSkillHubItem): SkillHubResult | null {
+  const name = pickString(raw.name, raw.slug, raw.title);
+  if (!name) return null;
+  return {
+    name,
+    description: pickString(raw.description, raw.summary),
+    icon: pickString(raw.icon) || 'Tool',
+    tags: pickStringArray(raw.tags, raw.categories),
+    source: 'skillhub',
+  };
+}
+
+/**
+ * T02/ST-03：SkillHub 在线搜索（`GET /api/skillhub/skills?q=`）。
+ *
+ * 这是技能搜索从「并不存在的 /api/skills 搜索子路径」迁移到「真实代理端点
+ * `/api/skillhub/skills`」的统一收口（NFR1：视图/组合层零直接网络调用，一律经本文件）。
+ * 旧路径在服务端根本没注册，会被 `/api/skills/:name` 误吞。
+ *
+ * 容错：网络失败或 SkillHub 离线（server 降级返回 `{ skills: [], source: 'offline' }`）
+ * 时一律回落空数组，不影响本地候选区渲染。
+ * 结果形态兼容上游两种分页键：`skills` 或 `results`。
+ */
+export async function searchSkillHub(q: string, size = 20): Promise<SkillHubResult[]> {
+  try {
+    const data = await http<{ results?: RawSkillHubItem[]; skills?: RawSkillHubItem[] }>(
+      `/api/skillhub/skills?q=${encodeURIComponent(q)}&page=1&size=${size}`
+    );
+    const raw = data?.skills ?? data?.results ?? [];
+    const seen = new Set<string>();
+    const result: SkillHubResult[] = [];
+    for (const item of raw) {
+      const mapped = normalizeSkillHubItem(item);
+      if (!mapped) continue;
+      const key = mapped.name.toLowerCase();
+      if (seen.has(key)) continue; // 上游分页偶发重复，去重后再给视图层
+      seen.add(key);
+      result.push(mapped);
+    }
+    return result;
+  } catch {
+    return [];
+  }
 }
 
 export async function createAgent(body: {
