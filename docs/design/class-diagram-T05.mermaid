@@ -1,0 +1,80 @@
+classDiagram
+    class PluginItem {
+        +string id
+        +string name
+        +PluginKind kind
+        +PluginSource source
+        +PluginStatus effectiveStatus
+        +string[] providesTools
+        +string description
+        +string? label
+        +string? version
+        +string[]? requiresEnv
+        +string[]? missingEnv
+        +string? group
+    }
+
+    class PlatformChannelConfig {
+        +string id
+        +PlatformChannelType type
+        +boolean enabled
+        +string? label
+        +string[] configuredKeys
+        +Record~string,string~ maskedKeys
+    }
+
+    class ModelUsage {
+        +number calls
+        +number tokens
+        +boolean known
+    }
+
+    class SettingsDetailPanel {
+        +ResourceItem item
+        +string entityType
+        +emit install(id)
+        +emit uninstall(id)
+        +emit summon(id)
+    }
+
+    class PluginsSection {
+        +PluginItem[] plugins
+        +string searchQuery
+        +string kindFilter
+        +boolean loading
+        +refresh()
+        +emit openDetail(entity)
+    }
+
+    class ChannelsSection {
+        +PlatformChannelConfig[] channels
+        +string[] availableTypes
+        +boolean loading
+        +addChannel(type)
+        +saveChannel(channel)
+        +deleteChannel(id)
+    }
+
+    class useModelConfigStore {
+        +ModelProviderConfig[] providers
+        +DefaultsMap defaults
+        +ModelUsage modelUsage
+        +addProvider()
+        +removeProvider()
+        +addModel()
+        +removeModel()
+        +setDefault()
+        +loadModelsAndUsage()
+    }
+
+    class useChatStore {
+        +ProviderGroup[] models
+        +reloadModels()
+        +loadModels()
+    }
+
+    SettingsDetailPanel --> PluginItem : renders
+    SettingsDetailPanel --> PlatformChannelConfig : renders
+    PluginsSection --> PluginItem : displays
+    ChannelsSection --> PlatformChannelConfig : manages
+    useModelConfigStore --> useChatStore : calls reloadModels()

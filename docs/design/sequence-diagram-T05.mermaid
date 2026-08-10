@@ -1,0 +1,19 @@
+sequenceDiagram
+    participant User as 用户
+    participant MMS as ModelManageSection
+    participant MCS as useModelConfigStore
+    participant CS as useChatStore
+    participant API as /api/models
+    participant CI as ChatInput
+
+    User->>MMS: 删除模型
+    MMS->>MCS: removeModel(providerId, modelId)
+    MCS->>MCS: updateProvider() + persist()
+    MCS->>CS: reloadModels()
+    CS->>API: GET /api/models
+    API-->>CS: { providers, usage }
+    CS->>CS: models.value = res.providers
+
+    User->>CI: 打开聊天页模型下拉
+    CI->>CS: chatStore.models
+    CS-->>CI: 最新模型列表（已反映删除）
