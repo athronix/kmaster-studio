@@ -9,14 +9,11 @@ import { useMessage } from 'naive-ui';
 import { useChatStore } from '../stores/chat';
 import { useAgentRolesStore } from '../stores/agentRoles';
 import { exportSession } from '../api/client';
-import { TIME_RANGE_MS, type TimeRange } from '../constants/layout';
+import { TIME_RANGE_MS, LS_KEYS, lsGet, lsSet, type TimeRange } from '../constants/layout';
 import {
-  RECENT_DEFAULTS,
-  RECENT_HARD_CAP,
   UNBOUND_WORKSPACE_KEY,
-  WORKSPACE_SORT,
 } from '../constants/sidebar';
-import { isWithinHours } from '../utils/time';
+import { getGroupedSessions as groupSessions } from '../utils/sessionGrouping';
 import type { Session } from '../types/chat';
 
 export interface ContextMenuState {
@@ -95,6 +92,15 @@ export function useSessionList() {
   const toast = useMessage();
   const search = ref('');
 
+  // ── SL-04：归档会话可见性开关 ──
+  const showArchived = ref(lsGet<boolean>(LS_KEYS.showArchived, false));
+
+  /** 切换 showArchived 并持久化到 localStorage。 */
+  function toggleShowArchived(): void {
+    showArchived.value = !showArchived.value;
+    lsSet(LS_KEYS.showArchived, showArchived.value);
+  }
+
   // ── V3 S3.6：三维过滤条件 ──
   const filters = ref<SessionFilters>(emptyFilters());
 
@@ -152,10 +158,10 @@ export function useSessionList() {
   // ── 搜索 + 过滤 ──
   const list = computed(() => {
     const q = search.value.trim().toLowerCase();
-    // 🔴 B10-③（F30）：先排除归档会话。存量实现 `base = store.sessions` **完全不过滤
-    // archived**，导致 B-03 归档功能做完后归档会话仍显示在左栏。
-    // ⚠️ `archived` 是 number（0/1）不是 boolean，判据必须写 `!s.archived`。
-    const visible = store.sessions.filter((s) => !s.archived);
+    // SL-04：showArchived 为 true 时不过滤 archived；默认 false 时排除 archived。
+    const visible = showArchived.value
+      ? store.sessions
+      : store.sessions.filter((s) => !s.archived);
     const base = filterActive.value ? visible.filter(matchFilters) : visible;
     if (!q) return base;
     return base.filter((s) => {
@@ -192,70 +198,31 @@ export function useSessionList() {
   });
 
   /**
-   * Recent 并集算法（§3.5 规范实现）：`running ∪ 前 maxCount 条 ∪ withinHours 小时内活跃`。
+   * 已归档会话列表（SL-04）。
    *
-   * ⚠️ 刻意依赖 JS `Map.set()` 对已存在 key **不改变插入顺序**的语义：
-   * running 先入 Map 故稳定居首，其余按 `updated_at` 倒序。单测已锁死此行为。
+   * 当 `showArchived === true` 时，从 store 全量筛选 `archived === 1` 的会话。
+   * 不经过搜索/过滤管线（Q2：归档量通常不大，加搜索/过滤无实际收益）。
    */
-  function computeRecent(all: Session[], running: Set<string>, now = Date.now()): Session[] {
-    const sorted = [...all]
-      .filter((s) => !s.archived)
-      .sort((a, b) => b.updated_at - a.updated_at);
-
-    const bucket = new Map<string, Session>();
-    // ① running（最高优先级，先入 Map 保证排最前）
-    for (const s of sorted) if (running.has(s.id)) bucket.set(s.id, s);
-    // ② 倒序前 maxCount 条
-    for (const s of sorted.slice(0, RECENT_DEFAULTS.maxCount)) bucket.set(s.id, s);
-    // ③ withinHours 小时内活跃
-    for (const s of sorted) {
-      if (isWithinHours(s.updated_at, RECENT_DEFAULTS.withinHours, now)) bucket.set(s.id, s);
-    }
-    return [...bucket.values()].slice(0, RECENT_HARD_CAP);
-  }
+  const archivedSessions = computed<Session[]>(() => {
+    if (!showArchived.value) return [];
+    return store.sessions.filter((s) => s.archived === 1);
+  });
 
   /**
-   * 工作区分组（§3.5b 规范实现）。
-   *
-   * 组间：目录名字典序**升序**，未绑定组恒置最末（U7 / PM 裁决，不可改成按活跃度）。
-   * 组内：`updated_at` 倒序。
-   */
-  function computeByWorkspace(all: Session[]): WorkspaceGroup[] {
-    const map = new Map<string, Session[]>();
-    for (const s of all) {
-      if (s.archived) continue; // ✅ 必须保留：归档过滤（B10-③ / F30）
-      // ⚠️ 这里【没有】跳过 pinned 的分支 —— 置顶会话必须同时出现在工作区组（Q8 非互斥）。
-      //    存量实现在此处有个 `continue` 把置顶踢出去了，已按 B10-① 删除。
-      const key = workspaceKeyOf(s);
-      const arr = map.get(key);
-      if (arr) arr.push(s);
-      else map.set(key, [s]);
-    }
-    return [...map.entries()]
-      .sort(([a], [b]) => WORKSPACE_SORT.compareGroup(a, b))
-      .map(([key, items]) => ({
-        key,
-        // 未绑定组展示中文文案，但 key 保持英文字面量不变（F24：它是落库值）
-        label: key === UNBOUND_WORKSPACE_KEY ? UNBOUND_WORKSPACE_LABEL : key,
-        items: [...items].sort(WORKSPACE_SORT.compareSession),
-      }));
-  }
-
-  /**
-   * 三分组产物：`{ recent, pinned, byWorkspace }`。
+   * 三分组产物：`{ recent, pinned, byWorkspace, archived }`。
    *
    * 🔴 Q8 **非互斥**：同一会话可同时出现在 recent、pinned、某工作区组里。
    *    渲染时 key 必须写 `` `${groupKey}:${s.id}` `` 防冲突（§7.6）。
    * 🔴 B10-②：`pinned` 判据是 **`s.pinned`（服务端字段）**，不再读
    *    `store.pinnedSessions` 本地 Set —— 后者刷新即丢（F6）。
+   *
+   * SL-01 改造：分组算法已下沉为 `utils/sessionGrouping.ts` 纯函数。
    */
   const getGroupedSessions = computed<GroupedSessions>(() => {
     const filtered = list.value;
-    return {
-      recent: computeRecent(filtered, runningIds.value),
-      pinned: filtered.filter((s) => !s.archived && !!s.pinned).sort(WORKSPACE_SORT.compareSession),
-      byWorkspace: computeByWorkspace(filtered),
-    };
+    const result = groupSessions(filtered, runningIds.value);
+    result.archived = archivedSessions.value;
+    return result;
   });
 
   // ── 重命名 ──
@@ -387,6 +354,9 @@ export function useSessionList() {
     search,
     list,
     getGroupedSessions,
+    // SL-04：归档可见性
+    showArchived,
+    toggleShowArchived,
     // V3 S3.6：过滤
     filters,
     filterActive,
