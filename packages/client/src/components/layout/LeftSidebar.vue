@@ -23,6 +23,7 @@ import {
   NPopover,
   NEmpty,
   NSelect,
+  NSwitch,
   useMessage,
 } from 'naive-ui';
 import { useChatStore } from '../../stores/chat';
@@ -124,7 +125,7 @@ const recentDropdownSessions = computed(() =>
  * `'0','1','2'` 这种下标，与 `:name` 完全对不上（缺陷 #5）；
  * ② 目录多时左栏会被一次性铺满，正是 F-05 要解决的问题。
  */
-const defaultExpanded: string[] = [SIDEBAR_GROUP.RECENT, SIDEBAR_GROUP.PINNED];
+const defaultExpanded: string[] = [SIDEBAR_GROUP.RECENT, SIDEBAR_GROUP.PINNED, SIDEBAR_GROUP.ARCHIVED];
 
 /** 折叠态持久化（B9 单例，key 走 `SIDEBAR_COLLAPSE_KEYS` 命名空间）。 */
 const collapse = useCollapseState();
@@ -134,6 +135,8 @@ const expandedNames = computed<string[]>(() => {
   const names: string[] = [];
   if (collapse.isExpanded(SIDEBAR_COLLAPSE_KEYS.recent, false)) names.push(SIDEBAR_GROUP.RECENT);
   if (collapse.isExpanded(SIDEBAR_COLLAPSE_KEYS.pinned, false)) names.push(SIDEBAR_GROUP.PINNED);
+  // SL-04：已归档分组默认展开
+  if (collapse.isExpanded(SIDEBAR_COLLAPSE_KEYS.archived, false)) names.push(SIDEBAR_GROUP.ARCHIVED);
   for (const g of grouped.value.byWorkspace) {
     // 工作目录组默认收缩（defaultCollapsed = true）
     if (collapse.isExpanded(SIDEBAR_COLLAPSE_KEYS.workspace(g.key), true)) names.push(g.key);
@@ -146,11 +149,13 @@ function onExpandedChange(names: string[]): void {
   const allKeys = [
     SIDEBAR_COLLAPSE_KEYS.recent,
     SIDEBAR_COLLAPSE_KEYS.pinned,
+    SIDEBAR_COLLAPSE_KEYS.archived,
     ...grouped.value.byWorkspace.map((g) => SIDEBAR_COLLAPSE_KEYS.workspace(g.key)),
   ];
   const expandedKeys = names.map((n) => {
     if (n === SIDEBAR_GROUP.RECENT) return SIDEBAR_COLLAPSE_KEYS.recent;
     if (n === SIDEBAR_GROUP.PINNED) return SIDEBAR_COLLAPSE_KEYS.pinned;
+    if (n === SIDEBAR_GROUP.ARCHIVED) return SIDEBAR_COLLAPSE_KEYS.archived;
     return SIDEBAR_COLLAPSE_KEYS.workspace(n);
   });
   collapse.syncFromExpanded(allKeys, expandedKeys);
@@ -467,6 +472,16 @@ watch(
         </n-button>
       </div>
 
+      <!-- SL-04：归档会话可见性开关 -->
+      <div class="km-sidebar-archive-toggle">
+        <n-switch
+          :value="sl.showArchived.value"
+          size="small"
+          @update:value="sl.toggleShowArchived"
+        />
+        <span class="km-archive-label">显示已归档</span>
+      </div>
+
       <!-- 会话列表区 -->
       <n-scrollbar class="km-sidebar-lists">
         <!-- 置顶会话 -->
@@ -555,6 +570,44 @@ watch(
                     <button title="删除" class="danger"><KIcon name="Trash" :size="14" /></button>
                   </template>
                   确认删除会话「{{ s.title }}」？
+                </n-popconfirm>
+              </div>
+            </div>
+          </n-collapse-item>
+
+          <!-- SL-04：已归档会话分组 -->
+          <n-collapse-item
+            v-if="sl.showArchived.value && sl.getGroupedSessions.value.archived.length"
+            :name="SIDEBAR_GROUP.ARCHIVED"
+          >
+            <template #header>
+              <span class="km-list-group-title"><KIcon name="Archive" :size="14" /> 已归档</span>
+              <span class="km-list-group-badge">{{ sl.getGroupedSessions.value.archived.length }}</span>
+            </template>
+            <div
+              v-for="s in sl.getGroupedSessions.value.archived"
+              :key="s.id"
+              class="km-session-item km-archived-item"
+              :class="{
+                active: s.id === store.activeSessionId,
+                'km-session-highlight': s.id === store.highlightedSessionId,
+              }"
+              @click="openSession(s.id)"
+              @contextmenu.prevent="sl.openMenu($event, s)"
+            >
+              <div class="km-session-main">
+                <div class="km-session-title">{{ s.title || '新会话' }}</div>
+                <div class="km-session-sub">{{ new Date(s.updated_at).toLocaleString() }}</div>
+              </div>
+              <div class="km-session-actions" @click.stop>
+                <button title="取消归档" @click="store.archiveSession(s.id, false)">
+                  <KIcon name="Rotate" :size="14" />
+                </button>
+                <n-popconfirm @positive-click="sl.remove(s)">
+                  <template #trigger>
+                    <button title="删除" class="danger"><KIcon name="Trash" :size="14" /></button>
+                  </template>
+                  确认删除会话「{{ s.title || '新会话' }}」？
                 </n-popconfirm>
               </div>
             </div>
@@ -963,5 +1016,29 @@ watch(
   opacity: 0.45;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* ── SL-04 归档开关 ── */
+.km-sidebar-archive-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--km-space-xs);
+  padding: var(--km-space-6) var(--km-space-md);
+  border-bottom: 1px solid var(--km-border);
+}
+.km-archive-label {
+  font-size: var(--km-font-sm);
+  opacity: 0.6;
+}
+
+/* ── SL-04 已归档会话降权 ── */
+.km-archived-item {
+  opacity: 0.55;
+}
+.km-archived-item:hover {
+  opacity: 0.85;
+}
+.km-archived-item.active {
+  opacity: 0.85;
 }
 </style>

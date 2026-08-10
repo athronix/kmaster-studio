@@ -27,6 +27,8 @@ export const RECENT_HARD_CAP = 20;
 export const SIDEBAR_GROUP = {
   RECENT: '__recent__',
   PINNED: '__pinned__',
+  /** SL-04：已归档会话分组 name */
+  ARCHIVED: '__archived__',
 } as const;
 
 export type SidebarGroupKey = (typeof SIDEBAR_GROUP)[keyof typeof SIDEBAR_GROUP];
@@ -38,6 +40,8 @@ export type SidebarGroupKey = (typeof SIDEBAR_GROUP)[keyof typeof SIDEBAR_GROUP]
 export const SIDEBAR_COLLAPSE_KEYS = {
   recent: 'group:recent',
   pinned: 'group:pinned',
+  /** SL-04：已归档分组折叠 key */
+  archived: 'group:archived',
   workspace: (name: string): string => `ws:${name}`,
   jobsRoot: 'group:jobs',
   job: (jobId: string): string => `job:${jobId}`,
