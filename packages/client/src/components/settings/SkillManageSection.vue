@@ -5,8 +5,10 @@
  * 薄封装：复用 CardMarketLayout 的市场浏览能力，
  * 并以 installedMode 把首屏模块换成「已安装技能」（独立搜索 + 标签 + 2×5 + 分页）。
  *
- * 已安装数据源为后端真实技能列表（useSkillList → chat store），
- * 市场候选池沿用 MOCK_SKILLS，两侧通过名称做已安装标记。
+ * 数据源两侧**均为后端真实数据**（ST-04：mock 常量已于 U-09 删除，此处不再有任何桩数据）：
+ *   - 已安装：`useSkillList().filtered`（← `GET /api/skills` 的 `installed`）
+ *   - 市场候选：`useSkillList().candidateSkills`（← 同一响应的 `candidates`，已按 D1 过滤去重）
+ * 两侧通过名称做已安装标记。
  */
 import { computed, onMounted, ref } from 'vue';
 import { NSpin, useMessage } from 'naive-ui';
@@ -34,7 +36,7 @@ onMounted(() => {
   void refresh();
 });
 
-/** 后端技能 → 市场 Skill 实体（T04/U-10：不再从 MOCK_SKILLS 借用元数据） */
+/** 后端技能 → 市场 Skill 实体（T04/U-10：元数据全部来自后端，不再借用任何 mock 常量） */
 function toEntity(name: string, category: string, description: string): MarketSkill {
   return {
     id: `skill-installed-${name}`,

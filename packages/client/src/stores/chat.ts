@@ -782,7 +782,8 @@ export const useChatStore = defineStore('chat', () => {
     globalSettings.value = await putSettings({ default_mode: mode, default_model: model });
   }
   async function loadModels() { const res = await getModels(); models.value = res.providers; }
-  async function loadSkills() { skills.value = await getSkills(); }
+  /** ST-01：`getSkills()` 现返回 `{ installed, candidates, categories }`，store 只关心已装列表。 */
+  async function loadSkills() { skills.value = (await getSkills()).installed; }
   async function loadMcp() { mcpServers.value = await getMcp(); }
   async function addMcp(server: { name: string; command: string; args?: string[]; env?: Record<string, string> }) {
     mcpServers.value = await postMcp(server);

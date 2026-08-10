@@ -1,8 +1,20 @@
 /**
- * useSkillList — 技能列表聚合操作（T09 重写）。
+ * useSkillList — 技能列表聚合操作（T09 重写，T02 对齐 hermes-studio）。
  *
- * 数据源：GET /api/skills（installed）+ COS candidates + SkillHub 在线。
- * 提供已装技能 / 市场候选双区数据 + 搜索（本地 + SkillHub 在线）+ 安装/卸载。
+ * 数据源：**单次** `GET /api/skills`（一次拿全 installed + candidates + categories）
+ * + SkillHub 在线搜索（`GET /api/skillhub/skills?q=`）。
+ *
+ * T02 三处修正：
+ *   - ST-01：`getSkills()` 现返回 `{ installed, candidates, categories }` 全量对象
+ *   - ST-02：删除对同一端点追加候选过滤 query 的第二发请求（服务端从未消费该参数，
+ *            等于把同一个全量响应又拉了一遍，纯浪费一次往返）
+ *   - ST-03：SkillHub 搜索路径由一个并不存在的 /api/skills 子路径改为真实的
+ *            `/api/skillhub/skills`（旧路径会被 `/api/skills/:name` 之类的路由误吞或 404）
+ *
+ * D1 业务口径（市场区）：
+ *   1. 从 candidates 中**过滤掉已安装项**（按 name 小写比对）
+ *   2. candidates 自身**按 name 去重**（COS 与 hermes 两个来源可能重名）
+ *   3. 分类维度**只用后端下发的 `categories`**，🚫 不在前端另造 category 列表
  *
  * 向后兼容：保留 filtered / loading / refresh / install / uninstall 供
  * SkillManageSection.vue 使用。
@@ -11,11 +23,11 @@ import { ref, computed } from 'vue';
 import { DataSourceState } from '../types/dataSource';
 import {
   getSkills,
+  searchSkillHub as apiSearchSkillHub,
   installSkill as apiInstallSkill,
   uninstallSkill as apiUninstallSkill,
-  http,
 } from '../api/client';
-import type { Skill as ChatSkill } from '../types/chat';
+import type { Skill as ChatSkill, SkillHubResult } from '../types/chat';
 import type { SkillAsset } from '../types/asset';
 
 /** 展示用技能数据 */
@@ -31,21 +43,14 @@ export interface SkillItem {
   category?: string;
 }
 
-/** SkillHub 在线搜索结果项 */
-interface SkillHubResult {
-  name: string;
-  description: string;
-  icon: string;
-  tags: string[];
-  source: string;
-}
-
 export function useSkillList() {
   // ── 状态 ──
   const state = ref<DataSourceState>(DataSourceState.Loading);
   const installedSkills = ref<SkillItem[]>([]);
   const candidateSkills = ref<SkillItem[]>([]);
   const allCandidates = ref<SkillItem[]>([]);
+  /** D1：分类维度**只**来自后端 `GET /api/skills` 的 `categories`，前端不另造 */
+  const categories = ref<string[]>([]);
   const searchQuery = ref('');
   const error = ref('');
   const loading = ref(false);
@@ -92,32 +97,52 @@ export function useSkillList() {
     );
   }
 
+  /**
+   * D1 口径：候选 → 展示项。
+   * ① 过滤掉已安装项  ② 按 name 去重  ③ 保留后端给的 category（不前端另造）
+   */
+  function mapCandidates(raw: SkillAsset[], installedNames: Set<string>): SkillItem[] {
+    const seen = new Set<string>();
+    const result: SkillItem[] = [];
+    for (const c of raw) {
+      const key = (c.name ?? '').trim().toLowerCase();
+      if (!key) continue;
+      if (installedNames.has(key)) continue; // ① 市场区不重复展示已装项
+      if (seen.has(key)) continue; // ② COS / hermes 双来源同名去重
+      seen.add(key);
+      result.push({
+        id: c.id,
+        name: c.name,
+        icon: c.icon || 'Tool',
+        description: c.description,
+        tags: c.tags ?? [],
+        source: c.source,
+        installed: false, // 已装项已被过滤，剩下的一定未装
+        version: c.version,
+        category: c.category,
+      });
+    }
+    return result;
+  }
+
   // ── 操作 ──
   async function refresh(): Promise<void> {
     loading.value = true;
     state.value = DataSourceState.Loading;
     try {
-      // 已装技能
-      const skills = await getSkills();
-      installedSkills.value = mapInstalled(skills);
+      // ST-01/ST-02：**一次**请求拿全三段，不再追加那次带候选过滤 query 的幽灵往返
+      const { installed, candidates: rawCandidates, categories: rawCategories } = await getSkills();
 
-      // 候选技能（COS）：尝试从聚合端点获取
-      try {
-        const res = await http<{ candidates: SkillAsset[] }>('/api/skills?source=candidates');
-        allCandidates.value = (res.candidates ?? []).map((c: SkillAsset) => ({
-          id: c.id,
-          name: c.name,
-          icon: c.icon || 'Tool',
-          description: c.description,
-          tags: c.tags ?? [],
-          source: c.source,
-          installed: c.installed,
-          version: c.version,
-          category: c.category,
-        }));
-      } catch {
-        allCandidates.value = [];
-      }
+      installedSkills.value = mapInstalled(installed);
+
+      const installedNames = new Set(
+        installed.map((s) => (s.name ?? '').trim().toLowerCase()).filter(Boolean),
+      );
+      allCandidates.value = mapCandidates(rawCandidates, installedNames);
+
+      // ③ 分类维度只认后端下发的 categories
+      categories.value = rawCategories;
+
       applyLocalFilter();
 
       state.value =
@@ -128,6 +153,11 @@ export function useSkillList() {
       const msg = e instanceof Error ? e.message : '加载技能列表失败';
       error.value = msg;
       state.value = DataSourceState.Error;
+      // 失败时清空而不是留半截脏数据
+      installedSkills.value = [];
+      allCandidates.value = [];
+      candidateSkills.value = [];
+      categories.value = [];
     } finally {
       loading.value = false;
     }
@@ -143,14 +173,25 @@ export function useSkillList() {
     }
   }
 
-  /** SkillHub 在线搜索（P2-2 双源） */
+  /**
+   * SkillHub 在线搜索（P2-2 双源）。
+   *
+   * ST-03：路径为真实存在的 `GET /api/skillhub/skills?q=`（server 端代理 lightmake.site，
+   * 上游不可达时降级返回 `{ skills: [], source: 'offline' }`，🚫 不抛 500）。
+   * 旧代码打的那个 /api/skills 搜索子路径在服务端根本不存在，会被 `/api/skills/:name` 误吞。
+   */
   async function searchSkillHub(q: string): Promise<void> {
     skillHubSearching.value = true;
     try {
-      const data = await http<{ results: SkillHubResult[] }>(
-        `/api/skills/search?q=${encodeURIComponent(q)}`
+      // 网络与字段归一由 api/client.ts 的 searchSkillHub 负责（NFR1 分层：组合层零直接网络调用）
+      const results = await apiSearchSkillHub(q);
+      const installedNames = new Set(
+        installedSkills.value.map((s) => s.name.trim().toLowerCase()).filter(Boolean),
       );
-      skillHubResults.value = data.results ?? [];
+      // D1 同口径：在线结果也过滤掉已装项（去重已在 API 层完成）
+      skillHubResults.value = results.filter(
+        (r: SkillHubResult) => !installedNames.has(r.name.trim().toLowerCase()),
+      );
     } catch {
       skillHubResults.value = [];
     } finally {
@@ -196,6 +237,7 @@ export function useSkillList() {
     installedSkills,
     candidateSkills,
     allCandidates,
+    categories,
     searchQuery,
     error,
     loading,

@@ -2,7 +2,7 @@
  * useSidebarCounts —— 左栏「专家 / 技能 / MCP」计数徽标聚合层（B7）。
  *
  * 用途：F-03 左栏菜单右侧的 `{installed} / {total}` 徽标。
- * 数据源：`GET /api/agents?source=all`、`GET /api/skills` + `?source=candidates`、`GET /api/mcp`。
+ * 数据源：`GET /api/agents?source=all`、`GET /api/skills`（一次带回 installed+candidates）、`GET /api/mcp`。
  * 对应需求：F-03，去重口径见设计 §3.6，徽标渲染规则见 §7.9。
  *
  * ## 为什么要有这一层（D3）
@@ -14,9 +14,8 @@
  *   - 三源 `Promise.allSettled` 并行 → 单源失败不影响其余两个出数。
  */
 import { computed, ref, type ComputedRef, type Ref } from 'vue';
-import { getAgents, getSkills, getMcpList, http } from '../api/client';
+import { getAgents, getSkills, getMcpList } from '../api/client';
 import type { CountPair, SidebarCounts } from '../types/chat';
-import type { SkillAsset } from '../types/asset';
 
 /** 空数对（未就绪时的初值；`total===0` → 徽标不渲染，§7.9）。 */
 function emptyPair(): CountPair {
@@ -57,23 +56,21 @@ async function fetchExperts(): Promise<CountPair> {
   };
 }
 
-/** 技能计数：唯一键 = `name`。候选源失败时降级为「只算已装」。 */
+/**
+ * 技能计数：唯一键 = `name`。
+ *
+ * ST-02：`GET /api/skills` **一次**就带回 installed + candidates，
+ * 原先额外那发带候选过滤 query 的请求是幽灵参数（服务端从未消费），
+ * 等于把同一个响应重复拉一遍，已删除。
+ */
 async function fetchSkills(): Promise<CountPair> {
-  const installedList = await getSkills();
-  let candidateList: SkillAsset[] = [];
-  try {
-    const res = await http<{ candidates: SkillAsset[] }>('/api/skills?source=candidates');
-    candidateList = res.candidates ?? [];
-  } catch {
-    // 候选池是增强信息，拿不到不应让整个徽标失败（与 useSkillList 的容错策略一致）
-    candidateList = [];
-  }
+  const { installed, candidates } = await getSkills();
   return {
-    installed: dedupeCount(installedList, (s) => s.name),
+    installed: dedupeCount(installed, (s) => s.name),
     total: dedupeCount(
       [
-        ...installedList.map((s) => ({ name: s.name })),
-        ...candidateList.map((c) => ({ name: c.name })),
+        ...installed.map((s) => ({ name: s.name })),
+        ...candidates.map((c) => ({ name: c.name })),
       ],
       (s) => s.name
     ),
@@ -158,7 +155,7 @@ export function useSidebarCounts(): UseSidebarCountsReturn {
    * 「至多一次」拉取：已完成过就直接返回，不再打请求。
    *
    * ⚠️ 缺陷 #2 修复：原实现两个分支都是 `return refresh()`，等价于 `ensureLoaded = refresh`，
-   * 左栏每次重新挂载都会重打 4 个请求（agents + skills + skills?source=candidates + mcp），
+   * 左栏每次重新挂载都会重打 3 个请求（agents + skills + mcp），
    * 恰好抵消了本 composable 存在的意义（规避 F18 的重复请求）。
    */
   async function ensureLoaded(): Promise<void> {

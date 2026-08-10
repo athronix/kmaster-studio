@@ -3,11 +3,11 @@
  * SkillsView — 技能市场（T03 重写）。
  *
  * 轻量 wrapper：组装 skillConfig 并渲染 <MarketLayout :config="skillConfig" />。
- * 数据源：GET /api/skills（已装）+ /api/skills?source=candidates（候选）。
+ * 数据源：**单次** `GET /api/skills`，一次带回 installed + candidates + categories。
  */
 import MarketLayout from '../components/common/MarketLayout.vue';
 import { useMarketList } from '../composables/useMarketList';
-import { getSkills, http } from '../api/client';
+import { getSkills } from '../api/client';
 import type { MarketConfig, ResourceItem } from '../types/market';
 import type { Skill as ChatSkill } from '../types/chat';
 import type { SkillAsset } from '../types/asset';
@@ -35,28 +35,37 @@ function mapCandidateSkill(c: SkillAsset): ResourceItem {
     description: c.description ?? '',
     tags: c.tags ?? [],
     category: c.category ?? '',
-    installed: c.installed,
+    installed: false, // D1：已装项已在上游过滤，剩下的一定未装
     source: c.source,
   };
 }
 
 // ═══════════════════ fetchAll ═══════════════════
 
+/**
+ * ST-01/ST-02：只发**一次** `GET /api/skills`。
+ * D1 口径：候选区过滤掉已装项 + 按 name 去重。
+ */
 async function fetchAllSkill(): Promise<{
   installed: ResourceItem[];
   candidates: ResourceItem[];
 }> {
-  const [skills, candidatesRes] = await Promise.all([
-    getSkills(),
-    http<{ candidates: SkillAsset[] }>('/api/skills?source=candidates').catch(() => ({
-      candidates: [] as SkillAsset[],
-    })),
-  ]);
+  const { installed: rawInstalled, candidates: rawCandidates } = await getSkills();
 
-  const installed: ResourceItem[] = skills.map(mapInstalledSkill);
-  const candidates: ResourceItem[] = (candidatesRes.candidates ?? []).map(mapCandidateSkill);
+  const installedNames = new Set(
+    rawInstalled.map((s) => (s.name ?? '').trim().toLowerCase()).filter(Boolean),
+  );
 
-  return { installed, candidates };
+  const seen = new Set<string>();
+  const candidates: ResourceItem[] = [];
+  for (const c of rawCandidates) {
+    const key = (c.name ?? '').trim().toLowerCase();
+    if (!key || installedNames.has(key) || seen.has(key)) continue;
+    seen.add(key);
+    candidates.push(mapCandidateSkill(c));
+  }
+
+  return { installed: rawInstalled.map(mapInstalledSkill), candidates };
 }
 
 // ═══════════════════ Config ═══════════════════

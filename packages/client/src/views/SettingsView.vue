@@ -35,7 +35,6 @@ import {
   getAgents,
   getSkills,
   getMcpList,
-  http,
   postMcp,
   deleteMcp as apiDeleteMcp,
   installSkill as installSkillApi,
@@ -263,21 +262,32 @@ function mapCandidateSkill(c: SkillAsset): ResourceItem {
     description: c.description ?? '',
     tags: c.tags ?? [],
     category: c.category ?? '',
-    installed: c.installed,
+    installed: false, // D1：已装项已在上游过滤，剩下的一定未装
     source: c.source,
   };
 }
 
+/**
+ * ST-01/ST-02：只发**一次** `GET /api/skills`（一次带回 installed + candidates）。
+ * D1 口径：候选区过滤掉已装项 + 按 name 去重。
+ */
 async function fetchAllSkillSettings(): Promise<{ installed: ResourceItem[]; candidates: ResourceItem[] }> {
-  const [skills, candidatesRes] = await Promise.all([
-    getSkills(),
-    http<{ candidates: SkillAsset[] }>('/api/skills?source=candidates').catch(() => ({
-      candidates: [] as SkillAsset[],
-    })),
-  ]);
-  const installed: ResourceItem[] = skills.map(mapInstalledSkill);
-  const candidates: ResourceItem[] = (candidatesRes.candidates ?? []).map(mapCandidateSkill);
-  return { installed, candidates };
+  const { installed: rawInstalled, candidates: rawCandidates } = await getSkills();
+
+  const installedNames = new Set(
+    rawInstalled.map((s) => (s.name ?? '').trim().toLowerCase()).filter(Boolean),
+  );
+
+  const seen = new Set<string>();
+  const candidates: ResourceItem[] = [];
+  for (const c of rawCandidates) {
+    const key = (c.name ?? '').trim().toLowerCase();
+    if (!key || installedNames.has(key) || seen.has(key)) continue;
+    seen.add(key);
+    candidates.push(mapCandidateSkill(c));
+  }
+
+  return { installed: rawInstalled.map(mapInstalledSkill), candidates };
 }
 
 const skillSettingsConfig: MarketConfig = {
