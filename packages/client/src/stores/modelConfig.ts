@@ -341,8 +341,21 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     busy.value = true;
     try {
       const run = async (): Promise<ConnectivityResult> => {
+        // 用户手动配了 key → 走 putProvider 流程
         if (provider.apiKey !== '') {
           await putProvider(provider.providerKey, provider.apiKey);
+        } else if (provider.keyMasked) {
+          // config.yaml 来源的 provider 已通过 env var 配置了 key，直接验证
+          const res = await getModels();
+          const group = res.providers.find((g) => g.provider === provider.providerKey);
+          if (res.usage) { modelUsage.value = res.usage; }
+          const result = {
+            ok: true,
+            durationMs: Date.now() - started,
+            modelCount: group ? group.models.length : 0,
+          };
+          markTested(providerId, result.ok);
+          return result;
         }
         const list = await getProviders();
         const info = list.providers.find((p) => p.slug === provider.providerKey);
@@ -351,10 +364,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
         }
         const res = await getModels();
         const group = res.providers.find((g) => g.provider === provider.providerKey);
-        // T08：同步用量
-        if (res.usage) {
-          modelUsage.value = res.usage;
-        }
+        if (res.usage) { modelUsage.value = res.usage; }
         return {
           ok: true,
           durationMs: Date.now() - started,
