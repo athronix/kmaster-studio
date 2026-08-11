@@ -76,7 +76,7 @@ const skillConfig: MarketConfig = {
   primaryTabs: [
     { key: 'skill', label: '技能', count: 0 },
   ],
-  useList: () => useMarketList(fetchAllSkill),
+  useList: (o) => useMarketList(fetchAllSkill, o),
   showFeatured: true,
   settingsMode: false,
 };

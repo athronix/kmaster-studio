@@ -8,7 +8,7 @@
  * 所有面板现从真实 /api/* 端点获取数据。
  */
 
-import type { Ref } from 'vue';
+import type { ComputedRef, Ref } from 'vue';
 
 // ═══════════════════ 基础类型 ═══════════════════
 
@@ -180,13 +180,31 @@ export interface ResourceItem {
   source: string;
 }
 
-/** 市场配置 —— 由 ExpertsView / SkillsView / McpView 各自提供。 */
+/**
+ * `useMarketList` 的行为选项。
+ *
+ * 由 `MarketLayout` 从 `props.config.showFeatured`（单一真源）下发，
+ * 经 `MarketConfig.useList(opts)` 透传给 `useMarketList`。
+ */
+export interface MarketListOptions {
+  /**
+   * 是否启用「精选推荐」模块。
+   *
+   * 它同时控制两件事（必须同生同灭）：
+   *   ① 精选模块是否有数据（进而是否显示）；
+   *   ② 资源市场是否剔除已进精选的项（dedup）。
+   * `false` 时资源市场返回完整候选集，不会「凭空少卡」。
+   */
+  showFeatured: boolean;
+}
+
+/** 市场配置 —— 由 ExpertsView / SkillsView / McpView / SettingsView 各自提供。 */
 export interface MarketConfig {
   title: string;
   entityType: 'expert' | 'skill' | 'mcp';
   primaryTabs: Array<{ key: string; label: string; count: number }>;
   /** 数据源 composable，返回当前市场的列表状态。 */
-  useList: () => MarketListState;
+  useList: (opts: MarketListOptions) => MarketListState;
   showFeatured: boolean;
   settingsMode: boolean;
 }
@@ -194,22 +212,43 @@ export interface MarketConfig {
 /**
  * 市场列表的完整状态与方法 —— useMarketList 的返回类型。
  *
- * 数据字段均为 Vue Ref（在 \<template\> 中自动解包），
+ * 数据字段均为 Vue Ref / ComputedRef（在 \<template\> 中自动解包），
  * 方法字段为普通函数引用。
+ *
+ * 分页命名约定：
+ *   - 资源市场沿用历史名 `currentPage` / `totalPages` / `goToPage`；
+ *   - 精选推荐用 `featured*` 前缀，已安装用 `installed*` 前缀；
+ *   - 三组页码完全独立，切换其一不影响其余两个模块。
  */
 export interface MarketListState {
   state: Ref<{ loading: boolean; error: string }>;
-  installedItems: Ref<ResourceItem[]>;
-  candidateItems: Ref<ResourceItem[]>;
-  featuredItems: Ref<ResourceItem[]>;
-  categories: Ref<string[]>;
+  /** 已安装 —— 当前页切片 */
+  installedItems: ComputedRef<ResourceItem[]>;
+  /** 资源市场 —— 当前页切片（含条件 dedup） */
+  candidateItems: ComputedRef<ResourceItem[]>;
+  /** 精选推荐 —— 当前页切片；精选未生效时为空数组 */
+  featuredItems: ComputedRef<ResourceItem[]>;
+  categories: ComputedRef<string[]>;
   selectedCategory: Ref<string>;
   searchQuery: Ref<string>;
   sortOrder: Ref<SortOrder>;
+  /** 已安装总数（供数量徽标使用，非当前页长度） */
+  installedCount: ComputedRef<number>;
+  /** 精选推荐当前页码 */
+  featuredPage: Ref<number>;
+  featuredTotalPages: ComputedRef<number>;
+  /** 已安装当前页码 */
+  installedPage: Ref<number>;
+  installedTotalPages: ComputedRef<number>;
+  /** 资源市场当前页码 */
   currentPage: Ref<number>;
-  totalPages: Ref<number>;
+  totalPages: ComputedRef<number>;
   filterByCategory: (cat: string) => void;
   search: (q: string) => void;
   setSort: (s: SortOrder) => void;
+  goToFeaturedPage: (p: number) => void;
+  goToInstalledPage: (p: number) => void;
   goToPage: (p: number) => void;
+  /** 在**全量原始数据**中按 id 查找，避免跨页误查 */
+  findById: (id: string) => ResourceItem | undefined;
 }

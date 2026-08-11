@@ -69,7 +69,7 @@ const expertConfig: MarketConfig = {
     { key: 'expert', label: '专家', count: 0 },
     { key: 'team', label: '专家团', count: 0 },
   ],
-  useList: () => useMarketList(fetchAllExpert),
+  useList: (o) => useMarketList(fetchAllExpert, o),
   showFeatured: true,
   settingsMode: false,
 };

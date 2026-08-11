@@ -60,7 +60,8 @@ const mcpConfig: MarketConfig = {
   primaryTabs: [
     { key: 'mcp', label: 'MCP', count: 0 },
   ],
-  useList: () => useMarketList(fetchAllMcp),
+  // 非设置页的 MCP 市场页维持无精选（showFeatured=false ⇒ 不 dedup，候选总数不变）
+  useList: (o) => useMarketList(fetchAllMcp, o),
   showFeatured: false,
   settingsMode: false,
 };

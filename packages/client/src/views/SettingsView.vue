@@ -262,8 +262,8 @@ const expertSettingsConfig: MarketConfig = {
     { key: 'expert', label: '专家', count: 0 },
     { key: 'team', label: '专家团', count: 0 },
   ],
-  useList: () => useMarketList(fetchAllExpertSettings),
-  showFeatured: false,
+  useList: (o) => useMarketList(fetchAllExpertSettings, o),
+  showFeatured: true,
   settingsMode: true,
 };
 
@@ -323,8 +323,8 @@ const skillSettingsConfig: MarketConfig = {
   primaryTabs: [
     { key: 'skill', label: '技能', count: 0 },
   ],
-  useList: () => useMarketList(fetchAllSkillSettings),
-  showFeatured: false,
+  useList: (o) => useMarketList(fetchAllSkillSettings, o),
+  showFeatured: true,
   settingsMode: true,
 };
 
@@ -368,8 +368,8 @@ const mcpSettingsConfig: MarketConfig = {
   primaryTabs: [
     { key: 'mcp', label: 'MCP', count: 0 },
   ],
-  useList: () => useMarketList(fetchAllMcpSettings),
-  showFeatured: false,
+  useList: (o) => useMarketList(fetchAllMcpSettings, o),
+  showFeatured: true,
   settingsMode: true,
 };
 

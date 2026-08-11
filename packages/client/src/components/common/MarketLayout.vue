@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * MarketLayout — 统一市场布局组件（T02 修改）。
+ * MarketLayout — 统一市场布局组件。
  *
- * 接受 MarketConfig，内部调用 config.useList() 获取 MarketListState，
+ * 接受 MarketConfig，内部调用 config.useList(opts) 获取 MarketListState，
  * 渲染精选推荐 / 已安装 / 资源市场三大区域。
  *
  * T02 改动：
@@ -10,14 +10,21 @@
  *   ② 分类标签显示数量
  *   ③ CSS Grid 替代 flex-wrap
  *   ④ handleCardClick emit card-click
+ *
+ * T3（三模块卡片布局）改动：
+ *   ⑤ 列数不再按 window.innerWidth 断点，改由 useMarketLayout() 读系统设置
+ *     （localStorage['km_grid_cols']），并随 market-layout-changed 事件即时重排
+ *   ⑥ `--km-grid-cols` 从全局 documentElement 改为 .ml-root 局部 :style 注入
+ *   ⑦ 精选推荐 / 已安装由 NScrollbar 横向滚动改为 CSS Grid + 独立 NPagination
+ *   ⑧ 已安装徽标显示总数（installedCount）而非当前页长度
+ *   ⑨ findItem 改用 marketState.findById（在全量数据中查，避免跨页误查）
  */
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed } from 'vue';
 import KIcon from './KIcon.vue';
 import {
   NInput,
   NButton,
   NTag,
-  NScrollbar,
   NPopover,
   NPagination,
   NText,
@@ -27,8 +34,10 @@ import {
 import ResourceCard from './ResourceCard.vue';
 import SkeletonCard from './SkeletonCard.vue';
 import { useInstall } from '../../composables/useInstall';
+import { useMarketLayout } from '../../composables/useMarketLayout';
 import { postMcp, deleteMcp as apiDeleteMcp } from '../../api/client';
 import type { MarketConfig, ResourceItem, SortOrder } from '../../types/market';
+import type { CssVars } from '../../types/settings';
 
 // ═══════════════════ Props & Emits ═══════════════════
 
@@ -44,7 +53,8 @@ const message = useMessage();
 
 // ═══════════════════ 数据源 ═══════════════════
 
-const marketState = props.config.useList();
+// showFeatured 以 config 为单一真源下发，同时驱动「精选是否显示」与「市场是否 dedup」
+const marketState = props.config.useList({ showFeatured: props.config.showFeatured });
 const { install, uninstall, summon, isInstalling } = useInstall(props.config.entityType);
 
 // ═══════════════════ 图标 fallback ═══════════════════
@@ -81,29 +91,17 @@ function onSortSelect(key: string): void {
   marketState.setSort(key as SortOrder);
 }
 
-// ═══════════════════ CSS Grid 列数 ═══════════════════
+// ═══════════════════ CSS Grid 列数（系统设置驱动）═══════════════════
 
-function getGridCols(): number {
-  const width = window.innerWidth;
-  if (width >= 1600) return 5;
-  if (width >= 1200) return 4;
-  if (width >= 900) return 3;
-  if (width >= 600) return 2;
-  return 1;
-}
+const { gridCols } = useMarketLayout();
 
-function updateGridCols(): void {
-  document.documentElement.style.setProperty('--km-grid-cols', String(getGridCols()));
-}
+/** 局部注入 --km-grid-cols，作用域内所有 .ml-card-grid / .km-skel-grid 继承。 */
+const rootStyle = computed<CssVars>(() => ({
+  '--km-grid-cols': String(gridCols.value),
+}));
 
-onMounted(() => {
-  updateGridCols();
-  window.addEventListener('resize', updateGridCols);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', updateGridCols);
-});
+/** 骨架屏卡片数量：与真实列数一致，加载态不跳变。 */
+const skeletonCount = computed(() => gridCols.value * 2);
 
 // ═══════════════════ 领域分类溢出 ═══════════════════
 
@@ -186,11 +184,7 @@ function handleCardClick(item: ResourceItem): void {
 }
 
 function findItem(id: string): ResourceItem | undefined {
-  return (
-    marketState.installedItems.value.find((i) => i.id === id) ||
-    marketState.candidateItems.value.find((i) => i.id === id) ||
-    marketState.featuredItems.value.find((i) => i.id === id)
-  );
+  return marketState.findById(id);
 }
 
 // ═══════════════════ 搜索 ═══════════════════
@@ -201,7 +195,7 @@ function onSearchInput(value: string): void {
 </script>
 
 <template>
-  <div class="ml-root">
+  <div class="ml-root" :style="rootStyle">
     <!-- 搜索框 -->
     <div class="ml-toolbar">
       <NInput
@@ -218,7 +212,7 @@ function onSearchInput(value: string): void {
     <!-- 加载状态：骨架屏 -->
     <div v-if="marketState.state.value.loading" class="ml-body">
       <div class="km-skel-grid">
-        <SkeletonCard v-for="n in 6" :key="n" />
+        <SkeletonCard v-for="n in skeletonCount" :key="n" />
       </div>
     </div>
 
@@ -236,47 +230,59 @@ function onSearchInput(value: string): void {
           class="ml-section"
         >
           <h3 class="ml-section-title"><KIcon name="Sparkles" :size="16" /> 精选推荐</h3>
-          <NScrollbar x-scrollable trigger="none">
-            <div class="ml-hscroll-row">
-              <ResourceCard
-                v-for="item in marketState.featuredItems.value"
-                :key="`feat-${item.id}`"
-                :item="item"
-                :fallback-icon="fallbackIcon"
-                :action-label="primaryActionLabel"
-                @install="handleInstall"
-                @uninstall="handleUninstall"
-                @summon="handleSummon"
-                @click="handleCardClick"
-              />
-            </div>
-          </NScrollbar>
+          <div class="ml-card-grid">
+            <ResourceCard
+              v-for="item in marketState.featuredItems.value"
+              :key="`feat-${item.id}`"
+              :item="item"
+              :fallback-icon="fallbackIcon"
+              :action-label="primaryActionLabel"
+              @install="handleInstall"
+              @uninstall="handleUninstall"
+              @summon="handleSummon"
+              @click="handleCardClick"
+            />
+          </div>
+          <div v-if="marketState.featuredTotalPages.value > 1" class="ml-pagination">
+            <NPagination
+              :page="marketState.featuredPage.value"
+              :page-count="marketState.featuredTotalPages.value"
+              size="small"
+              @update:page="marketState.goToFeaturedPage"
+            />
+          </div>
         </section>
 
         <!-- 2. 已安装 -->
         <section
-          v-if="marketState.installedItems.value.length"
+          v-if="marketState.installedCount.value"
           class="ml-section"
         >
           <h3 class="ml-section-title">
             已安装
-            <span class="ml-count">{{ marketState.installedItems.value.length }}</span>
+            <span class="ml-count">{{ marketState.installedCount.value }}</span>
           </h3>
-          <NScrollbar x-scrollable trigger="none">
-            <div class="ml-hscroll-row">
-              <ResourceCard
-                v-for="item in marketState.installedItems.value"
-                :key="`inst-${item.id}`"
-                :item="item"
-                :fallback-icon="fallbackIcon"
-                :action-label="primaryActionLabel"
-                @install="handleInstall"
-                @uninstall="handleUninstall"
-                @summon="handleSummon"
-                @click="handleCardClick"
-              />
-            </div>
-          </NScrollbar>
+          <div class="ml-card-grid">
+            <ResourceCard
+              v-for="item in marketState.installedItems.value"
+              :key="`inst-${item.id}`"
+              :item="item"
+              :fallback-icon="fallbackIcon"
+              :action-label="primaryActionLabel"
+              @install="handleInstall"
+              @uninstall="handleUninstall"
+              @summon="handleSummon"
+              @click="handleCardClick"
+            />
+          </div>
+          <div v-if="marketState.installedTotalPages.value > 1" class="ml-pagination">
+            <NPagination
+              :page="marketState.installedPage.value"
+              :page-count="marketState.installedTotalPages.value"
+              size="small"
+              @update:page="marketState.goToInstalledPage"
+            />
+          </div>
         </section>
 
         <!-- 3. 资源市场 -->
@@ -453,13 +459,6 @@ function onSearchInput(value: string): void {
   font-size: var(--km-font-xs);
   font-weight: 600;
   opacity: 0.8;
-}
-
-/* 横向滚动行 */
-.ml-hscroll-row {
-  display: flex;
-  gap: var(--km-space-md);
-  padding-bottom: var(--km-space-xs);
 }
 
 /* T02：分类标签 + 排序合并一行 */
