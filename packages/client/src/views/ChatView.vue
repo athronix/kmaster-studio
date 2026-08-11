@@ -24,13 +24,17 @@ import ChatRightPanel from '../components/chat/RightPanel.vue';
 import type { ChatRightPanelMode } from '../components/chat/RightPanel.vue';
 import ShareDialog from '../components/chat/ShareDialog.vue';
 import { keyboardActions } from '../composables/useKeyboard';
+import { useWorkspacePicker } from '../composables/useWorkspacePicker';
 import KIcon from '../components/common/KIcon.vue';
+import DirPickerModal from '../components/common/DirPickerModal.vue';
 import EmptyState from '../components/common/EmptyState.vue';
 import SkeletonList from '../components/common/SkeletonList.vue';
+import { isDesktop } from '../utils/desktop-bridge';
 
 const store = useChatStore();
 const layout = useLayoutStore();
 const router = useRouter();
+const { show: wsShow, initialPath: wsInitialPath, open: wsOpen, resolve: wsResolve, cancel: wsCancel } = useWorkspacePicker();
 
 const sid = computed(() => store.activeSessionId);
 const running = computed(() => !!sid.value && store.runState[sid.value] === 'running');
@@ -264,14 +268,20 @@ const sendMode = ref<'interrupt' | 'steer' | 'queue'>('queue');
 /**
  * CH-C：切换会话工作目录。
  *
- * 传 `null` 让 store 自己弹选择器（Electron 走原生对话框，web 走 prompt 兜底；
- * 用户取消时 store 内部静默 return）。改完 store 会乐观更新 `sessions`，
- * 会话列表分组随即重新归组，无需刷新页面。
+ * 桌面端（Electron）走原生文件夹对话框（store 内部 `setWorkspace(sid, null)` 调 pickFolder）；
+ * Web 端用 `DirPickerModal` 选目录，再把路径传给 store。改完 store 会乐观更新
+ * `sessions`，会话列表分组随即重新归组，无需刷新页面。
  */
 async function onChangeWorkspace(): Promise<void> {
   if (!sid.value) return;
   try {
-    await store.setWorkspace(sid.value, null);
+    if (isDesktop()) {
+      await store.setWorkspace(sid.value, null);
+    } else {
+      const current = store.sessions.find((x) => x.id === sid.value)?.workspace ?? '';
+      const picked = await wsOpen(current || undefined);
+      if (picked !== null) await store.setWorkspace(sid.value, picked);
+    }
   } catch (e) {
     // 🚫 不吞异常：走 ChatView 既有的顶部 NAlert 错误条给可见反馈
     setLoadError('工作区设置失败', e, '设置工作区失败，请检查服务端连接');
@@ -570,6 +580,14 @@ watch(
 
     <!-- 分享弹窗 -->
     <ShareDialog v-model:show="shareOpen" @open-share-panel="showSharePanel" />
+
+    <!-- Web 端工作目录选择器 -->
+    <DirPickerModal
+      :show="wsShow"
+      :initial-path="wsInitialPath"
+      @select="wsResolve"
+      @close="wsCancel"
+    />
   </div>
 </template>
 

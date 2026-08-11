@@ -21,9 +21,11 @@ import {
   NSpace,
 } from 'naive-ui';
 import KIcon from '../common/KIcon.vue';
+import DirPickerModal from '../common/DirPickerModal.vue';
 import { useChatStore } from '../../stores/chat';
 import { useAgentRolesStore } from '../../stores/agentRoles';
 import { useModelConfigStore } from '../../stores/modelConfig';
+import { useWorkspacePicker } from '../../composables/useWorkspacePicker';
 import type { NewTaskConfig, SecurityMode } from '../../types/newTask';
 import {
   SECURITY_MODE_OPTIONS,
@@ -45,6 +47,13 @@ const emit = defineEmits<{
 const store = useChatStore();
 const roles = useAgentRolesStore();
 const modelConfig = useModelConfigStore();
+const { show: wsShow, initialPath: wsInitialPath, open: wsOpen, resolve: wsResolve, cancel: wsCancel } = useWorkspacePicker();
+
+/** 选择工作目录：桌面端系统选择器 / Web 端目录树选择器，选中后回填表单。 */
+async function onPickWorkspace(): Promise<void> {
+  const picked = await wsOpen(form.workspace || undefined);
+  if (picked !== null) form.workspace = picked;
+}
 
 // ── 表单 ──
 const form = reactive<NewTaskConfig>(defaultNewTaskConfig());
@@ -309,10 +318,11 @@ function onCancel(): void {
       <!-- ⑦ Workspace -->
       <div class="ntd-field">
         <label class="ntd-label">Workspace</label>
-        <n-input
-          v-model:value="form.workspace"
-          placeholder="工作目录路径"
-        />
+        <div class="ntd-dir-row">
+          <code class="ntd-dir-text">{{ form.workspace || '未选择工作目录' }}</code>
+          <n-button size="small" tertiary @click="onPickWorkspace">选择目录…</n-button>
+        </div>
+        <span class="ntd-hint">桌面端调用系统选择器，Web 端用目录树选择，不支持手动粘贴路径。</span>
       </div>
     </div>
 
@@ -329,6 +339,13 @@ function onCancel(): void {
         </n-button>
       </n-space>
     </template>
+
+    <DirPickerModal
+      :show="wsShow"
+      :initial-path="wsInitialPath"
+      @select="wsResolve"
+      @close="wsCancel"
+    />
   </n-modal>
 </template>
 
@@ -371,5 +388,31 @@ function onCancel(): void {
 .ntd-dynamic-select {
   flex: 1;
   min-width: 0;
+}
+
+.ntd-dir-row {
+  display: flex;
+  align-items: center;
+  gap: var(--km-space-sm);
+}
+
+.ntd-dir-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: var(--km-space-6) var(--km-space-8);
+  background: var(--km-bg);
+  border: 1px solid var(--km-border);
+  border-radius: var(--km-radius-sm);
+  font-size: var(--km-font-sm);
+  opacity: 0.85;
+}
+
+.ntd-hint {
+  font-size: var(--km-font-xs);
+  opacity: 0.55;
+  line-height: 1.6;
 }
 </style>

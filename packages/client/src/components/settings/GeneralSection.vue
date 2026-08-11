@@ -189,10 +189,7 @@ const dirPickerShow = ref(false);
 async function onPickWorkspace(): Promise<void> {
   if (hasFileSystemBridge()) {
     const picked = await pickFolder();
-    if (picked === null) {
-      message.warning('请在输入框中直接填写绝对路径');
-      return;
-    }
+    if (picked === null) return; // 用户取消
     terminalCwd.value = picked;
     await saveCwd();
   } else {
@@ -203,6 +200,12 @@ async function onPickWorkspace(): Promise<void> {
 function onDirSelected(path: string): void {
   dirPickerShow.value = false;
   terminalCwd.value = path;
+  void saveCwd();
+}
+
+/** 清除默认工作目录（留空语义），并落盘。 */
+function onClearCwd(): void {
+  terminalCwd.value = '';
   void saveCwd();
 }
 
@@ -315,15 +318,16 @@ function onLogDetail(entry: LogEntry): void {
       <div class="sec-row">
         <div class="sec-label">默认工作目录</div>
         <div class="sec-control sec-inline">
-          <n-input
-            v-model:value="terminalCwd"
-            :placeholder="t('settings.cwdPlaceholder')"
-            clearable
-          />
+          <code class="sec-cwd">{{ terminalCwd.trim() || '留空，由后端探测用户主目录' }}</code>
           <n-button
             tertiary
             @click="onPickWorkspace"
           >选择目录…</n-button>
+          <n-button
+            quaternary
+            :disabled="terminalCwd.trim() === ''"
+            @click="onClearCwd"
+          >清除</n-button>
           <n-button
             type="primary"
             :loading="savingCwd"
@@ -332,8 +336,8 @@ function onLogDetail(entry: LogEntry): void {
           >{{ t('settings.save') }}</n-button>
         </div>
         <div class="sec-hint">
-          新建会话与内置终端的默认落点。桌面端可点「选择目录…」调用系统选择器，
-          Web 端直接填写绝对路径即可；留空则交由后端探测用户主目录。
+          新建会话与内置终端的默认落点。桌面端调用系统选择器，Web 端用目录树选择，
+          不支持手动粘贴路径；留空则交由后端探测用户主目录。
         </div>
       </div>
 
@@ -365,5 +369,6 @@ function onLogDetail(entry: LogEntry): void {
 .sec-label { font-size: var(--km-font-sm); font-weight: 600; }
 .sec-control { max-width: 520px; }
 .sec-inline { display: flex; gap: var(--km-space-sm); align-items: center; max-width: 640px; }
+.sec-cwd { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: var(--km-space-6) var(--km-space-8); background: var(--km-bg); border: 1px solid var(--km-border); border-radius: var(--km-radius-sm); font-size: var(--km-font-sm); opacity: 0.85; }
 .sec-hint { font-size: var(--km-font-xs); opacity: 0.55; line-height: 1.7; }
 </style>

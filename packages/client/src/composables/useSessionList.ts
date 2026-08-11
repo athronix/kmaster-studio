@@ -325,13 +325,9 @@ export function useSessionList() {
       case 'export':
         doExport(session);
         break;
-      case 'bind-workspace':
-        // 真实闭环：Electron 走原生文件夹选择器，Web 走 prompt，结果写回会话列表（§7.5 空态约定：不出现占位文案）
-        store
-          .setWorkspace(session.id, null)
-          .then(() => toast.success('工作区已更新'))
-          .catch((e: unknown) => toast.error(String((e as { message?: string })?.message ?? e)));
-        break;
+      // 'bind-workspace' 不再在此处处理：工作区需要目录选择器（桌面端原生 /
+      // Web 端 DirPickerModal），由触发组件（LeftSidebar）在模板层接 picker 完成，
+      // 避免在 composable 内使用 prompt 手输。
     }
   }
 

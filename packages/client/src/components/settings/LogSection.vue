@@ -28,7 +28,8 @@ import {
   type LogLevel,
   type TimeRange,
 } from '../../constants/layout';
-import { hasFileSystemBridge, pickFolder } from '../../utils/desktop-bridge';
+import { useWorkspacePicker } from '../../composables/useWorkspacePicker';
+import DirPickerModal from '../common/DirPickerModal.vue';
 import type { LogEntry } from '../../types/settings';
 
 const props = withDefaults(
@@ -52,9 +53,6 @@ const toast = useMessage();
 const keyword = ref<string>('');
 let timer: ReturnType<typeof setTimeout> | null = null;
 
-/** 目录输入框（Web 端无 pickFolder 时的文本兜底） */
-const dirInput = ref<string>('');
-
 const kindOptions = computed(() => [
   { label: '全部种类', value: 'all' as const },
   ...LOG_KIND_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
@@ -69,10 +67,11 @@ const timeOptions = computed(() => TIME_RANGE_OPTIONS.map((o) => ({ label: o.lab
 
 const listStyle = computed(() => ({ maxHeight: `${props.maxHeight}px` }));
 
+const { show: wsShow, initialPath: wsInitialPath, open: wsOpen, resolve: wsResolve, cancel: wsCancel } = useWorkspacePicker();
+
 onMounted(() => {
   logs.hydrate();
   keyword.value = logs.filter.q;
-  dirInput.value = logs.logDir;
   void logs.load();
 });
 
@@ -110,25 +109,11 @@ async function onRefresh(): Promise<void> {
   toast.success(logs.isMock ? '当前为演示数据（本环境不支持读取本地日志）' : `已刷新，共 ${logs.entries.length} 条`);
 }
 
-/** 选择日志目录：桌面端弹原生选择器，Web 端提示用输入框 */
+/** 选择日志目录：桌面端系统选择器 / Web 端目录树选择器，选中后写入 store。 */
 async function onPickDir(): Promise<void> {
-  const picked = await pickFolder();
-  if (picked === null) {
-    toast.warning('当前环境不支持目录选择，请在输入框中直接填写路径');
-    return;
-  }
-  dirInput.value = picked;
+  const picked = await wsOpen(logs.logDir || undefined);
+  if (picked === null) return; // 用户取消
   await logs.setLogDir(picked);
-  toast.success('日志目录已更新');
-}
-
-async function onApplyDir(): Promise<void> {
-  const next = dirInput.value.trim();
-  if (next === '') {
-    toast.warning('请先填写日志目录');
-    return;
-  }
-  await logs.setLogDir(next);
   toast.success('日志目录已更新');
 }
 
@@ -165,14 +150,8 @@ function kindLabel(kind: LogKind): string {
 
     <!-- 目录设置 -->
     <div class="lgs-dir">
-      <n-input
-        v-model:value="dirInput"
-        size="small"
-        placeholder="日志根目录，例如 ~/.kmaster/logs"
-        clearable
-      />
-      <n-button size="small" @click="onApplyDir">应用</n-button>
-      <n-button v-if="hasFileSystemBridge()" size="small" tertiary @click="onPickDir">选择目录…</n-button>
+      <code class="lgs-dir-text">{{ logs.logDir || '（默认 ~/.kmaster/logs）' }}</code>
+      <n-button size="small" tertiary @click="onPickDir">选择目录…</n-button>
       <n-button size="small" tertiary @click="onOpenDir">打开目录</n-button>
     </div>
 
@@ -260,6 +239,13 @@ function kindLabel(kind: LogKind): string {
         </div>
       </div>
     </n-spin>
+
+    <DirPickerModal
+      :show="wsShow"
+      :initial-path="wsInitialPath"
+      @select="wsResolve"
+      @close="wsCancel"
+    />
   </div>
 </template>
 
@@ -280,6 +266,20 @@ function kindLabel(kind: LogKind): string {
   gap: var(--km-space-sm);
   align-items: center;
   max-width: 720px;
+}
+
+.lgs-dir-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: var(--km-space-4) var(--km-space-8);
+  background: var(--km-bg);
+  border: 1px solid var(--km-border);
+  border-radius: var(--km-radius-sm);
+  font-size: var(--km-font-sm);
+  opacity: 0.85;
 }
 
 .lgs-filters {

@@ -823,10 +823,11 @@ export const useChatStore = defineStore('chat', () => {
    * V3/#19：设置会话级工作目录（终端 cwd 默认值）。
    *
    * @param sid 会话 id
-   * @param path 路径；`null` 表示「未指定」，由调用方按当前模式选取真实值：
+   * @param path 路径；`null` 表示「未指定」：
    *   - Electron 模式 → 调 `bridge.pickFolder()` 让用户选目录；
-   *   - Web 模式 → 弹 prompt 让用户输入路径字符串。
-   *   传字符串则视为「用户已经提供了路径」，直接写入（清空传空串/null）。
+   *   - Web 模式 → 调用方**必须先经 `DirPickerModal` 拿到路径再传字符串过来**，
+   *     直接传 `null` 会被安全忽略（Web 端无原生文件夹对话框，禁止 prompt 手输）。
+   *   传字符串则视为「用户已经提供了路径」，直接写入（清空传空串 → null）。
    *
    * ⚠️ 不会跨页面持久化全局 `Settings.terminal_cwd`——那是全局默认；
    *    本函数只动当前会话列。
@@ -834,10 +835,11 @@ export const useChatStore = defineStore('chat', () => {
   async function setWorkspace(sid: string, path: string | null): Promise<void> {
     let resolved: string | null;
     if (path === null) {
-      // 调用方未提供路径，需要主动询问。Electron 下走原生文件夹选择器，
-      // Web 下用 prompt 兜底（避免「右键无反应」的零反馈体验）。
+      // 调用方未提供路径：
+      //  - Electron 下走原生文件夹选择器；
+      //  - Web 下禁止 prompt，必须由组件层用 DirPickerModal 选好后传字符串。
       const picked = await pickWorkspacePath(sid);
-      if (picked === undefined) return; // 用户取消
+      if (picked === undefined) return; // 桌面端取消 / Web 端未提供路径
       resolved = picked;
     } else {
       resolved = path;
@@ -958,26 +960,19 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   // V3/#19：根据运行环境选取工作区路径。
-  // - Electron：通过 `bridge.pickFolder()` 走原生文件夹对话框，返回路径或 null（取消）。
-  // - Web：用 `prompt` 兜底（浏览器端拿不到原生文件夹对话框）。
-  // 返回 `undefined` 表示用户取消，`string` 表示最终路径（含空串即「清空」）。
+  // - Electron：通过 `bridge.pickFolder()` 走原生文件夹对话框，返回路径或 ''（取消）。
+  // - Web：一律返回 undefined —— 禁止 prompt 手输，调用方必须改用 DirPickerModal 选路径。
+  // 返回 `undefined` 表示「未选取（Web）/ 桌面端取消」，`string` 表示最终路径（含空串即「清空」）。
   async function pickWorkspacePath(_sid: string): Promise<string | undefined> {
-    if (isDesktop()) {
-      try {
-        const path = await pickFolder();
-        // pickFolder 取消时返回 null —— 我们用 undefined 表示「不写入」，
-        // 因此把 null 也视作「清空」并把空串交给调用方归一化。
-        return path ?? '';
-      } catch {
-        return undefined;
-      }
+    if (!isDesktop()) return undefined; // Web 端无原生选择器，禁止 prompt
+    try {
+      const path = await pickFolder();
+      // pickFolder 取消时返回 null —— 用 undefined 表示「不写入」，
+      // 因此把 null 也视作「清空」并把空串交给调用方归一化。
+      return path ?? '';
+    } catch {
+      return undefined;
     }
-    // Web 兜底：浏览器原生 prompt。用户取消返回 null。
-    const answer = typeof prompt === 'function'
-      ? prompt('输入工作区目录的绝对路径（例如 D:\\Users\\you\\projects\\kmaster，留空表示清空）：', '')
-      : '';
-    if (answer === null) return undefined;
-    return answer;
   }
 
   // ───────── M4 action（F17 队列 / F18 上下文）─────────

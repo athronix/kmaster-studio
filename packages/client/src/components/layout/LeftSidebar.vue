@@ -30,18 +30,21 @@ import { useChatStore } from '../../stores/chat';
 import { useJobsStore } from '../../stores/jobs';
 import { useLayoutStore } from '../../stores/layout';
 import { useSessionList } from '../../composables/useSessionList';
+import { useWorkspacePicker } from '../../composables/useWorkspacePicker';
 import { useCollapseState } from '../../composables/useCollapseState';
 import { useSidebarCounts } from '../../composables/useSidebarCounts';
 import { useTheme } from '../../styles/theme';
 import { LS_KEYS, TIME_RANGE_OPTIONS, lsGet, lsSet, type TimeRange } from '../../constants/layout';
 import { SIDEBAR_GROUP, SIDEBAR_COLLAPSE_KEYS } from '../../constants/sidebar';
 import { timeAgo } from '../../utils/time';
+import { isDesktop } from '../../utils/desktop-bridge';
 import { errText } from '../../api/client';
 import { AGENT_STATUS_ICONS, type AgentState } from '../../types/agent';
-import type { CronJob } from '../../types/chat';
+import type { CronJob, Session } from '../../types/chat';
 import type { NewTaskConfig } from '../../types/newTask';
 import NewTaskDialog from '../dialog/NewTaskDialog.vue';
 import SettingsNav from './SettingsNav.vue';
+import DirPickerModal from '../common/DirPickerModal.vue';
 import KIcon from '../common/KIcon.vue';
 
 const router = useRouter();
@@ -52,6 +55,25 @@ const theme = useTheme();
 const message = useMessage();
 
 const sl = useSessionList();
+const { show: wsShow, initialPath: wsInitialPath, open: wsOpen, resolve: wsResolve, cancel: wsCancel } = useWorkspacePicker();
+
+/**
+ * 右键「绑定工作区」：桌面端调系统原生选择器（store.setWorkspace(sid, null) 走 pickFolder），
+ * Web 端用 DirPickerModal 选目录后写回会话；全仓不再使用 prompt 手输。
+ */
+async function onBindWorkspace(session: Session): Promise<void> {
+  try {
+    if (isDesktop()) {
+      await store.setWorkspace(session.id, null);
+    } else {
+      const picked = await wsOpen(session.workspace ?? undefined);
+      if (picked !== null) await store.setWorkspace(session.id, picked);
+    }
+    message.success('工作区已更新');
+  } catch (e: unknown) {
+    message.error(String((e as { message?: string })?.message ?? e));
+  }
+}
 
 const { experts, skills, mcp, ensureLoaded } = useSidebarCounts();
 
@@ -682,7 +704,7 @@ watch(
         <button class="km-cm-item" @click="sl.onMenuAction('export', sl.contextMenu.value!.session)">
           <KIcon name="Download" :size="14" /> 导出 Markdown
         </button>
-        <button class="km-cm-item" @click="sl.onMenuAction('bind-workspace', sl.contextMenu.value!.session)">
+        <button class="km-cm-item" @click="onBindWorkspace(sl.contextMenu.value!.session)">
           <KIcon name="Folder" :size="14" /> 绑定工作区
         </button>
         <n-popconfirm @positive-click="sl.remove(sl.contextMenu.value!.session); sl.closeMenu()">
@@ -701,6 +723,14 @@ watch(
       @update:show="(v: boolean) => (showNewTask = v)"
       @confirm="onNewTaskConfirm"
       @cancel="showNewTask = false"
+    />
+
+    <!-- Web 端绑定工作区目录选择器 -->
+    <DirPickerModal
+      :show="wsShow"
+      :initial-path="wsInitialPath"
+      @select="wsResolve"
+      @close="wsCancel"
     />
   </aside>
 </template>

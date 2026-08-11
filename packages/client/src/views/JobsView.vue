@@ -9,8 +9,10 @@ import {
   NButton, NInput, NModal, NSwitch, NTag, NEmpty, NSpin, NPopconfirm, NAlert, useMessage,
 } from 'naive-ui';
 import KIcon from '../components/common/KIcon.vue';
+import DirPickerModal from '../components/common/DirPickerModal.vue';
 import { useJobsStore } from '../stores/jobs';
 import { useChatStore } from '../stores/chat';
+import { useWorkspacePicker } from '../composables/useWorkspacePicker';
 import PageHeader from '../components/layout/PageHeader.vue';
 import type { CronJob, CronRun } from '../types/chat';
 
@@ -27,6 +29,13 @@ const props = withDefaults(
 const store = useJobsStore();
 const chat = useChatStore();
 const message = useMessage();
+const { show: wsShow, initialPath: wsInitialPath, open: wsOpen, resolve: wsResolve, cancel: wsCancel } = useWorkspacePicker();
+
+/** 选择工作目录：桌面端系统选择器 / Web 端目录树选择器，选中后回填表单。 */
+async function onPickWorkdir(): Promise<void> {
+  const picked = await wsOpen(formWorkdir.value || undefined);
+  if (picked !== null) formWorkdir.value = picked;
+}
 
 const showForm = ref(false);
 const saving = ref(false);
@@ -360,7 +369,10 @@ function statusType(status?: string | null): 'success' | 'error' | 'default' {
         <label class="km-label">投递方式（可选）</label>
         <n-input v-model:value="formDeliver" placeholder="如 file / notify（留空用 hermes 默认）" />
         <label class="km-label">工作目录（可选）</label>
-        <n-input v-model:value="formWorkdir" placeholder="任务执行的 cwd" />
+        <div class="km-dir-row">
+          <code class="km-dir-text">{{ formWorkdir || '未设置（使用默认 cwd）' }}</code>
+          <n-button size="small" tertiary @click="onPickWorkdir">选择目录…</n-button>
+        </div>
       </div>
       <template #footer>
         <div class="km-form-foot">
@@ -368,6 +380,13 @@ function statusType(status?: string | null): 'success' | 'error' | 'default' {
           <n-button type="primary" :loading="saving" @click="save">保存</n-button>
         </div>
       </template>
+
+      <DirPickerModal
+        :show="wsShow"
+        :initial-path="wsInitialPath"
+        @select="wsResolve"
+        @close="wsCancel"
+      />
     </n-modal>
   </section>
 </template>
@@ -431,5 +450,7 @@ function statusType(status?: string | null): 'success' | 'error' | 'default' {
 .km-modal { width: 620px; max-width: 92vw; }
 .km-form { display: flex; flex-direction: column; gap: var(--km-space-6); }
 .km-label { font-size: var(--km-font-sm); opacity: 0.65; margin-top: 6px; }
+.km-dir-row { display: flex; align-items: center; gap: var(--km-space-sm); }
+.km-dir-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: var(--km-space-6) var(--km-space-8); background: var(--km-bg); border: 1px solid var(--km-border); border-radius: var(--km-radius-sm); font-size: var(--km-font-sm); opacity: 0.85; }
 .km-form-foot { display: flex; justify-content: flex-end; gap: var(--km-space-sm); }
 </style>
