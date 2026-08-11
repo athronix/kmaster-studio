@@ -41,23 +41,36 @@ const error = ref('');
 const activeIndex = ref<number>(-1);
 
 /** 列表项总数（含 ".."） */
-const itemCount = computed(() => entries.value.length + (pathParts.value.length > 0 ? 1 : 0));
+const itemCount = computed(() => entries.value.length + (hasParentRow.value ? 1 : 0));
 
 /** 将 activeIndex 映射到实际条目索引（跳过 ".." 偏移） */
 function entryIndexFromActive(): number {
-  return pathParts.value.length > 0 ? activeIndex.value - 1 : activeIndex.value;
+  return hasParentRow.value ? activeIndex.value - 1 : activeIndex.value;
+}
+
+/** 拼接子目录路径；先去掉父目录末尾斜杠，避免盘根 `c:/` 拼出 `c://sub`。 */
+function joinPath(dir: string, name: string): string {
+  return dir.replace(/\/+$/, '') + '/' + name;
+}
+
+/** 单击目录行：同步高亮索引（衔接键盘上下键）并进入该目录（REQ 1：单击即进入）。 */
+function onDirClick(idx: number): void {
+  const entry = entries.value[idx];
+  if (!entry) return;
+  activeIndex.value = idx + (hasParentRow.value ? 1 : 0);
+  void navigate(joinPath(currentDir.value, entry.name));
 }
 
 /** Enter 键：进入目录或上级 */
 function onDirKeyEnter(): void {
   if (activeIndex.value < 0) return;
-  if (pathParts.value.length > 0 && activeIndex.value === 0) {
+  if (hasParentRow.value && activeIndex.value === 0) {
     navigateUp();
   } else {
     const idx = entryIndexFromActive();
     const entry = entries.value[idx];
     if (entry) {
-      void navigate(currentDir.value + '/' + entry.name);
+      void navigate(joinPath(currentDir.value, entry.name));
     }
   }
 }
@@ -103,13 +116,14 @@ async function loadRoots(): Promise<string[]> {
 /**
  * 判断给定目录是否仍落在某个白名单根之下。
  * 与服务端 isAllowed 语义对齐（用 '/' 归一，避免 win/posix 分隔符差异）。
+ * 两侧都去掉末尾分隔符，避免盘根 `c:/` + '/' = `c://` 导致子路径匹配失效。
  * 缓存为空（尚未拿到 roots）时放行，交由服务端判 403。
  */
 function isWithinRoots(dir: string): boolean {
   if (cachedRoots.length === 0) return true;
-  const d = dir.replace(/\\/g, '/').toLowerCase();
+  const d = dir.replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
   return cachedRoots.some(r => {
-    const root = r.replace(/\\/g, '/').toLowerCase();
+    const root = r.replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
     return d === root || d.startsWith(root + '/');
   });
 }
@@ -146,32 +160,49 @@ const pathParts = computed(() => {
   return parts;
 });
 
+/** 当前目录是否为 Windows 盘根（`c:` / `c:/`）——盘根之上无上级，需隐藏「..」。 */
+const isDriveRoot = computed(() => /^[A-Z]:\/?$/i.test(currentDir.value));
+
+/** 是否渲染「..」上级行；盘根处不渲染（键盘索引也随之不计入）。 */
+const hasParentRow = computed(() => pathParts.value.length > 0 && !isDriveRoot.value);
+
+/**
+ * 面包屑。
+ * Windows：`pathParts[0]` 形如 `c:`（含冒号），单独作为可点击的顶层盘根面包屑
+ * （path 保留末尾斜杠 `c:/`，因为 `c:` 在 Windows 语义里是「C 盘当前目录」而非盘根）。
+ * POSIX：以 `/` 作为顶层面包屑。
+ */
 const breadcrumbs = computed(() => {
   const parts = pathParts.value;
   const items: Array<{ name: string; path: string }> = [];
-  if (currentDir.value.startsWith('/')) {
+  const hasDrive = parts.length > 0 && /^[A-Z]:$/i.test(parts[0]);
+  let accumulated = '';
+  let startIdx = 0;
+  if (hasDrive) {
+    accumulated = parts[0] + '/';
+    items.push({ name: parts[0], path: accumulated });
+    startIdx = 1;
+  } else if (currentDir.value.startsWith('/')) {
     items.push({ name: '/', path: '/' });
   }
-  let accumulated = currentDir.value.match(/^[A-Z]:/) ? currentDir.value.slice(0, 3) : '';
-  if (!accumulated && items.length === 0 && pathParts.value.length > 0) {
-    // Windows drive letter
-    if (/^[A-Z]$/i.test(parts[0])) {
-      accumulated = parts[0] + ':/';
-      items.push({ name: accumulated, path: accumulated });
-    }
-  }
-  // Remaining parts
-  const startIdx = accumulated ? 1 : 0;
   for (let i = startIdx; i < parts.length; i++) {
-    // Build path
-    if (accumulated) {
-      accumulated = accumulated.replace(/\/$/, '') + '/' + parts[i];
-    } else {
-      accumulated = '/' + parts[i];
-    }
+    accumulated = accumulated === ''
+      ? '/' + parts[i]
+      : accumulated.replace(/\/+$/, '') + '/' + parts[i];
     items.push({ name: parts[i], path: accumulated });
   }
   return items;
+});
+
+/** 取路径末段目录名；盘根等取不到末段时返回空串，由调用方回退完整路径。 */
+function baseName(p: string): string {
+  return p.replace(/[\\/]+$/, '').split(/[\\/]/).pop() || '';
+}
+
+/** 「当前路径」行的展示文本：目录名优先，取不到则回退完整路径（REQ 3a）。 */
+const currentDirLabel = computed(() => {
+  if (currentDir.value === '') return '—';
+  return baseName(currentDir.value) || currentDir.value;
 });
 
 // ── 加载目录 ──
@@ -200,12 +231,22 @@ async function loadDir(dir: string): Promise<void> {
 }
 
 async function navigate(dir: string): Promise<void> {
-  currentDir.value = dir.replace(/\\/g, '/').replace(/\/$/, '');
+  let norm = dir.replace(/\\/g, '/');
+  // 盘根（c: / c:/）与 POSIX 根（/）保留末尾斜杠，便于服务端 isAllowed / readdir 正确解析。
+  if (/^[A-Z]:\/?$/i.test(norm)) norm = norm.replace(/\/?$/, '/');
+  else if (norm === '/') norm = '/';
+  else norm = norm.replace(/\/+$/, '');
+  currentDir.value = norm;
   await loadDir(currentDir.value);
 }
 
 function navigateUp(): void {
-  const parent = currentDir.value.replace(/\\/g, '/').replace(/\/[^/]+$/, '');
+  if (!hasParentRow.value) return; // 盘根 / 顶层目录无上级，避免越出合法根
+  let parent = currentDir.value.replace(/\\/g, '/').replace(/\/[^/]+$/, '');
+  if (parent === '' && currentDir.value.startsWith('/')) {
+    // POSIX：/home → '' 时回退到文件系统根 '/'
+    parent = '/';
+  }
   if (parent && parent !== currentDir.value) {
     // 不能越出合法根：试图跳出白名单根时直接停留，避免 403 空树
     if (!isWithinRoots(parent)) return;
@@ -267,9 +308,9 @@ onMounted(() => {
       <div class="km-dirpicker-list-wrap">
         <NSpin :show="loading" class="km-dirpicker-spin">
           <NScrollbar v-if="!loading || entries.length" class="km-dirpicker-scrollbar">
-            <!-- 上级目录 -->
+            <!-- 上级目录（盘根处隐藏：已无上级） -->
             <div
-              v-if="pathParts.length > 0"
+              v-if="hasParentRow"
               class="km-dirpicker-row km-dirpicker-row-parent"
               :class="{ 'km-dir-item--active': activeIndex === 0 }"
               tabindex="0"
@@ -286,9 +327,10 @@ onMounted(() => {
               v-for="(entry, idx) in entries"
               :key="entry.name"
               class="km-dirpicker-row"
-              :class="{ 'km-dir-item--active': activeIndex === idx + (pathParts.length > 0 ? 1 : 0) }"
+              :class="{ 'km-dir-item--active': activeIndex === idx + (hasParentRow ? 1 : 0) }"
               tabindex="0"
-              @dblclick="navigate(currentDir + '/' + entry.name)"
+              :title="entry.name"
+              @click="onDirClick(idx)"
               @keydown.enter.prevent="onDirKeyEnter"
               @keydown.up.prevent="onDirKeyUp"
               @keydown.down.prevent="onDirKeyDown"
@@ -308,8 +350,8 @@ onMounted(() => {
         </NSpin>
       </div>
 
-      <!-- 当前路径 -->
-      <NText depth="3" class="km-dirpicker-path">{{ currentDir || '—' }}</NText>
+      <!-- 当前路径：显示目录名，悬停显示完整路径（REQ 3a） -->
+      <NText depth="3" class="km-dirpicker-path" :title="currentDir">{{ currentDirLabel }}</NText>
 
       <!-- 操作按钮 -->
       <div class="km-dirpicker-actions">

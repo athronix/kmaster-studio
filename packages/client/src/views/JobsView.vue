@@ -10,6 +10,7 @@ import {
 } from 'naive-ui';
 import KIcon from '../components/common/KIcon.vue';
 import DirPickerModal from '../components/common/DirPickerModal.vue';
+import DirPathDisplay from '../components/common/DirPathDisplay.vue';
 import { useJobsStore } from '../stores/jobs';
 import { useChatStore } from '../stores/chat';
 import { useWorkspacePicker } from '../composables/useWorkspacePicker';
@@ -370,7 +371,7 @@ function statusType(status?: string | null): 'success' | 'error' | 'default' {
         <n-input v-model:value="formDeliver" placeholder="如 file / notify（留空用 hermes 默认）" />
         <label class="km-label">工作目录（可选）</label>
         <div class="km-dir-row">
-          <code class="km-dir-text">{{ formWorkdir || '未设置（使用默认 cwd）' }}</code>
+          <DirPathDisplay :path="formWorkdir" placeholder="未设置（使用默认 cwd）" class="km-dir-text" />
           <n-button size="small" tertiary @click="onPickWorkdir">选择目录…</n-button>
         </div>
       </div>
@@ -451,6 +452,6 @@ function statusType(status?: string | null): 'success' | 'error' | 'default' {
 .km-form { display: flex; flex-direction: column; gap: var(--km-space-6); }
 .km-label { font-size: var(--km-font-sm); opacity: 0.65; margin-top: 6px; }
 .km-dir-row { display: flex; align-items: center; gap: var(--km-space-sm); }
-.km-dir-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: var(--km-space-6) var(--km-space-8); background: var(--km-bg); border: 1px solid var(--km-border); border-radius: var(--km-radius-sm); font-size: var(--km-font-sm); opacity: 0.85; }
+.km-dir-row :deep(.km-dir-text) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: var(--km-space-6) var(--km-space-8); background: var(--km-bg); border: 1px solid var(--km-border); border-radius: var(--km-radius-sm); font-size: var(--km-font-sm); opacity: 0.85; }
 .km-form-foot { display: flex; justify-content: flex-end; gap: var(--km-space-sm); }
 </style>

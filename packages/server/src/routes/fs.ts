@@ -6,7 +6,7 @@
  *
  * GET  /api/fs/read?path=...     — 读取文件内容
  * GET  /api/fs/list?dir=...      — 列出目录
- * GET  /api/fs/stat?path=...     — 文件元信息
+ * GET  /api/fs/stat?path=...      — 文件元信息
  * POST /api/fs/write             — 写入文件 { path, content }
  *
  * @module routes/fs
@@ -20,6 +20,30 @@ export const fsRouter = new Router();
 
 // ── 白名单 ──────────────────────────────────────────────────────────────
 
+/**
+ * 列出本机所有可访问的盘根（仅 win32 有意义）。
+ *
+ * win32：遍历 A–Z，对每个 `letter + ':\\'` 尝试 `fs.readdirSync`，
+ * 跳过不可访问（无介质 / 无权限 / 网络盘未就绪）的盘；返回小写化
+ * `path.resolve` 后的盘根字符串。
+ * 非 win32：返回 `['/']`（单一文件系统根）。
+ */
+function listDriveRoots(): string[] {
+  if (process.platform !== 'win32') return ['/'];
+  const roots: string[] = [];
+  for (let code = 65; code <= 90; code++) {
+    const letter = String.fromCharCode(code);
+    const root = `${letter}:\\`;
+    try {
+      fs.readdirSync(root);
+      roots.push(path.resolve(root).toLowerCase());
+    } catch {
+      // 跳过不可访问的盘（无介质 / 权限不足）
+    }
+  }
+  return roots;
+}
+
 /** 允许访问的目录前缀（安全基础目录）。模块级导出，供 Web 目录选择器获取合法起始根。 */
 export const ALLOWED_ROOTS = (() => {
   const roots: string[] = [];
@@ -29,13 +53,30 @@ export const ALLOWED_ROOTS = (() => {
   // 用户主目录
   const home = process.env.HOME || process.env.USERPROFILE;
   if (home) roots.push(path.resolve(home));
-  return roots.map(r => r.toLowerCase());
+  // 盘根：覆盖 A–Z 所有可访问盘，使用户能上到 C:/D: 盘根（REQ 2）。
+  // hermesHome / home 保持在前，确保 roots[0] 仍是用户主目录（默认起始点不变）。
+  for (const drive of listDriveRoots()) {
+    const normalized = drive.toLowerCase();
+    if (!roots.some((r) => r.toLowerCase() === normalized)) {
+      roots.push(normalized);
+    }
+  }
+  return roots.map((r) => r.toLowerCase());
 })();
 
-/** 校验路径是否在白名单内 */
+/**
+ * 校验路径是否落在白名单内。
+ *
+ * 修复点：先把 root 末尾的分隔符去掉再判，避免盘根本身（如 `c:\`）
+ * 因 `c:\` + path.sep(`\`) = `c:\\` 导致子路径 `c:\foo` 匹配不上、
+ * 从而无法上到盘根的问题。
+ */
 function isAllowed(p: string): boolean {
   const resolved = path.resolve(p).toLowerCase();
-  return ALLOWED_ROOTS.some(root => resolved.startsWith(root + path.sep) || resolved === root);
+  return ALLOWED_ROOTS.some((root) => {
+    const r = root.replace(/[\\/]+$/, '');
+    return resolved === r || resolved.startsWith(r + path.sep);
+  });
 }
 
 // ── 路由 ────────────────────────────────────────────────────────────────

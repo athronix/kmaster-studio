@@ -15,6 +15,7 @@ import { useChatStore } from '../../stores/chat';
 import { useI18n, type LocaleCode } from '../../composables/useI18n';
 import { hasFileSystemBridge, pickFolder } from '../../utils/desktop-bridge';
 import DirPickerModal from '../common/DirPickerModal.vue';
+import DirPathDisplay from '../common/DirPathDisplay.vue';
 import LogSection from './LogSection.vue';
 import LogDetailDialog from '../dialog/LogDetailDialog.vue';
 import type { LogEntry } from '../../types/settings';
@@ -318,7 +319,7 @@ function onLogDetail(entry: LogEntry): void {
       <div class="sec-row">
         <div class="sec-label">默认工作目录</div>
         <div class="sec-control sec-inline">
-          <code class="sec-cwd">{{ terminalCwd.trim() || '留空，由后端探测用户主目录' }}</code>
+          <DirPathDisplay :path="terminalCwd.trim()" placeholder="留空，由后端探测用户主目录" class="sec-cwd" />
           <n-button
             tertiary
             @click="onPickWorkspace"
@@ -369,6 +370,6 @@ function onLogDetail(entry: LogEntry): void {
 .sec-label { font-size: var(--km-font-sm); font-weight: 600; }
 .sec-control { max-width: 520px; }
 .sec-inline { display: flex; gap: var(--km-space-sm); align-items: center; max-width: 640px; }
-.sec-cwd { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: var(--km-space-6) var(--km-space-8); background: var(--km-bg); border: 1px solid var(--km-border); border-radius: var(--km-radius-sm); font-size: var(--km-font-sm); opacity: 0.85; }
+.sec-inline :deep(.sec-cwd) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: var(--km-space-6) var(--km-space-8); background: var(--km-bg); border: 1px solid var(--km-border); border-radius: var(--km-radius-sm); font-size: var(--km-font-sm); opacity: 0.85; }
 .sec-hint { font-size: var(--km-font-xs); opacity: 0.55; line-height: 1.7; }
 </style>

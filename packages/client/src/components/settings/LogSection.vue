@@ -30,6 +30,7 @@ import {
 } from '../../constants/layout';
 import { useWorkspacePicker } from '../../composables/useWorkspacePicker';
 import DirPickerModal from '../common/DirPickerModal.vue';
+import DirPathDisplay from '../common/DirPathDisplay.vue';
 import type { LogEntry } from '../../types/settings';
 
 const props = withDefaults(
@@ -150,7 +151,7 @@ function kindLabel(kind: LogKind): string {
 
     <!-- 目录设置 -->
     <div class="lgs-dir">
-      <code class="lgs-dir-text">{{ logs.logDir || '（默认 ~/.kmaster/logs）' }}</code>
+      <DirPathDisplay :path="logs.logDir" placeholder="（默认 ~/.kmaster/logs）" class="lgs-dir-text" />
       <n-button size="small" tertiary @click="onPickDir">选择目录…</n-button>
       <n-button size="small" tertiary @click="onOpenDir">打开目录</n-button>
     </div>
@@ -268,7 +269,7 @@ function kindLabel(kind: LogKind): string {
   max-width: 720px;
 }
 
-.lgs-dir-text {
+.lgs-dir :deep(.lgs-dir-text) {
   flex: 1;
   min-width: 0;
   overflow: hidden;

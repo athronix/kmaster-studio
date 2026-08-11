@@ -22,6 +22,7 @@ import {
 } from 'naive-ui';
 import KIcon from '../common/KIcon.vue';
 import DirPickerModal from '../common/DirPickerModal.vue';
+import DirPathDisplay from '../common/DirPathDisplay.vue';
 import { useChatStore } from '../../stores/chat';
 import { useAgentRolesStore } from '../../stores/agentRoles';
 import { useModelConfigStore } from '../../stores/modelConfig';
@@ -319,7 +320,7 @@ function onCancel(): void {
       <div class="ntd-field">
         <label class="ntd-label">Workspace</label>
         <div class="ntd-dir-row">
-          <code class="ntd-dir-text">{{ form.workspace || '未选择工作目录' }}</code>
+          <DirPathDisplay :path="form.workspace" placeholder="未选择工作目录" class="ntd-dir-text" />
           <n-button size="small" tertiary @click="onPickWorkspace">选择目录…</n-button>
         </div>
         <span class="ntd-hint">桌面端调用系统选择器，Web 端用目录树选择，不支持手动粘贴路径。</span>
@@ -396,7 +397,7 @@ function onCancel(): void {
   gap: var(--km-space-sm);
 }
 
-.ntd-dir-text {
+.ntd-dir-row :deep(.ntd-dir-text) {
   flex: 1;
   min-width: 0;
   overflow: hidden;
