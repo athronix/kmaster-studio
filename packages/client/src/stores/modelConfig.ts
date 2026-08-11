@@ -307,7 +307,7 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
               id: `${provider.providerKey}:${m.name}`,
               name: m.name,
               alias: '',
-              capabilities: ['text'],
+              capabilities: m.capabilities as ModelCapability[] | undefined,
               contextLength: typeof (m as { context?: number }).context === 'number' ? (m as { context: number }).context : 0,
             },
             provider.providerKey
@@ -471,13 +471,18 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
           // 合并 API 模型列表（保留用户自定义模型）
           const apiIds = new Set(group.models.map((m) => m.id));
           const userDefined = existing.models.filter((m) => !apiIds.has(m.id));
-          const apiModels: ModelConfig[] = group.models.map((m) => ({
-            id: m.id,
-            name: m.name,
-            alias: '',
-            capabilities: ([] as ModelCapability[]),
-            contextLength: m.context || 0,
-          }));
+          const apiModels: ModelConfig[] = group.models.map((m) =>
+            normalizeModel(
+              {
+                id: m.id,
+                name: m.name,
+                alias: '',
+                capabilities: m.capabilities as ModelCapability[] | undefined,
+                contextLength: m.context || 0,
+              },
+              group.provider
+            )
+          );
           existing.models = [...apiModels, ...userDefined];
           merged.push(existing);
         } else {
@@ -492,13 +497,18 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
             apiMethod,
             apiKey: '',
             keyMasked: group.authenticated === true,
-            models: group.models.map((m) => ({
-              id: m.id,
-              name: m.name,
-              alias: '',
-              capabilities: ([] as ModelCapability[]),
-              contextLength: m.context || 0,
-            })),
+            models: group.models.map((m) =>
+              normalizeModel(
+                {
+                  id: m.id,
+                  name: m.name,
+                  alias: '',
+                  capabilities: m.capabilities as ModelCapability[] | undefined,
+                  contextLength: m.context || 0,
+                },
+                group.provider
+              )
+            ),
             verified: group.authenticated === true,
             lastTestedAt: group.authenticated === true ? Date.now() : 0,
           });
