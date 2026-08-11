@@ -82,16 +82,63 @@ function focusActiveItem(): void {
   });
 }
 
-// 起始路径：props.initialPath → C 盘根 → 用户主目录
-const defaultStart = (() => {
-  if (props.initialPath) return props.initialPath.replace(/\\/g, '/');
-  // 尝试常见起点
-  const home = (() => {
-    try { return process.env.HOME || process.env.USERPROFILE || 'C:/Users'; }
-    catch { return 'C:/Users'; }
-  })();
-  return home.replace(/\\/g, '/');
-})();
+// 起始目录：Web 端不再依赖浏览器里不存在的 process.env.*，
+// 而是从服务端白名单根（GET /api/fs/roots）取得，保证落在 isAllowed 之内。
+const fallbackRoot = ref('');
+/** 缓存服务端返回的白名单根，供 navigateUp 判断「..」是否越出合法根。 */
+let cachedRoots: string[] = [];
+
+/** 获取服务端允许访问的目录根；失败返回空数组。 */
+async function loadRoots(): Promise<string[]> {
+  try {
+    const data = await http<{ ok: boolean; roots: string[] }>('/api/fs/roots');
+    cachedRoots = data.roots ?? [];
+    return cachedRoots;
+  } catch {
+    cachedRoots = [];
+    return [];
+  }
+}
+
+/**
+ * 判断给定目录是否仍落在某个白名单根之下。
+ * 与服务端 isAllowed 语义对齐（用 '/' 归一，避免 win/posix 分隔符差异）。
+ * 缓存为空（尚未拿到 roots）时放行，交由服务端判 403。
+ */
+function isWithinRoots(dir: string): boolean {
+  if (cachedRoots.length === 0) return true;
+  const d = dir.replace(/\\/g, '/').toLowerCase();
+  return cachedRoots.some(r => {
+    const root = r.replace(/\\/g, '/').toLowerCase();
+    return d === root || d.startsWith(root + '/');
+  });
+}
+
+/** 抽屉打开时的初始化：先取服务端根，再决定起始目录。 */
+async function initPicker(): Promise<void> {
+  const roots = await loadRoots();
+  fallbackRoot.value = roots[0] ?? '';
+
+  if (!fallbackRoot.value) {
+    // 服务端无可用根（HOME / HERMES_HOME 均未配置），给出友好提示
+    error.value = '服务器未配置可访问的目录根（HOME / HERMES_HOME）';
+    activeIndex.value = -1;
+    return;
+  }
+
+  if (props.initialPath) {
+    await navigate(props.initialPath);
+    if (error.value) {
+      // initialPath 不在白名单内，回落到合法根
+      await navigate(fallbackRoot.value);
+    }
+  } else {
+    await navigate(fallbackRoot.value);
+  }
+
+  activeIndex.value = itemCount.value > 0 ? 0 : -1;
+  focusActiveItem();
+}
 
 // ── 导航 ──
 const pathParts = computed(() => {
@@ -160,6 +207,8 @@ async function navigate(dir: string): Promise<void> {
 function navigateUp(): void {
   const parent = currentDir.value.replace(/\\/g, '/').replace(/\/[^/]+$/, '');
   if (parent && parent !== currentDir.value) {
+    // 不能越出合法根：试图跳出白名单根时直接停留，避免 403 空树
+    if (!isWithinRoots(parent)) return;
     if (/^[A-Z]:$/i.test(parent)) {
       void navigate(parent + '/');
     } else {
@@ -182,20 +231,17 @@ watch(
   () => props.show,
   async (visible) => {
     if (visible) {
-      await navigate(defaultStart);
-      activeIndex.value = itemCount.value > 0 ? 0 : -1;
-      focusActiveItem();
+      await initPicker();
     } else {
       activeIndex.value = -1;
     }
   }
 );
 
-// ── 挂载后自动聚焦第一个目录项 ──
+// ── 挂载后自动聚焦第一个目录项（show 在挂载时即已为真时同步初始化）──
 onMounted(() => {
-  if (props.show && itemCount.value > 0) {
-    activeIndex.value = 0;
-    focusActiveItem();
+  if (props.show) {
+    void initPicker();
   }
 });
 </script>
@@ -251,8 +297,12 @@ onMounted(() => {
               <NText class="km-dirpicker-entry-text">{{ entry.name }}</NText>
             </div>
 
-            <div v-if="entries.length === 0 && !loading" class="km-dirpicker-empty">
+            <div v-if="entries.length === 0 && !loading && !error" class="km-dirpicker-empty">
               <NText depth="3">此目录为空</NText>
+            </div>
+
+            <div v-if="error" class="km-dirpicker-error">
+              <NText depth="3">{{ error }}</NText>
             </div>
           </NScrollbar>
         </NSpin>
@@ -350,6 +400,13 @@ onMounted(() => {
 .km-dirpicker-empty {
   padding: var(--km-space-40) var(--km-space-10);
   text-align: center;
+}
+
+/* ── 错误态 ── */
+.km-dirpicker-error {
+  padding: var(--km-space-40) var(--km-space-10);
+  text-align: center;
+  color: var(--km-danger, #d03050);
 }
 
 /* ── 当前路径 ── */

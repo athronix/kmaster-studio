@@ -20,8 +20,8 @@ export const fsRouter = new Router();
 
 // ── 白名单 ──────────────────────────────────────────────────────────────
 
-/** 允许访问的目录前缀（安全基础目录） */
-const ALLOWED_ROOTS = (() => {
+/** 允许访问的目录前缀（安全基础目录）。模块级导出，供 Web 目录选择器获取合法起始根。 */
+export const ALLOWED_ROOTS = (() => {
   const roots: string[] = [];
   // hermes 主目录
   const hermesHome = process.env.HERMES_HOME;
@@ -39,6 +39,11 @@ function isAllowed(p: string): boolean {
 }
 
 // ── 路由 ────────────────────────────────────────────────────────────────
+
+/** GET /api/fs/roots — 返回服务端允许访问的目录根，供 Web 目录选择器作为起始点 */
+fsRouter.get('/api/fs/roots', async (ctx) => {
+  ctx.body = { ok: true, roots: ALLOWED_ROOTS };
+});
 
 /** GET /api/fs/read?path=... */
 fsRouter.get('/api/fs/read', async (ctx) => {
