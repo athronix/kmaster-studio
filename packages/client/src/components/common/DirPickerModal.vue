@@ -98,17 +98,17 @@ function focusActiveItem(): void {
 // 起始目录：Web 端不再依赖浏览器里不存在的 process.env.*，
 // 而是从服务端白名单根（GET /api/fs/roots）取得，保证落在 isAllowed 之内。
 const fallbackRoot = ref('');
-/** 缓存服务端返回的白名单根，供 navigateUp 判断「..」是否越出合法根。 */
-let cachedRoots: string[] = [];
+/** 缓存服务端返回的白名单根，供 navigateUp 判断「..」是否越出合法根，以及多盘切换展示。 */
+const cachedRoots = ref<string[]>([]);
 
 /** 获取服务端允许访问的目录根；失败返回空数组。 */
 async function loadRoots(): Promise<string[]> {
   try {
     const data = await http<{ ok: boolean; roots: string[] }>('/api/fs/roots');
-    cachedRoots = data.roots ?? [];
-    return cachedRoots;
+    cachedRoots.value = data.roots ?? [];
+    return cachedRoots.value;
   } catch {
-    cachedRoots = [];
+    cachedRoots.value = [];
     return [];
   }
 }
@@ -120,9 +120,9 @@ async function loadRoots(): Promise<string[]> {
  * 缓存为空（尚未拿到 roots）时放行，交由服务端判 403。
  */
 function isWithinRoots(dir: string): boolean {
-  if (cachedRoots.length === 0) return true;
+  if (cachedRoots.value.length === 0) return true;
   const d = dir.replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
-  return cachedRoots.some(r => {
+  return cachedRoots.value.some(r => {
     const root = r.replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
     return d === root || d.startsWith(root + '/');
   });
@@ -165,6 +165,29 @@ const isDriveRoot = computed(() => /^[A-Z]:\/?$/i.test(currentDir.value));
 
 /** 是否渲染「..」上级行；盘根处不渲染（键盘索引也随之不计入）。 */
 const hasParentRow = computed(() => pathParts.value.length > 0 && !isDriveRoot.value);
+
+/** 盘根列表：从服务端白名单根中筛出形如 `c:\` / `d:\` 的盘符根（末段为空的 X:\/X:/）。 */
+const driveRoots = computed<string[]>(() =>
+  cachedRoots.value.filter((r) => /^[A-Z]:\\?$/i.test(r.replace(/\//g, '\\')))
+);
+
+/** 仅当处于顶层/盘根视图且存在多盘时，显示磁盘分区块（用于在盘之间跳转，缺陷1）。 */
+const showDrives = computed<boolean>(
+  () => !hasParentRow.value && driveRoots.value.length > 1
+);
+
+/** 将盘根（c:\ / c:/ / c:）统一为 `c:\` 形态后交给 navigate。 */
+function drivePath(d: string): string {
+  return d.replace(/\//g, '\\').replace(/\\+$/, '') + '\\';
+}
+
+/** 判断给定盘根是否为当前所在盘。 */
+function isCurrentDrive(d: string): boolean {
+  return (
+    currentDir.value.replace(/[\\/]+$/, '').toLowerCase() ===
+    d.replace(/[\\/]+$/, '').toLowerCase()
+  );
+}
 
 /**
  * 面包屑。
@@ -308,6 +331,23 @@ onMounted(() => {
       <div class="km-dirpicker-list-wrap">
         <NSpin :show="loading" class="km-dirpicker-spin">
           <NScrollbar v-if="!loading || entries.length" class="km-dirpicker-scrollbar">
+            <!-- 磁盘分区：仅在顶层/盘根视图且多盘时显示，用于切换盘符（缺陷1） -->
+            <div v-if="showDrives" class="km-dirpicker-drives">
+              <div
+                v-for="d in driveRoots"
+                :key="d"
+                class="km-dirpicker-row km-dirpicker-row-drive"
+                :class="{ 'km-dir-item--active': isCurrentDrive(d) }"
+                tabindex="0"
+                :title="d"
+                @click="navigate(drivePath(d))"
+                @keydown.enter.prevent="navigate(drivePath(d))"
+              >
+                <span class="km-dirpicker-icon"><KIcon name="DeviceFloppy" :size="18" /></span>
+                <NText class="km-dirpicker-entry-text">{{ d.toUpperCase() }}</NText>
+              </div>
+            </div>
+
             <!-- 上级目录（盘根处隐藏：已无上级） -->
             <div
               v-if="hasParentRow"
@@ -393,7 +433,7 @@ onMounted(() => {
 /* ── 目录列表容器 ── */
 .km-dirpicker-list-wrap {
   flex: 1;
-  min-height: 200px;
+  min-height: 0;
   border: 1px solid var(--km-border);
   border-radius: var(--km-radius-md);
   overflow: hidden;
@@ -404,7 +444,7 @@ onMounted(() => {
 }
 
 .km-dirpicker-scrollbar {
-  max-height: 260px;
+  height: 100%;
 }
 
 /* ── 行 ── */
