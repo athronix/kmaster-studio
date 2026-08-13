@@ -104,13 +104,26 @@ function lowerKey(p: string): string {
   return p.replace(/\\/g, '/').toLowerCase().replace(/\/+$/, '');
 }
 
-/** 由绝对路径构造一个树节点（path 用 lowerKey 作为唯一键）。 */
+/** 判断归一后的路径是否为盘符根（如 `c:/`、`D:\`）；非 win32 环境下恒为 false。 */
+function isDriveRoot(p: string): boolean {
+  return /^[A-Z]:[\\/]?$/i.test(normalizeSlash(p));
+}
+
+/** 由绝对路径构造一个树节点（path 用 lowerKey 作为唯一键）。
+ *  盘符根必须保留末尾 `/`（如 `c:/`、`d:/`）：
+ *  否则 `toggleExpand` 会请求 `?dir=d:` 而 Windows 下 `fs.readdirSync('d:')`
+ *  读取的是该进程的 D: 盘当前目录（per-drive cwd）而非 D: 根。 */
 function makeNode(fullPath: string): FolderEntry {
-  const norm = normalizeSlash(fullPath).replace(/\/+$/, '') || normalizeSlash(fullPath);
+  const norm = normalizeSlash(fullPath);
+  if (isDriveRoot(norm)) {
+    const withSlash = `${norm[0].toUpperCase()}:/`;
+    return { name: withSlash, path: lowerKey(withSlash), fullPath: withSlash, isDir: true };
+  }
+  const stripped = norm.replace(/\/+$/, '') || norm;
   return {
-    name: baseName(norm) || norm,
-    path: lowerKey(norm),
-    fullPath: norm,
+    name: baseName(stripped) || stripped,
+    path: lowerKey(stripped),
+    fullPath: stripped,
     isDir: true,
   };
 }
@@ -138,12 +151,15 @@ async function loadRoots(): Promise<string[]> {
 }
 
 // ── 顶层盘根节点（depth-0，可展开）──
-const rootNodes = computed<FolderEntry[]>(() =>
-  cachedRoots.value.map(r => {
-    const norm = normalizeSlash(r).replace(/\/+$/, '') || normalizeSlash(r);
-    return { name: baseName(norm) || norm, path: lowerKey(norm), fullPath: norm, isDir: true };
-  })
-);
+// 只渲染盘符根（c:/、d:/），其余白名单根（HERMES_HOME、用户主目录等）保留在
+// cachedRoots 供 isWithinRoots 校验，但不在顶层展示。非 win32 无盘符根时回退展示全部。
+const rootNodes = computed<FolderEntry[]>(() => {
+  const drives = cachedRoots.value.filter(r => isDriveRoot(r));
+  if (drives.length > 0) {
+    return drives.map(r => makeNode(r));
+  }
+  return cachedRoots.value.map(r => makeNode(r));
+});
 
 // ── 懒加载展开 ──
 async function toggleExpand(node: FolderEntry): Promise<void> {
@@ -241,7 +257,10 @@ async function initPicker(): Promise<void> {
   selectedPath.value = '';
   try {
     const roots = await loadRoots();
-    fallbackRoot.value = roots[0] ?? '';
+    // 回落根默认取首个盘符根（带末尾 `/`，如 `c:/`），而非 roots[0]（可能是
+    // HERMES_HOME / 用户主目录等非盘符根）。无盘符根时再退回 roots[0]。
+    const firstDrive = roots.find(r => isDriveRoot(r));
+    fallbackRoot.value = firstDrive ? makeNode(firstDrive).fullPath : (roots[0] ?? '');
     if (!fallbackRoot.value) {
       // 服务端无可用根（HOME / HERMES_HOME 均未配置）
       error.value = '服务器未配置可访问的目录根（HOME / HERMES_HOME）';
