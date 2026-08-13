@@ -1,0 +1,94 @@
+sequenceDiagram
+    actor User
+    participant GeneralSection as GeneralSection
+    participant LocalStorage as localStorage
+    participant CardMarketLayout as CardMarketLayout
+    participant SkillSection as SkillManageSection
+    participant AgentSection as AgentRoleSection
+    participant McpSection as McpManageSection
+    participant PluginsSection as PluginsSection
+    participant ModelSection as ModelManageSection
+    participant ChannelsSection as ChannelsSection
+    participant API as Backend API
+
+    %% ═══════════════════ 系统设置：列数/行数配置 ═══════════════════
+    rect rgb(240, 248, 255)
+        Note over User, LocalStorage: T01 - 系统设置中的列数/行数配置
+        User->>GeneralSection: 修改市场卡片列数 (3-8)
+        GeneralSection->>LocalStorage: setItem('km_grid_cols', value)
+        User->>GeneralSection: 修改精选行数 (1-3)
+        GeneralSection->>LocalStorage: setItem('km.v3.marketLayout', { featuredRows })
+        User->>GeneralSection: 修改 installed 行数 (1-5)
+        GeneralSection->>LocalStorage: setItem('km.v3.marketLayout', { installedRows })
+        User->>GeneralSection: 修改市场行数 (1-10)
+        GeneralSection->>LocalStorage: setItem('km.v3.marketLayout', { marketRows })
+    end
+
+    %% ═══════════════════ 模型页面：供应商卡片网格 ═══════════════════
+    rect rgb(255, 248, 240)
+        Note over User, API: T02 - 模型页面（Provider 卡片网格）
+        User->>ModelSection: 进入模型页面
+        ModelSection->>API: GET /api/models + /api/config/providers
+        API-->>ModelSection: providers[], usage{}
+        ModelSection->>ModelSection: 渲染 NTabs（供应商/模型与槽位/用量）
+        Note over ModelSection: 供应商 tab：CSS Grid + ProviderModelCard
+        User->>ModelSection: 点击供应商卡片的"重测"
+        ModelSection->>API: testConnectivity(providerId)
+        API-->>ModelSection: ConnectivityResult
+        ModelSection->>ModelSection: showResult() → ResultDialog
+        User->>ModelSection: 点击"新增供应商"
+        ModelSection->>ModelSection: dialogShow = true → AddModelDialog
+    end
+
+    %% ═══════════════════ Channels 页面 ═══════════════════
+    rect rgb(240, 255, 240)
+        Note over User, API: T03 - Channels 页面（per-platform 卡片）
+        User->>ChannelsSection: 进入 Channels 页面
+        ChannelsSection->>API: GET /api/config/platform
+        API-->>ChannelsSection: channels[], availableTypes[]
+        ChannelsSection->>ChannelsSection: 渲染固定 10 平台 PlatformCard
+        Note over ChannelsSection: 每个卡片：SettingRow 凭据输入 + 开关
+        User->>ChannelsSection: 填写 Telegram Bot Token
+        ChannelsSection->>ChannelsSection: setCredentialDraft('telegram', { token })
+        User->>ChannelsSection: 点击"保存"
+        ChannelsSection->>API: PUT /api/config/platform
+        API-->>ChannelsSection: ok
+        User->>ChannelsSection: 微信平台：点击"扫码登录"
+        ChannelsSection->>API: fetchWeixinQrCode()
+        API-->>ChannelsSection: qrcode_url
+        ChannelsSection->>ChannelsSection: pollWeixinStatus() → confirmed
+        ChannelsSection->>API: saveWeixinCredentials()
+    end
+
+    %% ═══════════════════ Plugins 页面 ═══════════════════
+    rect rgb(255, 240, 255)
+        Note over User, API: T03 - Plugins 页面（卡片化）
+        User->>PluginsSection: 进入 Plugins 页面
+        PluginsSection->>API: GET /api/plugins
+        API-->>PluginsSection: PluginItem[]
+        PluginsSection->>PluginsSection: 渲染 PluginCard 网格 + 分页
+        Note over PluginsSection: pageSize = gridCols × marketRows
+        User->>PluginsSection: 搜索 / kind 过滤 / 翻页
+    end
+
+    %% ═══════════════════ 卡片市场分页 ═══════════════════
+    rect rgb(248, 248, 240)
+        Note over User, LocalStorage: T04 - 卡片市场统一分页
+        CardMarketLayout->>LocalStorage: getItem('km_grid_cols') → gridCols
+        CardMarketLayout->>LocalStorage: getItem('km.v3.marketLayout') → rows
+
+        Note over SkillSection: Skills 页已使用 CardMarketLayout
+        SkillSection->>CardMarketLayout: props: gridCols, installedRows, marketRows
+        CardMarketLayout->>CardMarketLayout: installedPageSize = gridCols × installedRows
+        CardMarketLayout->>CardMarketLayout: 市场 grid: repeat(gridCols, 1fr)
+
+        Note over AgentSection: Agent 角色页（分页改造）
+        AgentSection->>LocalStorage: 读取 gridCols, installedRows
+        AgentSection->>AgentSection: pageSize = gridCols × installedRows
+        AgentSection->>AgentSection: 分页展示角色卡片
+
+        Note over McpSection: MCP 管理页（分页改造）
+        McpSection->>LocalStorage: 读取 gridCols, installedRows, marketRows
+        McpSection->>McpSection: 已部署分页 = gridCols × installedRows
+        McpSection->>McpSection: 候选池分页 = gridCols × marketRows
+    end

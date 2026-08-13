@@ -1,0 +1,164 @@
+classDiagram
+    direction TB
+
+    %% ── 新增共享组件 ──
+    class SettingRow {
+        +String label
+        +String hint?
+        -slots: default
+    }
+
+    class PlatformCard {
+        +String platformKey?
+        +String name
+        +String icon
+        +Record config
+        +Record credentials?
+        +Boolean exclusive?
+        -Boolean expanded
+        -Boolean configured
+        +slots: default
+    }
+
+    class ProviderModelCard {
+        +ModelProviderConfig provider
+        +Boolean testing
+        +onRetest() void
+        +onEdit() void
+        +onDelete() void
+    }
+
+    class PluginCard {
+        +PluginItem plugin
+        +onClick() void
+    }
+
+    %% ── 修改的页面组件 ──
+    class ModelManageSection {
+        -SubTab subTab
+        -Boolean loading
+        -Boolean dialogShow
+        -String dialogProviderId
+        -ResultDialogState result
+        +reloadModels() Promise
+        +onAddProvider() void
+        +onRetest(provider) Promise
+        +onDialogConfirm(providerId) void
+        -slots: default
+    }
+
+    class ChannelsSection {
+        -Boolean loading
+        -Reactive saving
+        -Reactive configDrafts
+        -Reactive credentialDrafts
+        -Reactive touchedConfig
+        -Reactive touchedCredentials
+        -String wxQrUrl
+        -String wxQrStatus
+        +savePlatform(platform) Promise
+        +clearPlatformCredentials(platform, name) Promise
+        +startWeixinQrLogin() Promise
+        -slots: default
+    }
+
+    class PluginsSection {
+        -Boolean loading
+        -String error
+        -PluginItem[] plugins
+        -String searchQuery
+        -String kindFilter
+        -Number page
+        +load() Promise
+        +onRowClick(row) void
+    }
+
+    class SkillManageSection {
+        -EntityDef[] installedItems
+        -EntityDef[] pagedEntities
+        -String searchQuery
+        -SortOrder sort
+        -Number page
+        -Number pageSize
+        +refresh() Promise
+        +install(entity) Promise
+        +uninstall(entity) Promise
+    }
+
+    class AgentRoleSection {
+        -AgentRole[] visibleRoles
+        -String editingId
+        +onAddSelect(key) void
+        +onEdit(role) void
+        +onDelete(role) Promise
+        +onToggleDisabled(role, value) void
+    }
+
+    class McpManageSection {
+        -McpServer[] deployed
+        -McpAsset[] candidates
+        -String activeTab
+        -Set deploying
+        -Set uninstalling
+        +load() Promise
+        +onDeploy(asset) Promise
+        +onRemove(server) Promise
+    }
+
+    class CardMarketLayout {
+        +String title
+        +EntityDef[] entities
+        +EntityDef[] featuredItems
+        +EntityDef[] installedItems
+        +Number gridCols?
+        +Number installedRows?
+        +Number marketRows?
+        +SortOrder sort
+        +Number page
+        +Number pageSize
+        +Number total
+        +String[] domainTags
+        +Boolean hideHeader
+        +Boolean installedMode
+        +slots: card, featured-card, installed-card
+    }
+
+    class GeneralSection {
+        -Boolean loading
+        -String terminalCwd
+        -String sendShortcut
+        -Number gridCols
+        -Number featuredRows
+        -Number installedRows
+        -Number marketRows
+        +onGridColsChange(value) void
+        +onFeaturedRowsChange(value) void
+        +onInstalledRowsChange(value) void
+        +onMarketRowsChange(value) void
+    }
+
+    %% ── 类型 ──
+    class MarketLayoutSettings {
+        +Number featuredRows
+        +Number installedRows
+        +Number marketRows
+    }
+
+    class PlatformChannelConfig {
+        +String id
+        +String type
+        +Boolean enabled
+        +String label?
+        +Record credentials?
+        +String[] configuredKeys?
+    }
+
+    %% ── 关系 ──
+    ChannelsSection ..> PlatformCard : uses
+    ChannelsSection ..> SettingRow : uses
+    ModelManageSection ..> ProviderModelCard : uses
+    PluginsSection ..> PluginCard : uses
+    SkillManageSection ..> CardMarketLayout : uses
+    CardMarketLayout ..> MarketLayoutSettings : reads config
+    GeneralSection ..> MarketLayoutSettings : writes config
+    PlatformCard ..> SettingRow : slots into
