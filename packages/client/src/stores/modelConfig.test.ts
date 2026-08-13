@@ -136,6 +136,87 @@ describe('stores/modelConfig', () => {
     expect(s.optionsForSlot('vision')[0].label).toContain('sees');
   });
 
+  // ═══ MD-FIX 回归：后端 capabilities → 槽位下拉候选（本次修复根因） ═══
+  // 修复前 loadModelsAndUsage / fetchModels 把 capabilities 硬编码成 []，
+  // 导致 optionsForSlot 过滤后全空（5 个槽位只剩「未指定」）。
+
+  it('MD-FIX 回归：loadModelsAndUsage 新建供应商时保留后端 capabilities，槽位下拉不再为空', async () => {
+    state.models = [
+      {
+        provider: 'ark',
+        label: 'Ark',
+        authenticated: true,
+        models: [
+          { id: 'glm-5.2', name: 'glm-5.2', provider: 'ark', context: 262144, capabilities: ['text'] },
+          {
+            id: 'qwen-vl-plus',
+            name: 'qwen-vl-plus',
+            provider: 'ark',
+            context: 32000,
+            capabilities: ['text', 'vision'],
+          },
+          { id: 'wanx-v1', name: 'wanx-v1', provider: 'ark', capabilities: ['image-gen'] },
+        ],
+      },
+    ];
+    const s = useModelConfigStore();
+    await s.loadModelsAndUsage();
+
+    expect(s.modelCount).toBe(3);
+    expect(s.getModel('qwen-vl-plus')!.capabilities).toEqual(['text', 'vision']);
+    // 修复前以下断言全部为 0
+    expect(s.optionsForSlot('default').map((o) => o.value)).toEqual(['glm-5.2', 'qwen-vl-plus']);
+    expect(s.optionsForSlot('simple')).toHaveLength(2);
+    expect(s.optionsForSlot('fallback')).toHaveLength(2);
+    expect(s.optionsForSlot('vision').map((o) => o.value)).toEqual(['qwen-vl-plus']);
+    expect(s.optionsForSlot('image').map((o) => o.value)).toEqual(['wanx-v1']);
+  });
+
+  it('MD-FIX 回归：loadModelsAndUsage 合并已有供应商时同样保留 capabilities', async () => {
+    state.models = [
+      {
+        provider: 'openai',
+        label: 'OpenAI',
+        authenticated: true,
+        models: [
+          { id: 'gpt-4o', name: 'gpt-4o', provider: 'openai', context: 128000, capabilities: ['text', 'vision'] },
+        ],
+      },
+    ];
+    const s = useModelConfigStore();
+    s.addProvider({ providerKey: 'openai', models: [] });
+    await s.loadModelsAndUsage();
+    expect(s.optionsForSlot('vision').map((o) => o.value)).toEqual(['gpt-4o']);
+    expect(s.optionsForSlot('default').map((o) => o.value)).toEqual(['gpt-4o']);
+  });
+
+  it('MD-FIX 回归：fetchModels 保留后端 capabilities', async () => {
+    state.models[0].models[0].capabilities = ['text', 'vision'];
+    const s = useModelConfigStore();
+    const p = s.addProvider({ providerKey: 'openai', models: [] });
+    await s.fetchModels(p.id);
+    expect(s.optionsForSlot('vision').map((o) => o.label)).toEqual(['OpenAI / gpt-4o']);
+    expect(s.optionsForSlot('default')).toHaveLength(2); // gpt-4o + gpt-4.1（无声明兜底 text）
+  });
+
+  it('MD-FIX 回归：后端 capabilities 缺失或非数组时兜底为 text', async () => {
+    state.models = [
+      {
+        provider: 'ark',
+        label: 'Ark',
+        models: [
+          { id: 'no-caps', name: 'no-caps', provider: 'ark' },
+          { id: 'dirty-caps', name: 'dirty-caps', provider: 'ark', capabilities: 'text' },
+        ],
+      },
+    ];
+    const s = useModelConfigStore();
+    await s.loadModelsAndUsage();
+    expect(s.providers[0].models.map((m) => m.capabilities)).toEqual([['text'], ['text']]);
+    expect(s.optionsForSlot('default')).toHaveLength(2);
+    expect(s.optionsForSlot('vision')).toHaveLength(0);
+  });
+
   it('displayName 优先取别名', () => {
     const s = useModelConfigStore();
     const p = s.addProvider({ providerKey: 'custom', models: [] });
