@@ -1225,12 +1225,55 @@ const PROVIDER_KEY_ENV: Record<string, string> = {
   lmstudio: '',
 };
 
-/** 解析某 provider 的 key_env（三级回退，恒返回字符串，空串表示无需 Key）。 */
+/**
+ * 收集已被占用的环境变量名，用于新 provider 的 key_env 唯一化。
+ * 来源：
+ *  1. `<activeHome>/.env` 文件（Key 真实落点）
+ *  2. 进程环境（避免与系统 / SDK 既有变量撞名）
+ *  3. config.yaml 既有 `custom_providers[].api_key_env`（避免同仓多 provider 重名）
+ * 任一读取失败都降级为空集合（🚫 不抛），唯一化逻辑退化为「碰巧不撞则可用」。
+ */
+function collectTakenEnvNames(): Set<string> {
+  const taken = new Set<string>();
+  try {
+    for (const k of Object.keys(readHermesEnvFile())) taken.add(k);
+  } catch { /* ignore */ }
+  for (const k of Object.keys(process.env)) taken.add(k);
+  try {
+    const cfg = readConfig();
+    const providers = Array.isArray((cfg as any)?.custom_providers)
+      ? ((cfg as any).custom_providers as Array<Record<string, unknown>>)
+      : [];
+    for (const p of providers) {
+      const env = p?.api_key_env;
+      if (typeof env === 'string' && env) taken.add(env);
+    }
+  } catch { /* ignore */ }
+  return taken;
+}
+
+/**
+ * 解析某 provider 的 key_env（三级回退，恒返回字符串，空串表示无需 Key）。
+ *
+ * 回退规则：
+ *  1. `fromPayload` 命中（config.yaml 已显式声明 `api_key_env`）→ 沿用，不重新生成；
+ *  2. `PROVIDER_KEY_ENV` 命中（知名供应商，如 openai→OPENAI_API_KEY）→ 用标准名；
+ *  3. 新配置兜底 → `{provider_name}_{数字序号}` 格式，序号保证 `.env` 变量名唯一。
+ *
+ * 设计依据（用户需求）：save 落到后台 `.env` 时，变量名若已在 config.yaml 配置则
+ * 沿用；若是新配置，则在 config.yaml 生成新 model 配置段，其中的 api-key 名称遵循
+ * `{provider_name}_{数字序号}`（provider_name 已 slugify 为大写下划线）以保证 `.env` 唯一。
+ */
 function providerKeyEnv(slug: string, fromPayload?: unknown): string {
   if (typeof fromPayload === 'string' && fromPayload.trim()) return fromPayload.trim();
   const mapped = PROVIDER_KEY_ENV[slug.toLowerCase()];
   if (mapped !== undefined) return mapped;
-  return `${slug.toUpperCase().replace(/[^A-Z0-9]/g, '_')}_API_KEY`;
+  // 新配置兜底：{provider_name}_{数字序号}，序号从 1 起、跳过已占用名，保证 .env 唯一
+  const base = slug.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+  const taken = collectTakenEnvNames();
+  let n = 1;
+  while (taken.has(`${base}_${n}`)) n += 1;
+  return `${base}_${n}`;
 }
 
 /**

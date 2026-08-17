@@ -28,7 +28,7 @@ import {
   useMessage,
 } from 'naive-ui';
 import { useModelConfigStore } from '../../stores/modelConfig';
-import { putProvider } from '../../api/client';
+import { putProvider, putProviderMeta } from '../../api/client';
 import {
   API_METHOD_OPTIONS,
   CUSTOM_PROVIDER_KEY,
@@ -299,8 +299,24 @@ async function onConfirm(): Promise<void> {
     return;
   }
   const id = ensureDraft();
-  // 用户填了 Key → 随确认一并落后端（避免仅点「确认」而 Key 永不上传，
-  // 导致后续重测 / 聊天均报「未检测到该供应商的 API Key」）
+  // 先确保后端 config.yaml 已生成该 provider 的「模型配置段」（含 base_url / api_mode / models），
+  // 再写 Key。否则 setProviderKey 生成 api_key_env 时 provider 尚未落盘，
+  // 会与 addProvider 的异步落盘互相覆盖、或丢模型段。
+  try {
+    await putProviderMeta({
+      name: providerKey.value,
+      base_url: url.value.trim() || undefined,
+      api_mode: apiMethod.value === 'anthropic-chat' ? 'anthropic_messages' : 'openai',
+      models: Object.fromEntries(
+        models.value.map((m) => [m.name, { context_length: m.contextLength || undefined }]),
+      ),
+    });
+  } catch {
+    /* 静默：连通性另有 ① 测试覆盖，不阻断保存 */
+  }
+  // 用户填了 Key → 随确认一并落后端 .env（变量名遵循 {provider_name}_{序号} 格式，
+  // 已在 config.yaml 配置则沿用），避免仅点「确认」而 Key 永不上传，
+  // 导致后续重测 / 聊天均报「未检测到该供应商的 API Key」
   const key = apiKey.value.trim();
   if (key !== '') {
     try {

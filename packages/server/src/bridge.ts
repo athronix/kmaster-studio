@@ -12,6 +12,8 @@ export interface ChatOptions {
   sessionId: string;
   message: string;
   model?: string;
+  /** 透传 provider（前端模型 id 的 `providerKey:` 前缀部分），供 Python `resolve_runtime_provider(requested=provider)` 定位 base_url / api_key。 */
+  provider?: string;
   profile?: string;
   instructions?: string;
   // F8：透传 hermes ACP 编辑审批令牌（dont_ask / accept_edits / default），不改行为
@@ -23,6 +25,8 @@ export interface ChatOptions {
 export interface ContextEstimateOptions {
   messages: { role: string; content: string }[];
   model?: string;
+  /** 透传 provider（与 ChatOptions.provider 同源），供 Python 侧按 provider 估算上下文窗口。 */
+  provider?: string;
   instructions?: string;
   profile?: string;
 }
@@ -366,7 +370,7 @@ class RealBridge implements Bridge {
             } catch { /* ignore malformed */ }
           }
         });
-        sock.write(JSON.stringify({ action: 'chat', sessionId: opts.sessionId, message: opts.message, model: opts.model, mode: opts.mode, profile: opts.profile, instructions: opts.instructions }) + '\n');
+        sock.write(JSON.stringify({ action: 'chat', sessionId: opts.sessionId, message: opts.message, model: opts.model, provider: opts.provider, mode: opts.mode, profile: opts.profile, instructions: opts.instructions }) + '\n');
       });
     } finally {
       // completed / error / 异常 / 对端断开 —— 任一路径都摘表，杜绝 Map 泄漏与串台
@@ -445,7 +449,7 @@ class RealBridge implements Bridge {
           } catch { /* ignore malformed */ }
         }
       });
-      sock.write(JSON.stringify({ action: 'context.estimate', sessionId, model: opts.model }) + '\n');
+      sock.write(JSON.stringify({ action: 'context.estimate', sessionId, model: opts.model, provider: opts.provider }) + '\n');
     });
   }
 

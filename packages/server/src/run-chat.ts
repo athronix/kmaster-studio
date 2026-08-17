@@ -92,8 +92,9 @@ export async function getContextEstimate(sessionId: string, force = false): Prom
   const row = store.getSession(sessionId);
   const messages = store.getMessages(sessionId).map((m) => ({ role: m.role, content: m.content }));
   const model = row?.model ?? store.getSetting('default_model') ?? '';
-  // Bug②：与 executeRun 一致，发往 agent 的模型名需剥掉 `providerKey:` 前缀
-  const estimate = await bridge.contextEstimate(sessionId, { messages, model: toAgentModelName(model) || undefined });
+  // 发往 agent 的模型名需剥掉 `providerKey:` 前缀，并把 provider 一并透传（修复无响应）
+  const { provider: ctxProvider, model: ctxModel } = splitAgentModel(model);
+  const estimate = await bridge.contextEstimate(sessionId, { messages, model: ctxModel || undefined, provider: ctxProvider });
   estimateCache.set(sessionId, estimate);
   return estimate;
 }
@@ -120,17 +121,23 @@ function peekContextTokens(sessionId: string): ContextTokensPayload | undefined 
  * 结束后在 finally 中释放忙标记并尝试出队下一条（F17 自动续发）。
  */
 /**
- * Bug② 修复：前端模型 id 带 `providerKey:` 前缀（如 `ark-agent-plan:deepseek-v4-flash`），
- * 而 hermes-agent 只认裸模型名（`deepseek-v4-flash`）。在聊天下发边界把前缀剥掉，
- * 让 agent 能匹配到真实模型。前缀白名单来自 `getRealModels()` 的分组 `provider` 字段，
- * 仅当首段恰好是已知 provider 时才剥，避免误伤本身含 `:` 的裸模型名。
+ * 把前端带前缀的模型 id（`providerKey:modelName`，如 `ark-agent-plan:deepseek-v4-flash`）
+ * 拆成 `{ provider, model }`。
+ *
+ * 修复「对话无响应」的关键：hermes-agent 的 `resolve_runtime_provider(requested=provider, ...)`
+ * 需要 provider 上下文才能定位 `base_url` / `api_key`。只发裸模型名 `deepseek-v4-flash`
+ * 时 Python 无法反查 provider（多 provider 同模型名时尤其致命）→ worker 拿不到凭据 → 无响应。
+ * 故把 provider 一并透传，裸模型名作为 `model` 下发。
+ *
+ * 仅当首段是 `getRealModels()` 已知 provider 才信任拆分（容错脏值本身含 `:` 的裸模型名）。
  */
-function toAgentModelName(model: string): string {
-  if (!model || model.indexOf(':') < 0) return model;
+function splitAgentModel(model: string): { provider?: string; model: string } {
+  if (!model || model.indexOf(':') < 0) return { model };
   const sep = model.indexOf(':');
   const prefix = model.slice(0, sep);
+  const name = model.slice(sep + 1);
   const known = new Set(getRealModels().map((g) => g.provider));
-  return known.has(prefix) ? model.slice(sep + 1) : model;
+  return known.has(prefix) ? { provider: prefix, model: name } : { model };
 }
 
 export async function executeRun(ns: Namespace, req: StartRunRequest): Promise<string> {
@@ -242,8 +249,8 @@ export async function executeRun(ns: Namespace, req: StartRunRequest): Promise<s
     const defModel = store.getSetting('default_model') ?? '';
     const effMode = (mode ?? rowMode ?? defMode) as HermesMode;
     effModel = model ?? rowModel ?? defModel;
-    // 聊天下发给 agent 的模型名需剥掉 `providerKey:` 前缀（Bug②）
-    const chatModel = toAgentModelName(effModel);
+    // 聊天下发给 agent：裸模型名 + provider 透传（修复裸名无法定位 provider 导致的无响应）
+    const { provider: chatProvider, model: chatModel } = splitAgentModel(effModel);
     // 每会话覆盖持久化（保留带前缀的展示 id，便于 UI 回显）
     store.setSessionModeModel(session_id, effMode, effModel);
     // 用户消息落库
@@ -253,7 +260,7 @@ export async function executeRun(ns: Namespace, req: StartRunRequest): Promise<s
     // 让流式途中的 usage.updated 有机会带上 context_tokens。失败静默，属纯增强。
     void getContextEstimate(session_id, true).catch(() => undefined);
 
-    await bridge.chat({ sessionId: session_id, message, model: chatModel, mode: effMode, profile, instructions, onEvent });
+    await bridge.chat({ sessionId: session_id, message, model: chatModel, provider: chatProvider, mode: effMode, profile, instructions, onEvent });
     store.appendMessage({ session_id, role: 'assistant', content: fullText, usage_json: JSON.stringify({ input_tokens: inputTokens, output_tokens: outputTokens }) });
     // T01/L3：助手消息已落库，强制重算一次，保证 run.completed 携带最终上下文占用。
     // 估算失败不得影响 run 完成语义 → 降级为不带该可选字段。
