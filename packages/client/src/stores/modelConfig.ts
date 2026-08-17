@@ -367,34 +367,35 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     busy.value = true;
     try {
       const run = async (): Promise<ConnectivityResult> => {
-        // 用户手动配了 key → 走 putProvider 流程
+        // 1. 内存里有 Key → 先写回后端（真实持久化，使后续重测 / 聊天可复现）
         if (provider.apiKey !== '') {
-          await putProvider(provider.providerKey, provider.apiKey);
-        } else if (provider.keyMasked) {
-          // config.yaml 来源的 provider 已通过 env var 配置了 key，直接验证
-          const res = await getModels();
-          const group = res.providers.find((g) => g.provider === provider.providerKey);
-          if (res.usage) { modelUsage.value = res.usage; }
-          const result = {
-            ok: true,
-            durationMs: Date.now() - started,
-            modelCount: group ? group.models.length : 0,
-          };
-          markTested(providerId, result.ok);
-          return result;
+          const put = await putProvider(provider.providerKey, provider.apiKey);
+          if (!put.configured) {
+            return { ok: false, durationMs: Date.now() - started, error: 'Key 写入后端失败，请重试' };
+          }
         }
+        // 2. 真正校验后端是否已配置该 provider 的 Key
+        //    （后端 listProviders 读 .env、getRealModels 读 config.yaml，setProviderKey 已统一两路，故一致）
         const list = await getProviders();
         const info = list.providers.find((p) => p.slug === provider.providerKey);
         if (info && !info.configured) {
           return { ok: false, durationMs: Date.now() - started, error: '后端未检测到该供应商的 API Key' };
         }
+        // 3. 拉一次模型列表，确认后端对应该 provider 且可见模型
         const res = await getModels();
         const group = res.providers.find((g) => g.provider === provider.providerKey);
         if (res.usage) { modelUsage.value = res.usage; }
+        if (!group || group.models.length === 0) {
+          return {
+            ok: false,
+            durationMs: Date.now() - started,
+            error: `后端未返回「${provider.name}」的可用模型（请确认 Base URL / 模型列表）`,
+          };
+        }
         return {
           ok: true,
           durationMs: Date.now() - started,
-          modelCount: group ? group.models.length : 0,
+          modelCount: group.models.length,
         };
       };
       const result = await withTimeout(run(), INTERACTION.testTimeoutMs, '连通性测试');

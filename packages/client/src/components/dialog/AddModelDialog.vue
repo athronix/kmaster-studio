@@ -28,6 +28,7 @@ import {
   useMessage,
 } from 'naive-ui';
 import { useModelConfigStore } from '../../stores/modelConfig';
+import { putProvider } from '../../api/client';
 import {
   API_METHOD_OPTIONS,
   CUSTOM_PROVIDER_KEY,
@@ -291,13 +292,23 @@ async function onDeepTest(): Promise<void> {
 
 // ═══════════════════════ 收尾 ═══════════════════════
 
-function onConfirm(): void {
+async function onConfirm(): Promise<void> {
   if (!validate()) return;
   if (models.value.length === 0) {
     toast.warning('请至少添加一个模型');
     return;
   }
   const id = ensureDraft();
+  // 用户填了 Key → 随确认一并落后端（避免仅点「确认」而 Key 永不上传，
+  // 导致后续重测 / 聊天均报「未检测到该供应商的 API Key」）
+  const key = apiKey.value.trim();
+  if (key !== '') {
+    try {
+      await putProvider(providerKey.value, key);
+    } catch {
+      /* 静默：连通性另有 ① 测试覆盖，不阻断保存 */
+    }
+  }
   emit('confirm', id);
   emit('update:show', false);
   toast.success(editing.value ? '供应商已更新' : `已添加供应商「${name.value.trim()}」`);

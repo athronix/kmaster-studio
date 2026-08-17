@@ -1434,15 +1434,16 @@ export async function setProviderKey(provider: string, apiKey: string): Promise<
   const keyEnv = providerKeyEnv(slug, group ? (group as unknown as { key_env?: unknown }).key_env : undefined);
   const value = (apiKey ?? '').trim();
 
-  // 后端尚无该供应商（前端新增、未落 config.yaml）→ 先创建 custom_providers 条目，
-  // 使 getRealModels 能枚举到它（旧逻辑此处直接 404，导致连通性测试恒失败）。
-  if (!group) {
-    await upsertCustomProvider({ name: slug, keyEnv, value, models: {} });
-  }
-
-  // 🔒 Key 落地：写入 <activeHome>/.env + 进程内 process.env。
-  // 不再依赖 `hermes config set` CLI —— 本机 hermes CLI 常不在 PATH，旧逻辑会抛 502 cli_failed。
+  // 🔒 Key 引用落 config.yaml：只要供应商有 key_env，始终把 `api_key_env` + 引用写回
+  // custom_providers —— **不论该 provider 是否已在 config.yaml**（旧逻辑仅在 `!group`
+  // 时写，导致 provider 已存在时只写 .env、漏写 config.yaml）。
+  // 不一致的后果：`listProviders().configured`（读 .env）说已配置、`getRealModels().authenticated`
+  // （读 config.yaml api_key_env）说未配置 → 重测通过、但聊天链路（走 getRealModels）找不到 Key。
+  // 模型列表由前端 putProviderMeta 单独维护，此处不传 models，避免被覆盖。
   if (keyEnv) {
+    await upsertCustomProvider({ name: slug, keyEnv, value });
+    // Key 落地：写入 <activeHome>/.env + 进程内 process.env。
+    // 不再依赖 `hermes config set` CLI —— 本机 hermes CLI 常不在 PATH，旧逻辑会抛 502 cli_failed。
     if (value.length > 0) {
       writeHermesEnvVar(keyEnv, value);
       process.env[keyEnv] = value;
