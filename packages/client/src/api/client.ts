@@ -222,6 +222,23 @@ export async function putProvider(provider: string, apiKey: string): Promise<Set
   });
 }
 
+/**
+ * `PUT /api/config/providers` 的「新增供应商」分支：把供应商元数据写回后端
+ * config.yaml `custom_providers`（使 getRealModels 可枚举、聊天与连通性测试可落到真实 provider）。
+ * 🔒 不传 api_key（写 Key 走 `putProvider`）。best-effort：调用方自行 catch。
+ */
+export async function putProviderMeta(body: {
+  name: string;
+  base_url?: string;
+  api_mode?: string;
+  models?: Record<string, { context_length?: number }>;
+}): Promise<{ ok: boolean }> {
+  return http<{ ok: boolean }>('/api/config/providers', {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
+
 /** `GET /api/profiles` —— hermes profile 列表（懒创建缺失时回落「仅 default」）。 */
 export async function getProfiles(): Promise<ProfileListResult> {
   return http<ProfileListResult>('/api/profiles');

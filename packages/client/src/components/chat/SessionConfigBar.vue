@@ -5,13 +5,17 @@
  * 布局：左侧（工作区 / Agent / 模式），右侧（上下文环 / 模型 / 发送模式）。
  * 所有切换使用 Naive UI NDropdown。
  */
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { NButton, NDropdown, NTooltip } from 'naive-ui';
+import { NButton, NDropdown, NTooltip, type DropdownOption } from 'naive-ui';
 import KIcon from '../common/KIcon.vue';
 import type { HermesMode } from '../../types/chat';
 import { CHAT_MODES } from '../../types/chat';
+import { useModelConfigStore } from '../../stores/modelConfig';
 import ContextRing from './ContextRing.vue';
+
+/** 聊天模型下拉的数据源：与「设置→模型管理」共用 modelConfig store（已聚合后端 /api/models + 本地）。 */
+const modelStore = useModelConfigStore();
 
 const router = useRouter();
 
@@ -144,13 +148,28 @@ function onAgentSelect(key: string): void {
   emit('change-agent', key === AGENT_CLEAR_KEY ? null : key);
 }
 
-// ── 模型选择 dropdown options（最后一行"添加模型"）──
+// ── 模型选择 dropdown options（从 modelConfig store 聚合 hermes 后台模型列表）──
 const modelDropdownOptions = computed(() => {
-  return [
+  const opts: DropdownOption[] = [
+    // 当前模型（禁用，仅展示）
     { label: modelShort.value, key: props.model || '__current__', disabled: true },
-    { key: '__divider__', type: 'divider' as const },
-    { label: '添加模型…', key: '__add_model__' },
   ];
+  // 真实模型列表：后端 /api/models（config.yaml custom_providers）经 modelConfig store 聚合
+  const models = modelStore.allModels;
+  if (models.length > 0) {
+    opts.push({ key: '__divider__', type: 'divider' });
+    for (const { provider, model } of models) {
+      const value = model.id;
+      if (value === props.model) continue; // 当前已作为禁用项展示，避免重复可选
+      opts.push({
+        label: `${provider.name} / ${modelStore.displayName(model)}`,
+        key: value,
+      });
+    }
+  }
+  opts.push({ key: '__divider__', type: 'divider' });
+  opts.push({ label: '添加模型…', key: '__add_model__' });
+  return opts;
 });
 
 function onModeSelect(key: string): void {
@@ -164,10 +183,23 @@ function onSendModeSelect(key: string): void {
 function onModelSelect(key: string): void {
   if (key === '__add_model__') {
     router.push('/settings/model');
+  } else if (key === '__current__' || key === props.model) {
+    // 当前已选模型 / 禁用项：不动作
   } else {
+    // 选中 hermes 后台真实模型 → 经 ChatView.onChangeModel → chat.setModel 写入会话
     emit('change-model', key);
   }
 }
+
+/**
+ * 确保聊天框打开时模型列表已就绪：若 modelConfig store 尚未加载（用户可能没进过设置），
+ * 主动拉一次后端 /api/models。下拉只在有数据时列出可选项，否则仅显示「当前模型 + 添加模型…」。
+ */
+onMounted(() => {
+  if (modelStore.providers.length === 0) {
+    void modelStore.loadModelsAndUsage();
+  }
+});
 </script>
 
 <template>

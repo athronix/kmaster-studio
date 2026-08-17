@@ -31,6 +31,7 @@ vi.mock('../api/client', () => ({
     state.putCalls.push({ provider, apiKey });
     return { ok: true as const, provider, configured: apiKey !== '', masked: '****' };
   }),
+  putProviderMeta: vi.fn(async () => ({ ok: true as const })),
   getUsageStats: vi.fn(async () => ({
     group: 'model' as const,
     rows: state.usageRows,

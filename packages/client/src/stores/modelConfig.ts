@@ -13,7 +13,7 @@
  */
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { getModels, getProviders, putProvider, type ModelsResponse } from '../api/client';
+import { getModels, getProviders, putProvider, putProviderMeta, type ModelsResponse } from '../api/client';
 import { useChatStore } from './chat';
 import { INTERACTION, LS_KEYS, lsGet, lsSet, shortId } from '../constants/layout';
 import {
@@ -198,6 +198,16 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     providers.value = [...providers.value, provider];
     persist();
     void useChatStore().reloadModels();
+    // 写回后端（best-effort）：让该供应商进入 config.yaml custom_providers，
+    // 否则后端 getRealModels 读不到 → 连通性测试 / 聊天都拿不到它。
+    void putProviderMeta({
+      name: provider.providerKey,
+      base_url: provider.url || undefined,
+      api_mode: provider.apiMethod === 'anthropic-chat' ? 'anthropic_messages' : 'openai',
+      models: Object.fromEntries(
+        provider.models.map((m) => [m.name, { context_length: m.contextLength || undefined }]),
+      ),
+    }).catch(() => {});
     return provider;
   }
 

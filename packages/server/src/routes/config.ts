@@ -17,6 +17,8 @@ import Router from '@koa/router';
 import {
   listProviders,
   setProviderKey,
+  upsertCustomProvider,
+  invalidateHermesCaches,
   listProfiles,
   useProfile,
   getSettings,
@@ -55,21 +57,48 @@ configRouter.get('/api/config/providers', async (ctx) => {
  * `api_key` 传空串表示**清除**该 provider 的 Key。
  */
 configRouter.put('/api/config/providers', async (ctx) => {
-  const body = (ctx.request.body ?? {}) as { provider?: unknown; api_key?: unknown };
-  const provider = typeof body.provider === 'string' ? body.provider.trim() : '';
-  if (!provider) {
-    badRequest(ctx, 'provider required');
+  const body = (ctx.request.body ?? {}) as {
+    provider?: unknown;
+    api_key?: unknown;
+    name?: unknown;
+    base_url?: unknown;
+    api_mode?: unknown;
+    models?: unknown;
+  };
+  // 分支一：写/清某 provider 的 Key（既有契约）
+  if (typeof body.provider === 'string' && body.provider.trim()) {
+    const provider = body.provider.trim();
+    if (body.api_key !== undefined && typeof body.api_key !== 'string') {
+      badRequest(ctx, 'api_key must be a string');
+      return;
+    }
+    try {
+      ctx.body = await setProviderKey(provider, typeof body.api_key === 'string' ? body.api_key : '');
+    } catch (err) {
+      failWith(ctx, err);
+    }
     return;
   }
-  if (body.api_key !== undefined && typeof body.api_key !== 'string') {
-    badRequest(ctx, 'api_key must be a string');
+  // 分支二：前端「新增供应商」写回后端 config.yaml custom_providers（含 base_url/api_mode/models）
+  if (typeof body.name === 'string' && body.name.trim()) {
+    try {
+      await upsertCustomProvider({
+        name: body.name.trim(),
+        baseUrl: typeof body.base_url === 'string' ? body.base_url : undefined,
+        apiMode: typeof body.api_mode === 'string' ? body.api_mode : undefined,
+        models:
+          body.models && typeof body.models === 'object' && !Array.isArray(body.models)
+            ? (body.models as Record<string, unknown>)
+            : undefined,
+      });
+      invalidateHermesCaches();
+      ctx.body = { ok: true };
+    } catch (err) {
+      failWith(ctx, err);
+    }
     return;
   }
-  try {
-    ctx.body = await setProviderKey(provider, typeof body.api_key === 'string' ? body.api_key : '');
-  } catch (err) {
-    failWith(ctx, err);
-  }
+  badRequest(ctx, 'provider or name required');
 });
 
 // ───────────────────────── hermes Profile ─────────────────────────

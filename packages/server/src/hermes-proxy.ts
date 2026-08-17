@@ -17,6 +17,7 @@ import { db, getStoreInfo } from './db.js';
 import { getRealSkills } from './services/hermes/read/skills.js';
 import { getRealModels } from './services/hermes/read/models.js';
 import { requestBridgeRestart } from './services/hermes/env.js';
+import { safeWriteConfig } from './services/hermes/write/config-yaml.js';
 import type {
   ProviderGroup,
   Skill,
@@ -1274,6 +1275,100 @@ function readHermesEnvFile(): Record<string, string> {
   return out;
 }
 
+/**
+ * 向 `<activeHome>/.env` 写入/更新单个 `KEY=VALUE`（保留其余行，仅替换匹配行或追加）。
+ * 与 `readHermesEnvFile()` 解析格式一致：值不加引号。
+ * 用 `.env` 而非 hermes CLI 落地 Key —— 避免本机 hermes CLI 缺失时 `config set` 必然失败。
+ */
+function writeHermesEnvVar(key: string, value: string): void {
+  const file = path.join(resolveActiveHermesHome(), '.env');
+  let lines: string[] = [];
+  try {
+    if (fs.existsSync(file)) {
+      lines = fs.readFileSync(file, 'utf8').split(/\r?\n/);
+    }
+  } catch { /* 读取失败按空处理 */ }
+  const out: string[] = [];
+  let replaced = false;
+  for (const l of lines) {
+    const t = l.trim();
+    if (t === '' || t.startsWith('#')) { out.push(l); continue; }
+    const eq = t.indexOf('=');
+    if (eq <= 0) { out.push(l); continue; }
+    const k = t.slice(0, eq).trim().replace(/^export\s+/, '');
+    if (k === key) { out.push(`${key}=${value}`); replaced = true; continue; }
+    out.push(l);
+  }
+  if (!replaced) out.push(`${key}=${value}`);
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, out.join('\n'), 'utf8');
+  } catch { /* 写入失败不影响内存态校验（process.env 已设置） */ }
+}
+
+/** 从 `<activeHome>/.env` 删除单个 KEY（保留其余行）。 */
+function deleteHermesEnvVar(key: string): void {
+  const file = path.join(resolveActiveHermesHome(), '.env');
+  try {
+    if (!fs.existsSync(file)) return;
+    const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/);
+    const out = lines.filter((l) => {
+      const t = l.trim();
+      if (t === '' || t.startsWith('#')) return true;
+      const eq = t.indexOf('=');
+      if (eq <= 0) return true;
+      const k = t.slice(0, eq).trim().replace(/^export\s+/, '');
+      return k !== key;
+    });
+    fs.writeFileSync(file, out.join('\n'), 'utf8');
+  } catch { /* 忽略 */ }
+}
+
+/**
+ * 在 config.yaml `custom_providers[]` 中创建或合并一个供应商条目。
+ *
+ * 用途（修复连通性测试）：前端「新增供应商」后它只存在于 localStorage，后端 `getRealModels()`
+ * 读不到 → `setProviderKey` 旧逻辑直接 404。这里用 `safeWriteConfig` 把条目落进 config.yaml，
+ * 使后端可枚举、连通性测试可落到真实 provider。
+ *
+ * 🔒 Key 以 `${KEY_ENV}` 引用形式存储，真实值落在 `.env`（不在 config.yaml 落明文）。
+ *
+ * @param spec.name      供应商名（与 custom_providers[].name 对齐）
+ * @param spec.keyEnv   providerKeyEnv 推导出的 env 名；存在时 config.yaml 写 `api_key: ${keyEnv}`，真实值写 .env
+ * @param spec.value    Key 明文（空串表示清除）
+ * @param spec.baseUrl / apiMode / models  可选元数据（前端新增供应商时带过来）
+ */
+export async function upsertCustomProvider(spec: {
+  name: string;
+  keyEnv?: string;
+  value?: string;
+  baseUrl?: string;
+  apiMode?: string;
+  models?: Record<string, unknown>;
+}): Promise<void> {
+  await safeWriteConfig((current) => {
+    const cfg = current as Record<string, unknown>;
+    const providers = Array.isArray(cfg.custom_providers)
+      ? [...(cfg.custom_providers as Array<Record<string, unknown>>)]
+      : [];
+    let entry = providers.find((p) => p.name === spec.name);
+    if (!entry) {
+      entry = { name: spec.name };
+      providers.push(entry);
+    }
+    if (spec.keyEnv) {
+      entry.api_key_env = spec.keyEnv;
+      entry.api_key = spec.value ? `\${${spec.keyEnv}}` : (entry.api_key ?? '');
+    } else if (spec.value !== undefined) {
+      entry.api_key = spec.value;
+    }
+    if (spec.baseUrl) entry.base_url = spec.baseUrl;
+    if (spec.apiMode) entry.api_mode = spec.apiMode;
+    if (spec.models) entry.models = spec.models;
+    return { ...cfg, custom_providers: providers };
+  });
+}
+
 /** 当前 provider：config.yaml 显式声明 > 默认模型所属分组 > 首个已认证分组 > 首个分组。 */
 function detectCurrentProvider(groups: ProviderGroup[], defaultModel: string): string {
   const cfg = readConfig();
@@ -1336,15 +1431,30 @@ export async function setProviderKey(provider: string, apiKey: string): Promise<
 
   const groups = await getModels();
   const group = groups.find((g) => g.provider === slug);
-  if (!group) throw new ProxyError(404, 'not_found', `provider ${slug} not found`);
+  const keyEnv = providerKeyEnv(slug, group ? (group as unknown as { key_env?: unknown }).key_env : undefined);
+  const value = (apiKey ?? '').trim();
 
-  const keyEnv = providerKeyEnv(slug, (group as unknown as { key_env?: unknown }).key_env);
-  if (!keyEnv) {
-    throw new ProxyError(400, 'bad_request', `provider ${slug} does not take an API key`);
+  // 后端尚无该供应商（前端新增、未落 config.yaml）→ 先创建 custom_providers 条目，
+  // 使 getRealModels 能枚举到它（旧逻辑此处直接 404，导致连通性测试恒失败）。
+  if (!group) {
+    await upsertCustomProvider({ name: slug, keyEnv, value, models: {} });
   }
 
-  const value = (apiKey ?? '').trim();
-  await runHermesCli(['config', 'set', keyEnv, value]);
+  // 🔒 Key 落地：写入 <activeHome>/.env + 进程内 process.env。
+  // 不再依赖 `hermes config set` CLI —— 本机 hermes CLI 常不在 PATH，旧逻辑会抛 502 cli_failed。
+  if (keyEnv) {
+    if (value.length > 0) {
+      writeHermesEnvVar(keyEnv, value);
+      process.env[keyEnv] = value;
+    } else {
+      deleteHermesEnvVar(keyEnv);
+      delete process.env[keyEnv];
+    }
+  } else if (value.length > 0) {
+    // 无 key_env 的供应商（如本地推理）：以明文形式落到 custom_providers.api_key
+    await upsertCustomProvider({ name: slug, value });
+  }
+
   // Key 变更会影响 provider 认证态与可用模型列表 → 必须失效枚举缓存
   invalidateHermesCaches();
 
