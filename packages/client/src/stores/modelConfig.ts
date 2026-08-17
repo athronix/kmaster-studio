@@ -268,26 +268,42 @@ export const useModelConfigStore = defineStore('modelConfig', () => {
     return true;
   }
 
+  /**
+   * MD-02：把「默认模型」槽位桥接到聊天的全局默认模型。
+   * 模型管理里设的默认模型 → globalSettings.default_model → 服务端 → 新会话自动继承。
+   * best-effort：网络失败不影响本地设置（fire-and-forget）。
+   */
+  function syncDefaultToChat(): void {
+    const chat = useChatStore();
+    void chat
+      .setGlobalSettings(chat.globalSettings.default_mode, defaults.value.default)
+      .catch(() => {});
+  }
+
   /** 设置默认槽位；传空串表示清除。modelId 不存在时不生效并返回 false。 */
   function setDefault(slot: DefaultModelSlot, modelId: string): boolean {
     if (modelId !== '' && !getModel(modelId)) return false;
     defaults.value = { ...defaults.value, [slot]: modelId };
     persist();
     void useChatStore().reloadModels();
+    if (slot === 'default') syncDefaultToChat();
     return true;
   }
 
-  /** 清掉引用了已删除模型的槽位。 */
+  /** 清掉引用了已删除模型的槽位。若被清的是「默认模型」槽位，同步桥接到聊天全局默认。 */
   function pruneDefaults(removedIds: Set<string>): void {
     let changed = false;
+    let defaultChanged = false;
     const next: DefaultsMap = { ...defaults.value };
     for (const key of Object.keys(next) as DefaultModelSlot[]) {
       if (removedIds.has(next[key])) {
         next[key] = '';
         changed = true;
+        if (key === 'default') defaultChanged = true;
       }
     }
     if (changed) defaults.value = next;
+    if (defaultChanged) syncDefaultToChat();
   }
 
   // ═══════════════════════ 网络动作 ═══════════════════════

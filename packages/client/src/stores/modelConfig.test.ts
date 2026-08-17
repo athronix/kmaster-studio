@@ -7,7 +7,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { useModelConfigStore } from './modelConfig';
+import { useChatStore } from './chat';
 import { LS_KEYS } from '../constants/layout';
+import { putSettings } from '../api/client';
 import type { ProviderGroup, ProviderListResult, UsageStatRow } from '../types/chat';
 
 const state = vi.hoisted(() => ({
@@ -32,6 +34,10 @@ vi.mock('../api/client', () => ({
     return { ok: true as const, provider, configured: apiKey !== '', masked: '****' };
   }),
   putProviderMeta: vi.fn(async () => ({ ok: true as const })),
+  putSettings: vi.fn(async (body: { default_mode?: string; default_model?: string }) => ({
+    default_mode: body?.default_mode ?? 'default',
+    default_model: body?.default_model ?? '',
+  })),
   getUsageStats: vi.fn(async () => ({
     group: 'model' as const,
     rows: state.usageRows,
@@ -251,6 +257,17 @@ describe('stores/modelConfig', () => {
     expect(s.removeProvider(p2.id)).toBe(true);
     expect(s.defaults.fallback).toBe('');
     expect(s.removeProvider(p2.id)).toBe(false);
+  });
+
+  it('MD-02: setDefault("default") 桥接到聊天全局默认模型', () => {
+    const s = useModelConfigStore();
+    const p = s.addProvider({ providerKey: 'custom', models: [] });
+    const m = s.addModel(p.id, { name: 'm1', capabilities: ['text'] })!;
+    s.setDefault('default', m.id);
+    // 桥接是 fire-and-forget，但 putSettings 的调用本身在 setGlobalSettings 内同步发起
+    expect(putSettings).toHaveBeenCalledWith(expect.objectContaining({ default_model: m.id }));
+    s.setDefault('default', '');
+    expect(putSettings).toHaveBeenLastCalledWith(expect.objectContaining({ default_model: '' }));
   });
 
   it('fetchModels 合并后端模型且不重复', async () => {
