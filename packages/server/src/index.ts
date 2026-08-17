@@ -27,7 +27,7 @@ import { agentsRouter } from './routes/agents.js';
 import { fsRouter } from './routes/fs.js';
 // T07：SkillHub 代理
 import { skillhubRouter } from './routes/skillhub.js';
-import { registerChatRun } from './run-chat.js';
+import { registerChatRun, probeBridge } from './run-chat.js';
 // M5/F20：内置终端 —— 复用同一 socket.io 实例开 `/terminal` 命名空间（🚫 不引入 ws）
 import { registerTerminal } from './terminal-ns.js';
 import { terminalManager } from './services/terminal.js';
@@ -83,6 +83,18 @@ registerChatRun(io);
 registerTerminal(io);
 
 await db(); // 预热持久层
+
+// K-RESP：启动期 fire-and-forget 探活 bridge；真实模式下若 Python bridge 没起来，
+// 提前在日志打醒目告警，避免用户发消息才看到「无响应」（run.failed 此前被前端静默吞掉）。
+void probeBridge().then((r) => {
+  if (!r.ok) {
+    console.warn(
+      `[kmaster-server] ⚠️ Bridge 探活失败（当前为真实模式）：${r.detail ?? '未知原因'}\n` +
+      `  → 发消息将收到 run.failed（前端现已可见）；请先启动 Python bridge，\n` +
+      `    或临时设 HERMES_BRIDGE_MOCK=1 用内置模拟跑通界面。`,
+    );
+  }
+}).catch(() => { /* 探活本身不应阻塞启动 */ });
 
 // U-30：启动孤儿 worker 巡检（每 30s 检查，退出时兜底清理）
 startGuard();

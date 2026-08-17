@@ -59,6 +59,14 @@ export function restartBridge(): void {
 }
 
 /**
+ * K-RESP：启动期 fire-and-forget 探活，把「bridge 没起来」提前暴露到日志，
+ * 避免用户只在发消息看到 run.failed 才后知后觉（表现为「对话框无响应」）。
+ */
+export function probeBridge(): Promise<{ ok: boolean; detail?: string }> {
+  return bridge.probe();
+}
+
+/**
  * M5/F21：经 `/chat-run` 广播全局设置变更（§0.2.1 ③）。
  * 命名空间尚未注册时静默跳过（server 启动早期不应因此崩）。
  */
@@ -131,6 +139,29 @@ function peekContextTokens(sessionId: string): ContextTokensPayload | undefined 
  *
  * 仅当首段是 `getRealModels()` 已知 provider 才信任拆分（容错脏值本身含 `:` 的裸模型名）。
  */
+/**
+ * K-RESP：把 run 失败的原始错误转成中文可操作的提示。
+ * 针对「默认 RealBridge 但 Python bridge 未启动」这一最高频的「无响应」真因：
+ * 原始 `Error: connect ECONNREFUSED 127.0.0.1:16765` 对用户毫无意义，必须翻译成
+ * 「去哪看 / 怎么修」。其余错误（provider 解析、api_key、401 等）保留原文并补一句归类。
+ */
+function friendlyRunError(err: unknown): string {
+  const s = err instanceof Error ? (err.message || err.stack || String(err)) : String(err);
+  if (/ECONNREFUSED|ETIMEDOUT|ENOTFOUND|connection (refused|closed)/i.test(s)) {
+    const ep = process.env.HERMES_AGENT_BRIDGE_ENDPOINT ?? 'tcp://127.0.0.1:16765';
+    return (
+      `无法连接模型服务（hermes bridge ${ep} 无响应）。\n` +
+      `这通常意味着：① 尚未启动 Python bridge（hermes-agent 的 run_agent）；` +
+      `或 ② 当前为真实模式（HERMES_BRIDGE_MOCK 未设 / =0）但 bridge 进程没跑起来。\n` +
+      `修复：先启动 Python bridge；或临时设 HERMES_BRIDGE_MOCK=1 用内置模拟跑通界面（注意那是假数据）。`
+    );
+  }
+  if (/resolve_runtime_provider|api_key|401|403|Authentication|Unauthorized/i.test(s)) {
+    return `模型凭据 / provider 解析失败：${s}`;
+  }
+  return s;
+}
+
 function splitAgentModel(model: string): { provider?: string; model: string } {
   if (!model || model.indexOf(':') < 0) return { model };
   const sep = model.indexOf(':');
@@ -284,7 +315,7 @@ export async function executeRun(ns: Namespace, req: StartRunRequest): Promise<s
       ns.emit('session.title.updated', { session_id, title: title.slice(0, 40) });
     }
   } catch (err) {
-    ns.emit('run.failed', { session_id, error: String(err) });
+    ns.emit('run.failed', { session_id, error: friendlyRunError(err) });
   } finally {
     activeRuns.delete(session_id);
     estimateCache.delete(session_id); // 历史已变化，下次按需重算

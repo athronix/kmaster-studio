@@ -10,7 +10,7 @@
  */
 import { computed, onMounted, onUnmounted, ref, watch, shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
-import { NAlert, NButton, NPopover } from 'naive-ui';
+import { NAlert, NButton, NPopover, useMessage } from 'naive-ui';
 import { useChatStore } from '../stores/chat';
 import { useLayoutStore } from '../stores/layout';
 import { CHAT_MODES, type HermesMode } from '../types/chat';
@@ -416,6 +416,24 @@ watch(
   (count) => {
     if (count > 0 && chatRightPanelMode.value === 'hidden') {
       chatRightPanelMode.value = 'artifacts';
+    }
+  },
+);
+
+// ── K-RESP：run 失败不再静默——弹 toast 提示（消息流里同时有错误气泡）──
+const uiMessage = useMessage();
+const lastToastedRunError = ref('');
+watch(
+  () => (store.activeSessionId ? store.runErrorBySession[store.activeSessionId] : undefined),
+  (err) => {
+    if (!err) {
+      lastToastedRunError.value = '';
+      return;
+    }
+    // 同一错误只提示一次，避免连续发送都失败时刷屏（错误气泡已在消息流里逐条显示）
+    if (err !== lastToastedRunError.value) {
+      lastToastedRunError.value = err;
+      uiMessage.warning('对话运行失败：' + err.split('\n')[0], { duration: 6000 });
     }
   },
 );

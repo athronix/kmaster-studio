@@ -56,6 +56,13 @@ export const useChatStore = defineStore('chat', () => {
   const artifactsBySession = ref<Record<string, any[]>>({});
   const usageBySession = ref<Record<string, Usage>>({});
   const socketReady = ref(false);
+  /**
+   * K-RESP：每会话最近一次 run 失败原因（来自 WS `run.failed` 的 `error`）。
+   * 此前 `run.failed` 被静默吞掉（仅 reset runState），用户只看到「正在输入…」戛然而止，
+   * 表现为「对话框无响应」。现在把错误留存于此，供组件 watch 弹 toast / 角标；
+   * 同时在 dispatch 里补一条助手错误气泡，让失败在消息流里也可见、可定位。
+   */
+  const runErrorBySession = ref<Record<string, string>>({});
 
   // —— M3 管理面状态 ——
   const globalSettings = ref<Settings>({ default_mode: 'default', default_model: '' });
@@ -494,6 +501,8 @@ export const useChatStore = defineStore('chat', () => {
     switch (ev) {
       case 'run.started':
         runState.value[sid] = 'running';
+        // K-RESP：新一轮开始，清除上一轮的失败标记（避免旧错误角标滞留）。
+        delete runErrorBySession.value[sid];
         // F4/R2：/chat-run 是全命名空间广播，另一端（desktop / web）发起的 run
         // 本端同样会收到。非本端发起 → 标记「镜像中」，仅加一条只读提示条，
         // 消息流照常聚合（不改任何既有 reducer 行为）。
@@ -574,16 +583,35 @@ export const useChatStore = defineStore('chat', () => {
         applyContextTokens(sid, p?.context_tokens);
         break;
       case 'run.completed':
-      case 'run.failed':
         runState.value[sid] = 'idle';
         // 终态到达：结算本端计数并撤下镜像提示（abort 不结算——服务端 abort 之后
         // 仍会补发 run.completed / run.failed，在那里统一结算，避免重复递减）
         settleLocalRun(sid);
         delete mirroredBySession.value[sid];
         // CH-A：run.completed 恒携带（服务端强制重算，除非估算本身失败）；
-        // run.failed 一般不带，共用同一守卫，缺失即不写。
         applyContextTokens(sid, p?.context_tokens);
         break;
+      case 'run.failed': {
+        runState.value[sid] = 'idle';
+        // 终态到达：结算本端计数并撤下镜像提示
+        settleLocalRun(sid);
+        delete mirroredBySession.value[sid];
+        applyContextTokens(sid, p?.context_tokens);
+        // K-RESP：关键修复——此前 `run.failed` 被静默吞掉，用户只看到「正在输入…」戛然而止，
+        // 表现就是「对话框无响应」。现在：① 在会话里补一条助手错误气泡，让失败可见可定位；
+        // ② 留存到 runErrorBySession 供组件弹 toast / 角标。
+        const errMsg =
+          typeof p?.error === 'string' && p.error.trim() ? p.error : '未知错误（run 异常终止）';
+        const errMid =
+          typeof p?.message_id === 'string' && p.message_id
+            ? p.message_id
+            : `run-failed-${sid}-${Date.now()}`;
+        const errObj = findOrCreateAssistant(sid, errMid);
+        errObj.content = `⚠️ 本次运行失败：${errMsg}`;
+        errObj.status = 'error';
+        runErrorBySession.value = { ...runErrorBySession.value, [sid]: errMsg };
+        break;
+      }
       case 'abort.started':
         runState.value[sid] = 'aborting';
         break;
@@ -1057,6 +1085,8 @@ export const useChatStore = defineStore('chat', () => {
   return {
     sessions, messagesBySession, runState, activeSessionId,
     pendingApprovals, pendingClarifies, pendingPlans, artifactsBySession, usageBySession, socketReady,
+    // K-RESP：run 失败原因（供组件弹 toast / 角标，治愈「无响应」静默黑洞）
+    runErrorBySession,
     globalSettings, modeBySession, modelBySession, models, skills, mcpServers, uploads,
     // M4 状态
     subagentsBySession, compressionBySession, queueBySession, contextBySession, delegationsBySession,

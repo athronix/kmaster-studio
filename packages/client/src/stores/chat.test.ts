@@ -47,6 +47,31 @@ describe('chat store reducer — 消息流聚合', () => {
     expect(s.runState[SID]).toBe('idle');
   });
 
+  it('run.failed 不再静默吞掉：补一条助手错误气泡并写入 runErrorBySession（治愈「无响应」黑洞）', () => {
+    const s = useChatStore();
+    s.ensure(SID);
+    s.dispatch('run.started', { run_id: 'r1', session_id: SID });
+    expect(s.runState[SID]).toBe('running');
+    s.dispatch('run.failed', { session_id: SID, error: 'connect ECONNREFUSED 127.0.0.1:16765' });
+    expect(s.runState[SID]).toBe('idle');
+    // 关键：必须有一条错误气泡，否则用户只看到「正在输入…」戛然而止 = 表现为无响应
+    const errBubble = s.messagesBySession[SID].find((m) => m.role === 'assistant' && m.status === 'error');
+    expect(errBubble).toBeTruthy();
+    expect(errBubble!.content).toContain('运行失败');
+    expect(errBubble!.content).toContain('ECONNREFUSED');
+    // 同时留存给组件弹 toast / 角标
+    expect(s.runErrorBySession[SID]).toContain('ECONNREFUSED');
+  });
+
+  it('新一轮 run.started 清除上一轮的 runErrorBySession 标记', () => {
+    const s = useChatStore();
+    s.ensure(SID);
+    s.dispatch('run.failed', { session_id: SID, error: 'boom' });
+    expect(s.runErrorBySession[SID]).toBeTruthy();
+    s.dispatch('run.started', { run_id: 'r2', session_id: SID });
+    expect(s.runErrorBySession[SID]).toBeUndefined();
+  });
+
   it('message.delta 多次累加进同一条 assistant 消息', () => {
     const s = useChatStore();
     s.dispatch('run.started', { run_id: 'r1', session_id: SID });

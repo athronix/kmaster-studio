@@ -42,6 +42,12 @@ export interface Bridge {
   /** T04：销毁 Python 侧 session 与 worker 资源。 */
   destroy(sessionId: string): Promise<void>;
   /**
+   * K-RESP：探活。Real 模式下尝试连接一次 bridge 端点，返回是否可达及失败原因；
+   * Mock 模式恒 ok。供启动期 fire-and-forget 探测，把「bridge 没起来」提前暴露到日志，
+   * 避免用户只在发消息看到 run.failed 才后知后觉（表现为「对话框无响应」）。
+   */
+  probe(): Promise<{ ok: boolean; detail?: string }>;
+  /**
    * F18：上下文占用估算。
    * Mock = 字符/4（与真实 hermes `_chars_to_tokens` 同源）；
    * Real = 发 `{action:'context.estimate'}`，2s 超时回退本地估算。
@@ -295,6 +301,11 @@ class MockBridge implements Bridge {
   async destroy(): Promise<void> { await sleep(10); }
   async getSessionTitle(_sessionId: string): Promise<string> { return '新会话'; }
 
+  async probe(): Promise<{ ok: boolean; detail?: string }> {
+    // Mock 模式无外部依赖，恒可达
+    return { ok: true };
+  }
+
   async contextEstimate(_sessionId: string, opts: ContextEstimateOptions): Promise<ContextEstimate> {
     return estimateContext(opts);
   }
@@ -460,6 +471,18 @@ class RealBridge implements Bridge {
    */
   private send(sessionId: string, obj: unknown): void {
     this.socks.get(sessionId)?.write(JSON.stringify(obj) + '\n');
+  }
+
+  async probe(): Promise<{ ok: boolean; detail?: string }> {
+    const ep = process.env.HERMES_AGENT_BRIDGE_ENDPOINT ?? 'tcp://127.0.0.1:16765';
+    try {
+      const sock = await this.connect();
+      try { sock.destroy(); } catch { /* ignore */ }
+      return { ok: true };
+    } catch (e) {
+      const detail = e instanceof Error ? e.message : String(e);
+      return { ok: false, detail: `${ep} 不可达：${detail}` };
+    }
   }
 }
 
