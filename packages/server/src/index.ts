@@ -1,4 +1,7 @@
 // kmaster-server 入口：Koa BFF + Socket.IO(/chat-run) + 静态托管
+// ⚠️ 必须最先加载 .env：run-chat.ts 在模块级即执行 createBridge() 读取 HERMES_BRIDGE_MOCK，
+// 故 dotenv 注入必须早于其后所有 import 的模块求值。
+import './dotenv-init.js';
 import Koa from 'koa';
 import cors from '@koa/cors';
 import bodyParser from '@koa/bodyparser';

@@ -19,6 +19,7 @@
     "dist:mac": "npm -w packages/desktop run dist:mac",
     "dist:linux": "npm -w packages/desktop run dist:linux",
     "start": "npm -w packages/server run start",
+    "bridge:dev": "node scripts/bridge-dev.mjs",
     "test": "npm -w packages/client run test && npm -w packages/server run test",
     "test:client": "npm -w packages/client run test",
     "test:server": "npm -w packages/server run test",
